@@ -1,0 +1,119 @@
+#ifndef SOBJ_H
+#define SOBJ_H
+
+#include "score.h"
+#include "stype.h"
+#include "sstr.h"
+#include "sfunc.h"
+#include "scall.h"
+#include "score.h"
+#include "smeta.h"
+#include "suserdata.h"
+
+struct Sgarbarge_obj;
+struct Garbage_pool;
+struct Smeta;
+
+#define NULL_CODE_PTR Scode_new()
+
+#define GC_HEAD struct Sgarbarge_obj* gc
+
+#define MAX_FRAME_SIZE 1024
+
+typedef unsigned char byte_t;
+typedef int address_t;
+
+#define null_obj Sobj_new()
+#define Svalue(x) Sobj_set_int(x)
+
+#define ValueOf(obj) ((obj)->value->value)
+#define Addressof(obj) ((obj)->address)
+#define Sizeof(obj) ((obj)->size)
+#define Typeof(obj) ((obj)->type)
+
+enum Sobj_t {
+    NUMBER_OBJ,
+    GLOBAL_OBJ,
+    BUILTIN_OBJ,
+    LOCAL_OBJ,
+    STRING_OBJ,
+    MAP_OBJ,
+    CHAR_OBJ,
+    LIST_OBJ,
+    USER_DATA_OBJ,
+    CLASS_OBJ,
+    INSTANCE_OBJ,
+    CLOSURE_OBJ,
+    TRUE_OBJ,
+    FALSE_OBJ,
+    FUNC_OBJ,
+    NULL_OBJ,
+    NONE,
+};
+
+struct Svalue {
+    float value;
+};
+
+struct Sobj {
+    GC_HEAD;
+
+    enum Sobj_t type;
+    struct Svalue* value;
+    
+    int address;
+    int size;
+
+    int is_free;
+
+    char* dname; // data name
+    char* ddoc; // data document
+
+    struct Sobj *next;
+    struct Sobj *prev;
+
+    struct Sobj *f_value; // variable value
+    
+    struct Stype *f_type; // real value
+
+    struct Sc_api_func* c_api_func;
+
+    int global_address; // for global variable
+    int local_address; // for local variable
+
+    int is_variable; // if this object is a variable
+
+    int is_global; // if this object is a global variable
+    int is_local; // if this object is a local variable
+    int is_closure; // if this object is a closure
+    int is_return; // if this object is return in a function
+
+    struct Smeta* meta; // metatable
+};
+
+struct Svalue* 
+Svalue_new(void);
+
+struct Sobj* 
+Sobj_new(void);
+
+int 
+Sobj_free
+(struct Sobj* obj);
+
+int
+Sobj_free_objs
+(struct Sobj** objs, int size);
+
+void*
+Sobj_get_obj
+(struct Sobj* obj, enum Sobj_t type);
+
+struct Sobj*
+Sobj_make_null(void);
+
+struct Sobj*
+Sobj_set_int
+(float value);
+
+#endif // SOBJ_H

@@ -1,0 +1,308 @@
+#include "sbuiltin.h"
+#include "smem.h"
+
+struct Sc_api_func* 
+Sc_api_func_set
+(void* func, char* name, int address, int args_size) {
+    struct Sc_api_func* api_func = Smem_Malloc(sizeof(struct Sc_api_func));
+    api_func->func = func;
+    api_func->name = name;
+    api_func->address = address;
+    api_func->args_size = args_size;
+    return api_func;
+}
+
+SUNY_API struct Sobj* Sisdigit_builtin(struct Sframe *frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    char* str = obj->f_type->f_str->string;
+
+    if (Sisstrdigit(str)) {
+        struct Sobj *result = Svalue(1);
+        return result;
+    } else {
+        struct Sobj *result = Svalue(0);
+        return result;
+    }
+
+    return NULL;
+}
+
+SUNY_API struct Sobj* Snumber(struct Sframe* frame) {
+    struct Sobj *string = Sframe_pop(frame);
+
+    float value = Satof(string->f_type->f_str->string);
+
+    struct Sobj *obj = Svalue(value);
+
+    SUNYDECREF(string, frame->gc_pool);
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Sputs(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    Sio_write(obj);
+
+    SUNYDECREF(obj, frame->gc_pool);
+
+    return null_obj;
+}
+
+SUNY_API struct Sobj* Sprintf(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    if (obj->type == CLASS_OBJ) {
+        if (obj->meta->meta_f_tostring) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 1);
+            args[0] = obj;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj->meta->meta_f_tostring, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            struct Sobj* value = context->ret_obj;
+
+            Sio_write(value);
+
+            Smem_Free(args);
+
+            return null_obj;
+        }
+    }
+
+    Sio_write(obj);
+
+    printf("\n");
+
+    SUNYDECREF(obj, frame->gc_pool);
+
+    return null_obj;
+}
+
+SUNY_API struct Sobj* Sread(struct Sframe* frame) {
+    char buffer[1024];
+
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        struct Sobj *empty = Sobj_make_str("", 0);
+        return empty;
+    }
+
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+        len--;
+    }
+
+    struct Sobj *result = Sobj_make_str(buffer, len);
+
+    return result;
+}
+
+
+SUNY_API struct Sobj* Sexit(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    if (obj->value->value != 0) {
+        SUNY_EXIT;
+    }
+
+    return null_obj;
+}
+
+SUNY_API struct Sobj* Sload_dll(struct Sframe *frame) {
+    struct Sobj *func = Sframe_pop(frame);
+    struct Sobj *dll = Sframe_pop(frame);
+    struct Sobj *args = Sframe_pop(frame);
+
+    char* dll_name = dll->f_type->f_str->string;
+    char* func_name = func->f_type->f_str->string;
+
+    Sdll_func dll_func = dll_get_func(func_name, dll_name);
+
+    builtin_func f = (builtin_func) dll_func;
+
+    for (int i = 0; i < args->f_type->f_list->count; i++) {
+        struct Sobj *arg = Slist_get(args->f_type->f_list, i);
+        Sframe_push(frame, arg);
+    }
+
+    struct Sobj *result = f(frame);
+
+    SUNYDECREF(func, frame->gc_pool);
+    SUNYDECREF(dll, frame->gc_pool);
+
+    return result;
+}
+
+SUNY_API struct Sobj* Ssize(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    if (obj->type == LIST_OBJ) {
+        return Svalue(obj->f_type->f_list->count);
+    } else if (obj->type == STRING_OBJ) {
+        return Svalue(obj->f_type->f_str->size);
+    }
+
+    return Svalue(0);
+}
+
+SUNY_API struct Sobj* Spush(struct Sframe* frame) {
+    struct Sobj *value = Sframe_pop(frame);
+    struct Sobj *list = Sframe_pop(frame);
+
+    Slist_add(list->f_type->f_list, value);
+
+    SUNYINCREF(value);
+    SUNYDECREF(list, frame->gc_pool);
+
+    return list;
+}
+
+SUNY_API struct Sobj* Spop(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    struct Slist* list = obj->f_type->f_list;
+
+    struct Sobj* last = list->array[list->count - 1];
+    list->count -= 1;
+
+    _SUNYDECREF(last);
+    SUNYDECREF(last, frame->gc_pool);
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Srange(struct Sframe *frame) {
+    struct Sobj *end = Sframe_pop(frame);
+    struct Sobj *start = Sframe_pop(frame);
+
+    int start_value = start->value->value;
+    int end_value = end->value->value;
+
+    struct Slist *list = Slist_range(start_value, end_value);
+    struct Sobj *obj = Sobj_make_list(list);
+
+    SUNYDECREF(start, frame->gc_pool);
+    SUNYDECREF(end, frame->gc_pool);
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Sint(struct Sframe *frame) {
+    struct Sobj *value = Sframe_pop(frame);
+    int value_int = value->value->value;
+    struct Sobj *obj = Svalue(value_int);
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Stostring(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    char* str = Sio_sprintf(obj);
+
+    struct Sobj *result = Sobj_make_str(str, strlen(str));
+
+    return result;
+}
+
+SUNY_API struct Sobj* Scast(struct Sframe* frame) {
+    struct Sobj *type = Sframe_pop(frame);
+    struct Sobj *obj = Sframe_pop(frame);
+
+    char* type_str = type->f_type->f_str->string;
+
+    if (strcmp(type_str, "float") == 0) {
+        return Svalue(obj->value->value);
+    } else if (strcmp(type_str, "string") == 0) {
+        char* str = Sio_sprintf(obj);
+        struct Sobj *result = Sobj_make_str(str, strlen(str));
+        return result;
+    } else if (strcmp(type_str, "bool") == 0) {
+        return Sobj_make_bool(obj->value->value);
+    } else if (strcmp(type_str, "int") == 0) {
+        int value = obj->value->value;
+        struct Sobj *result = Svalue(value);
+        return result;
+    } else if (strcmp(type_str, "list") == 0) {
+        if (obj->type == LIST_OBJ) {
+            return obj;
+        } else if (obj->type == STRING_OBJ) {
+            char* str = obj->f_type->f_str->string;
+            struct Slist *list = Slist_from_string_chars(str);
+            struct Sobj *result = Sobj_make_list(list);
+            return result;
+        }
+    } else if (strcmp(type_str, "null") == 0) {
+        return Sobj_make_null();
+    }
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Slist_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    
+    if (obj->type == STRING_OBJ) {
+        char* str = obj->f_type->f_str->string;
+        struct Slist *list = Slist_from_string_chars(str);
+        struct Sobj *result = Sobj_make_list(list);
+        return result;
+    }
+
+    return obj;
+}
+
+SUNY_API struct Sobj* Sstring_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    
+    char* str = Sio_sprintf(obj);
+    struct Sobj *result = Sobj_make_str(str, strlen(str));
+    return result;
+}
+
+SUNY_API struct Sobj* Sint_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    
+    int value = obj->value->value;
+    return Svalue(value);;
+}
+
+SUNY_API struct Sobj* Sfloat_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    return Svalue(obj->value->value);
+}
+
+SUNY_API struct Sobj* Sbool_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+
+    return Sobj_make_bool(obj->value->value);
+}
+
+SUNY_API struct Sobj* Stype(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    
+    if (obj->type == STRING_OBJ) {
+        return Sobj_make_str("string", 6);
+    } else if (obj->type == NUMBER_OBJ) {
+        return Sobj_make_str("float", 5);
+    } else if (obj->type == TRUE_OBJ || obj->type == FALSE_OBJ) {
+        return Sobj_make_str("bool", 4);
+    } else if (obj->type == LIST_OBJ) {
+        return Sobj_make_str("list", 4);
+    } else if (obj->type == NULL_OBJ) {
+        return Sobj_make_str("null", 4);
+    } else if (obj->type == CLASS_OBJ) {
+        return Sobj_make_str("class", 5);
+    } else if (obj->type == FUNC_OBJ) {
+        return Sobj_make_str("function", 8);
+    } else if (obj->type == USER_DATA_OBJ) {
+        return Sobj_make_str("userdata", 8);
+    } else {
+        return Sobj_make_str("unknown", 7);
+    }
+}

@@ -1,0 +1,371 @@
+#include "scode.h"
+#include "smem.h"
+
+const char* print_op(unsigned char c) {
+    switch (c) {
+        case PUSH_FLOAT: return "PUSH_FLOAT";
+        case BINARY_ADD: return "BINARY_ADD";
+        case BINARY_SUB: return "BINARY_SUB";
+        case LOAD_CLOSURE: return "LOAD_CLOSURE";
+        case STORE_CLOSURE: return "STORE_CLOSURE";
+        case MAKE_CLOSURE: return "MAKE_CLOSURE";
+        case END_CLOSURE: return "END_CLOSURE";        
+        case BINARY_MUL: return "BINARY_MUL";
+        case BINARY_DIV: return "BINARY_DIV";
+        case PRINT: return "PRINT";
+        case POP_TOP: return "POP_TOP";
+        case LOAD_GLOBAL: return "LOAD_GLOBAL";
+        case STORE_GLOBAL: return "STORE_GLOBAL";
+        case PROGRAM_START: return "PROGRAM_START";
+        case PROGRAM_END: return "PROGRAM_END";
+        case BINARY_BIGGER: return "BINARY_BIGGER";
+        case BINARY_SMALLER: return "BINARY_SMALLER";
+        case BINARY_EQUAL: return "BINARY_EQUAL";
+        case BINARY_BIGGER_EQUAL: return "BINARY_BIGGER_EQUAL";
+        case BINARY_SMALLER_EQUAL: return "BINARY_SMALLER_EQUAL";
+        case BINARY_NOT_EQUAL: return "BINARY_NOT_EQUAL";
+        case MAKE_FUNCTION: return "MAKE_FUNCTION";
+        case END_FUNCTION: return "END_FUNCTION";
+        case FUNCTION_CALL: return "FUNCTION_CALL";
+        case RETURN_TOP: return "RETURN_TOP";
+        case PUSH_STRING: return "PUSH_STRING";
+        case PUSH_TRUE: return "PUSH_TRUE";
+        case PUSH_FALSE: return "PUSH_FALSE";
+        case POP_JUMP_IF_TRUE: return "POP_JUMP_IF_TRUE";
+        case POP_JUMP_IF_FALSE: return "POP_JUMP_IF_FALSE";
+        case JUMP_TO: return "JUMP_TO";
+        case ADD_LABEL: return "ADD_LABEL";
+        case JUMP_FORWARD: return "JUMP_FORWARD";
+        case JUMP_BACKWARD: return "JUMP_BACKWARD";
+        case SKIP_TO_INDEX: return "SKIP_TO_INDEX";
+        case EXIT_PROGRAM: return "EXIT_PROGRAM";
+        case STOP_PROGRAM: return "STOP_PROGRAM";
+        case LOAD_ITEM: return "LOAD_ITEM";
+        case STORE_ITEM: return "STORE_ITEM";
+        case BUILD_LIST: return "BUILD_LIST";
+        case LEN_OF: return "LEN_OF";
+        case LOAD_TRUE: return "LOAD_TRUE";
+        case LOAD_FALSE: return "LOAD_FALSE";
+        case CLASS_BEGIN: return "CLASS_BEGIN";
+        case CLASS_END: return "CLASS_END";
+        case AND_LOG: return "AND_LOG";
+        case OR_LOG: return "OR_LOG"; 
+        case NOT_LOG: return "NOT_LOG";
+        case SKIP: return "SKIP";
+        case LOAD_ATTR: return "LOAD_ATTR";
+        case STORE_ATTR: return "STORE_ATTR";
+        case LOAD_METHOD: return "LOAD_METHOD";
+    }
+
+    return "UNKNOWN";
+}
+
+struct Scode *
+Scode_new(void) {
+    struct Scode *code = Smem_Malloc(sizeof(struct Scode));
+
+    code->size = 0;
+    code->capacity = MAX_CODE_SIZE;
+
+    return code;
+}
+
+struct Scode*
+Scode_encryption_address(int address) {
+    struct Scode *code = Scode_new();
+    
+    byte_t u1 = address & 0xFF;
+    byte_t u2 = (address >> 8) & 0xFF;
+    byte_t u3 = (address >> 16) & 0xFF;
+    byte_t u4 = (address >> 24) & 0xFF;
+
+    PUSH(code, u1);
+    PUSH(code, u2);
+    PUSH(code, u3);
+    PUSH(code, u4);
+
+    return code;
+}
+
+int
+Scode_free
+(struct Scode *code) {
+    Smem_Free(code);
+    return 0;
+}
+
+int 
+Scode_add
+(struct Scode *code, unsigned char c) {
+    code->code[code->size++] = c;
+    return 0;
+}
+
+int
+Scode_push
+(struct Scode *scode, struct Scode *code) {
+    for (int i = 0; i < code->size; i++) {
+        Scode_add(scode, code->code[i]);
+    }
+
+    return 0;
+}   
+
+struct Scode *
+Scode_insert_to_top(struct Scode *code, struct Scode *insert) {
+    struct Scode *new_code = Scode_new();
+
+    for (int i = 0; i < insert->size; i++) {
+        Scode_add(new_code, insert->code[i]);
+    }
+
+    for (int i = 0; i < code->size; i++) {
+        Scode_add(new_code, code->code[i]);
+    }
+
+    return new_code;
+}
+
+int Scode_print(struct Scode *code) {
+
+    for (int i = 0; i < code->size; i++) {
+        unsigned char c = code->code[i];
+
+        printf("[%03d] 0x%02X  ", i, c);
+
+        switch (c) {
+            case PUSH_FLOAT: {
+                float f;
+                memcpy(&f, &code->code[i + 1], 4);
+                printf("PUSH_FLOAT  %f\n", f);
+                i += 4;
+                break;
+            }
+
+            case PUSH_STRING: {
+                int size = code->code[++i];
+                printf("PUSH_STRING (len=%d) \"", size);
+                for (int j = 0; j < size; j++)
+                    printf("%c", code->code[i + 1 + j]);
+                printf("\"\n");
+                i += size;
+                break;
+            }
+
+            case LOAD_CLOSURE:
+                printf("LOAD_CLOSURE %d\n", code->code[i + 1]);
+                i++;
+                break;
+            
+            case STORE_CLOSURE:
+                printf("STORE_CLOSURE %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case LOAD_GLOBAL:
+                printf("LOAD_GLOBAL  %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case STORE_GLOBAL:
+                printf("STORE_GLOBAL %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case LOAD_ATTR:
+                printf("LOAD_ATTR    %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case STORE_ATTR:
+                printf("STORE_ATTR   %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case ADD_LABEL:
+                printf("ADD_LABEL    %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case JUMP_TO:
+                printf("JUMP_TO      %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case POP_JUMP_IF_TRUE:
+                printf("POP_JUMP_IF_TRUE  %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case POP_JUMP_IF_FALSE:
+                printf("POP_JUMP_IF_FALSE %d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case BUILD_LIST:
+                printf("BUILD_LIST   count=%d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case MAKE_FUNCTION:
+                printf("MAKE_FUNCTION size=%d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case MAKE_CLOSURE:
+                printf("MAKE_CLOSURE size=%d\n", code->code[i + 1]);
+                i++;
+                break;
+
+            case CLASS_BEGIN:        printf("CLASS_BEGIN\n"); break;
+            case CLASS_END:          printf("CLASS_END\n"); break;
+            case FUNCTION_CALL:      printf("FUNCTION_CALL\n"); break;
+            case END_CLOSURE:        printf("END_CLOSURE\n"); break;
+            case END_FUNCTION:       printf("END_FUNCTION\n"); break;
+            case PRINT:              printf("PRINT\n"); break;
+            case RETURN_TOP:         printf("RETURN_TOP\n"); break;
+            case POP_TOP:            printf("POP_TOP\n"); break;
+            case BINARY_ADD:         printf("BINARY_ADD\n"); break;
+            case BINARY_SUB:         printf("BINARY_SUB\n"); break;
+            case BINARY_MUL:         printf("BINARY_MUL\n"); break;
+            case BINARY_DIV:         printf("BINARY_DIV\n"); break;
+            case BINARY_EQUAL:       printf("BINARY_EQUAL\n"); break;
+            case BINARY_NOT_EQUAL:   printf("BINARY_NOT_EQUAL\n"); break;
+            case LOAD_NULL:          printf("LOAD_NULL\n"); break;
+            case LOAD_TRUE:          printf("LOAD_TRUE\n"); break;
+            case LOAD_FALSE:         printf("LOAD_FALSE\n"); break;
+            case BINARY_BIGGER:      printf("BINARY_BIGGER\n"); break;
+            case BINARY_SMALLER:     printf("BINARY_SMALLER\n"); break;
+            case BINARY_BIGGER_EQUAL:printf("BINARY_BIGGER_EQUAL\n"); break;
+            case BINARY_SMALLER_EQUAL:printf("BINARY_SMALLER_EQUAL\n"); break;
+            case LOAD_ITEM:          printf("LOAD_ITEM\n"); break;
+            case AND_LOG:            printf("AND_LOG\n"); break;
+            case OR_LOG:             printf("OR_LOG\n"); break;
+            case NOT_LOG:            printf("NOT_LOG\n"); break;
+            case PROGRAM_START:      printf("PROGRAM_START\n"); break;
+            case PROGRAM_END:        printf("PROGRAM_END\n"); break;
+            default:
+                printf("Unknown opcode: 0x%02X\n", c);
+                break;
+        }
+    }
+
+    return 0;
+}
+
+void Scode_print_disasm(struct Scode *code) {
+    for (int i = 0; i < code->size; ) {
+        unsigned char c = code->code[i];
+        printf("%04d: 0x%02X", i, c);
+        i++;
+
+        switch (c) {
+            case PUSH_FLOAT:
+                if (i + 4 <= code->size) {
+                    float f;
+                    for (int j = 0; j < 4; j++)
+                        printf(" 0x%02X", code->code[i + j]);
+                    memcpy(&f, &code->code[i], 4);
+                    printf("  // PUSH_FLOAT %f\n", f);
+                    i += 4;
+                } else {
+                    printf("  // Incomplete PUSH_FLOAT\n");
+                }
+                break;
+
+            case PUSH_STRING:
+                if (i < code->size) {
+                    int size = code->code[i++];
+                    printf(" 0x%02X  // PUSH_STRING len=%d \"", size, size);
+                    for (int j = 0; j < size && i + j < code->size; j++)
+                        printf("%c ", code->code[i + j]);
+                    printf("\"\n");
+                    i += size;
+                }
+                break;
+
+            case LOAD_GLOBAL:
+            case STORE_GLOBAL:
+            case STORE_CLOSURE:
+            case LOAD_CLOSURE:
+            case MAKE_CLOSURE:
+            case LOAD_ATTR:
+            case STORE_ATTR:
+            case ADD_LABEL:
+            case JUMP_TO:
+            case POP_JUMP_IF_TRUE:
+            case POP_JUMP_IF_FALSE:
+            case BUILD_LIST:
+            case MAKE_FUNCTION:
+                if (i < code->size) {
+                    printf(" 0x%02X  // %s operand\n", code->code[i], 
+                        c == LOAD_GLOBAL ? "LOAD_GLOBAL" :
+                        c == LOAD_CLOSURE ? "LOAD_CLOSURE" :
+                        c == STORE_GLOBAL ? "STORE_GLOBAL" :
+                        c == STORE_CLOSURE ? "STORE_CLOSURE" :
+                        c == MAKE_CLOSURE ? "MAKE_CLOSURE" :
+                        c == LOAD_ATTR ? "LOAD_ATTR" :
+                        c == STORE_ATTR ? "STORE_ATTR" :
+                        c == ADD_LABEL ? "ADD_LABEL" :
+                        c == JUMP_TO ? "JUMP_TO" :
+                        c == POP_JUMP_IF_TRUE ? "POP_JUMP_IF_TRUE" :
+                        c == POP_JUMP_IF_FALSE ? "POP_JUMP_IF_FALSE" :
+                        c == BUILD_LIST ? "BUILD_LIST" : "MAKE_FUNCTION");
+                    i++;
+                }
+                break;
+
+            case CLASS_BEGIN:        printf("  // CLASS_BEGIN\n"); break;
+            case CLASS_END:          printf("  // CLASS_END\n"); break;
+            case FUNCTION_CALL:      printf("  // FUNCTION_CALL\n"); break;
+            case END_FUNCTION:       printf("  // END_FUNCTION\n"); break;
+            case PRINT:              printf("  // PRINT\n"); break;
+            case RETURN_TOP:         printf("  // RETURN_TOP\n"); break;
+            case POP_TOP:            printf("  // POP_TOP\n"); break;
+            case BINARY_ADD:         printf("  // BINARY_ADD\n"); break;
+            case LOAD_ITEM:          printf("  // LOAD_ITEM\n"); break;
+            case BINARY_BIGGER_EQUAL:printf("  // BINARY_BIGGER_EQUAL\n"); break;
+            case BINARY_SMALLER_EQUAL:printf("  // BINARY_SMALLER_EQUAL\n"); break;
+            case BINARY_SUB:         printf("  // BINARY_SUB\n"); break;
+            case BINARY_MUL:         printf("  // BINARY_MUL\n"); break;
+            case BINARY_DIV:         printf("  // BINARY_DIV\n"); break;
+            case BINARY_EQUAL:       printf("  // BINARY_EQUAL\n"); break;
+            case BINARY_NOT_EQUAL:   printf("  // BINARY_NOT_EQUAL\n"); break;
+            case BINARY_BIGGER:      printf("  // BINARY_BIGGER\n"); break;
+            case BINARY_SMALLER:     printf("  // BINARY_SMALLER\n"); break;
+            case AND_LOG:            printf("  // AND_LOG\n"); break;
+            case OR_LOG:             printf("  // OR_LOG\n"); break;
+            case NOT_LOG:            printf("  // NOT_LOG\n"); break;
+            case PROGRAM_START:      printf("  // PROGRAM_START\n"); break;
+            case PROGRAM_END:        printf("  // PROGRAM_END\n"); break;
+
+            default:
+                printf("  // Unknown opcode\n");
+                break;
+        }
+    }
+}
+
+struct Scode*
+Scode_get_code_from_file
+(char* file, struct ScompilerUnit *compiler, struct Stable *table) {
+    struct SZIO* zio = Sbuff_read_file(file);
+
+    struct Slexer *lexer = Slexer_init(zio->buffer);
+    lexer->file = zio;
+
+    struct Sparser *parser = Sparser_init(lexer);
+    struct Sast *ast = Sparser_parse_program(parser);
+    struct Scode *code = Scode_new();
+
+    for (int i = 0; i < ast->child_count; i++) {
+        struct Scode *child = Scompiler_compile(compiler, ast->children[i], table);
+        INSERT(code, child);
+
+        if (is_expr(ast->children[i])) {
+            PUSH(code, POP_TOP);
+        }
+    }
+
+    return code;
+}
