@@ -8,8 +8,14 @@
 #define SUNY_COPYRIGHT "Copyright (c) 2025-present dinhsonhai132"
 #define AUTHOR "dinhsonhai132"
 
-#define SUNY_LIB_PATH "C:\\Suny\\Suny\\libs\\"
-#define PATH_TO_DLL_LIB "C:\\Suny\\Suny\\libs\\%s.dll"
+#ifdef _WIN32
+    #define SUNY_LIB_PATH "C:\\Suny\\Suny\\libs\\"
+    #define PATH_TO_DLL_LIB "C:\\Suny\\Suny\\libs\\%s.dll"
+#else
+    #warning("Not support OS")
+    #define PATH_TO_DLL_LIB "%s"
+    #define SUNY_LIB_PATH ""
+#endif
 
 #ifdef _WIN32
     #include <windows.h>
@@ -22,7 +28,6 @@
     #define SUNY_LOCAL __declspec(dllimport)
 
 #else
-    #warning "This library is currently only supported on Windows!"
     typedef void* Sdll_func;
     typedef void* Sdll_module;
     #define SUNY_API

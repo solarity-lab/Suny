@@ -15,7 +15,7 @@ struct Sframe *Svm_run_call_context(struct Scall_context *context);
 
 typedef struct Sobj* (*builtin_func)(struct Sframe*);
 
-typedef struct Sframe* (*main_func)(struct Sframe*, struct ScompilerUnit*, struct Stable*);
+typedef struct Sframe* (*main_func)(struct Sframe*, struct Stable*);
 
 #define call_func(func, frame) ((struct Sobj* (*)(struct Sframe*)) (func))((frame));
 

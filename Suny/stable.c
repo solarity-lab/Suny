@@ -2,7 +2,6 @@
 #include "smem.h"
 
 struct ScompilerUnit *ScompilerUnit_new(void) {
-    SDEBUG("Creating new compiler unit\n");
     struct ScompilerUnit *compiler = Smem_Malloc(sizeof(struct ScompilerUnit));
     compiler->address_counter = 120;
     compiler->label_counter = 0;
@@ -12,12 +11,10 @@ struct ScompilerUnit *ScompilerUnit_new(void) {
     compiler->is_in_class = 0;
     compiler->loop_index = 0;
     compiler->frame = NULL;
-    SDEBUG("Compiler unit created\n");
     return compiler;
 }
 
 struct Stable* Stable_new(void) {
-    SDEBUG("Creating new symbol table\n");
     struct Stable *table = Smem_Malloc(sizeof(struct Stable));
     table->symbol_count = 0;
     table->symbol_capacity = 1024;
@@ -26,12 +23,10 @@ struct Stable* Stable_new(void) {
     table->is_closure = 0;
     table->symbols = Smem_Malloc(sizeof(struct Ssymbol) * table->symbol_capacity);
     table->function_name = NULL;
-    SDEBUG("Symbol table created\n");
     return table;
 }
 
 struct Ssymbol *Symbol_new(char *name, int address, int args_size, int func_tag, char* func_name) {
-    SDEBUG("Creating new symbol address: %d, name: %s\n", address, name);
     struct Ssymbol *symbol = Smem_Malloc(sizeof(struct Ssymbol));
     symbol->name = name;
     symbol->address = address;
@@ -39,13 +34,10 @@ struct Ssymbol *Symbol_new(char *name, int address, int args_size, int func_tag,
     symbol->args_size = args_size;
     symbol->func_tag = func_tag;
     symbol->func_name = func_name;
-    SDEBUG("Symbol created address: %d, name: %s\n", address, name);
     return symbol;
 }
 
 int Stable_add_symbol(struct Stable *table, char *name, int address, int args_size, int func_tag, char* func_name) {
-    SDEBUG("Adding symbol address: %d, name: %s\n", address, name);
-
     struct Ssymbol *symbol = Symbol_new(name, address, args_size, func_tag, func_name);
     
     if (table->symbol_count >= table->symbol_capacity) {
@@ -55,25 +47,20 @@ int Stable_add_symbol(struct Stable *table, char *name, int address, int args_si
 
     for (int i = 0; i < table->symbol_count; i++) {
         if (strcmp(table->symbols[i]->name, name) == 0) {
-            SDEBUG("Symbol already exists address: %d, name: %s\n", address, name);
             return table->symbols[i]->address;
         }
     }
 
     table->symbols[table->symbol_count++] = symbol;
-    SDEBUG("Symbol added address: %d, name: %s\n", address, name);
     return address;
 }
 
 int Stable_find_symbol(struct Stable *table, char *name) {
-    SDEBUG("Finding symbol name: %s\n", name);
     for (int i = 0; i < table->symbol_count; i++) {
         if (strcmp(table->symbols[i]->name, name) == 0) {
-            SDEBUG("Symbol found address: %d, name: %s\n", table->symbols[i]->address, name);
             return table->symbols[i]->address;
         }
     }
-    SDEBUG("Symbol not found name: %s\n", name);
     return -1;
 }
 
@@ -164,7 +151,6 @@ struct Ssymbol *Symbol_find_symbol(struct Stable *table, char *name) {
 }
 
 struct Ssymbol *Symbol_store(struct Stable *table, char* name, int address) {
-    SDEBUG("Storing symbol address: %d, name: %s\n", address, name);
 
     if (table->symbol_count == table->symbol_capacity) {
         table->symbol_capacity *= 2;

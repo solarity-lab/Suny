@@ -1,91 +1,5 @@
 #include "scompiler.h"
 
-/*
-
-struct Scode*
-Scompile
-(struct Sast *ast, struct Scompiler *compiler) {
-    switch(ast->type) {
-        case AST_BINARY_EXPRESSION:
-            return Scompile_binary_expression(ast, compiler);
-        case AST_IDENTIFIER:
-            return Scompile_identifier(ast, compiler);
-        case AST_LITERAL:
-            return Scompile_literal(ast, compiler);
-        case AST_INCLUDE:
-            return Scompile_include(ast, compiler);
-        case AST_ASSIGNMENT:
-            return Scompile_assignment(ast, compiler);
-        case AST_PRINT:
-            return Scompile_print(ast, compiler);
-        case AST_COMPARE_EXPRESSION:
-            return Scompile_comparison(ast, compiler);
-        case AST_FUNCTION_CALL_EXPRESSION:
-            return Scompile_function_call(ast, compiler);
-        case AST_FUNCTION_STATEMENT:
-            return Scompile_function(ast, compiler);
-        case AST_RETURN_STATEMENT:
-            return Scompile_return(ast, compiler);
-        case AST_STRING_EXPRESSION:
-            return Scompile_string(ast, compiler);
-        case AST_IF:
-            return Scompile_if(ast, compiler);
-        case AST_WHILE:
-            return Scompile_while(ast, compiler);
-        case AST_BREAK:
-            return Scompile_break(ast, compiler);
-        case AST_FUNCTION_CALL_PRIMARY_EXPRESSION:
-            return Scompile_function_call_primary(ast, compiler);
-        case AST_CONTINUE:
-            return Scompile_continue(ast, compiler);
-        case AST_LIST:
-            return Scompile_list(ast, compiler);
-        case AST_VAR_LIST:
-            return Scompile_var_list(ast, compiler);
-        case AST_EXTRACT:
-            return Scompile_extract(ast, compiler);
-        case AST_IMPORT:
-            return Scompile_import(ast, compiler);
-        case AST_STORE_INDEX:
-            return Scompile_store_index(ast, compiler);
-        case AST_FOR:
-            return Scompile_for(ast, compiler);
-        case AST_CLASS:
-            return Scompile_class(ast, compiler);
-        case AST_OR_EXPRESSION:
-            return Scompile_or(ast, compiler);
-        case AST_AND_EXPRESSION:
-            return Scompile_and(ast, compiler);
-        case AST_NOT_EXPRESSION:
-            return Scompile_not(ast, compiler);
-        case AST_ANONYMOUS_FUNCTION:
-            return Scompile_anonymous_function(ast, compiler);
-        case AST_ATTRIBUTE_EXPRESSION:
-            return Scompile_attribute(ast, compiler);
-        case AST_PROGRAM:
-            return Scompile_program(ast, compiler);
-        case AST_STORE_ATTRIBUTE:
-            return Scompile_store_attribute(ast, compiler);
-        case AST_TRUE: {
-            struct Scode *code = Scode_new();
-            PUSH(code, LOAD_TRUE);
-            return code;
-        }
-        case AST_FALSE: {
-            struct Scode *code = Scode_new();
-            PUSH(code, LOAD_FALSE);
-            return code;
-        }
-        default:
-            struct Serror *error = Serror_set("COMPILER_ERROR", "Unknown AST type", ast->lexer);
-            Serror_syntax_error(error);
-            return NULL;
-    }
-
-    return NULL_CODE_PTR;
-}   
-*/
-
 SUNY_API struct Scode* 
 Scompiler_compile
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
@@ -150,6 +64,10 @@ Scompiler_compile
             return Scompiler_compile_ast_store_index(compiler, ast, table);
         case AST_EXTRACT:
             return Scompiler_compile_ast_extract_expression(compiler, ast, table);
+        case AST_IMPORT:
+            return Scompiler_compile_ast_import(compiler, ast, table);
+        case AST_INCLUDE:
+            return Scompiler_compile_ast_include(compiler, ast, table);
         case AST_TRUE: {
             PUSH(code, LOAD_TRUE);
             return code;
@@ -173,7 +91,6 @@ Scompiler_compile
 SUNY_API struct Scode* 
 Scompiler_compile_ast_program
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-
     table->global = table;
     table->global->is_global = 1;
 
@@ -904,7 +821,7 @@ Scompiler_compile_ast_import
 
     main_func f = (main_func) dll_func;
 
-    f(compiler->frame, compiler, table);
+    f(compiler->frame, table);
 
     return NULL_CODE_PTR;
 }

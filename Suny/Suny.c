@@ -29,9 +29,14 @@ int prompt() {
 
     struct Sframe *frame = Sframe_new();
     struct ScompilerUnit *compiler = ScompilerUnit_new();
+    compiler->frame = frame;
+    frame->compiler = compiler;
     struct Stable *table = Stable_new();
 
     SunyInstallLibrary(frame, compiler, table);
+
+    frame->f_heaps = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
+    frame->gc_pool = Sgc_new_pool();
 
     char buff[1024];
     for (;;) {
@@ -68,6 +73,11 @@ struct Sframe* SunyRunSimpleString(char* str) {
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
     struct Sframe *frame = Sframe_new();
+    compiler->frame = frame;
+    frame->compiler = compiler;
+    frame->f_heaps = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
+    frame->gc_pool = Sgc_new_pool();
+
     SunyInstallLibrary(frame, compiler, table);
 
     struct Scode *code = Scompiler_compile_ast_program(compiler, ast, table);
@@ -90,7 +100,8 @@ struct Sframe* SunyRunFile(char* file) {
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
     struct Sframe *frame = Sframe_new();
-
+    compiler->frame = frame;
+    frame->compiler = compiler;
     frame->f_heaps = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
     frame->gc_pool = Sgc_new_pool();
 
@@ -116,7 +127,8 @@ struct Scode* SunyCompileFile(char* file) {
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
     struct Sframe *frame = Sframe_new();
-
+    compiler->frame = frame;
+    frame->compiler = compiler;
     frame->f_heaps = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
     frame->gc_pool = Sgc_new_pool();
 
