@@ -866,25 +866,19 @@ print(f(2))  # 3
 
 ---
 
-### 5.5.6 Special Local Variable: `self`
+### 5.5.6 Closure
 
-Inside a function, the special variable `self` always refers to that **function itself**.
+A **closure** is a function that can *remember and access* variables from the scope in which it was created, even after that outer scope has finished executing.
 
-```suny
-function foo() do
-    return self
-end
+In other words:
 
-anon = function() do
-    return self
-end
-```
+> **Closure = Function + Its captured environment (the variables it keeps).**
 
-This makes recursion and self-reference easy, even without naming the function.
+This allows functions to “carry” state and behave like objects with private data.
 
 ---
 
-### 5.5.7 Example: Closure
+### **Detailed Example**
 
 ```suny
 function foo() do
@@ -901,18 +895,22 @@ for i in range(10) do
 end
 ```
 
-**Output:**
+Here’s what happens:
+
+1. `foo()` is called. Inside it, the variable `count` is created.
+2. `foo()` returns an inner function that **uses `count`**.
+3. Even though `foo()` has finished, `count` does **not** disappear.
+4. The returned function `a()` keeps a reference to `count`.
+   This saved environment is the **closure**.
+5. Each time `a()` is called, it updates the same `count` value.
+
+So the function “remembers” its state:
 
 ```
 1
 2
 3
-4
-5
-6
-7
-8
-9
+...
 10
 ```
 
@@ -1365,4 +1363,5 @@ Suny resolves includes in this order:
 * Use `include` for **constants, small configs, or utility functions**.
 * Keep each folder/module self-contained with its own `main.suny`.
 * Avoid circular includes (`A` includes `B`, and `B` includes `A`).
+
 * Use unique variable/function names to prevent conflicts.
