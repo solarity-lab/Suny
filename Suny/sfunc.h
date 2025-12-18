@@ -11,7 +11,7 @@
 #define Sobj_get_func(obj) ((obj)->f_type->f_func)
 
 struct Sfunc*
-Sfunc_obj_new(void);
+Sfunc_new(void);
 
 struct Sfunc*
 Sfunc_set_code(
@@ -23,13 +23,6 @@ Sfunc_insert_code(
 struct Sfunc *func, 
 struct Scode *code);
 
-struct Sfunc*
-Sfunc_set_func
-(struct Sfunc *func, 
-struct Sframe *frame,
-struct Scode *code, 
-int args_size);
-
 struct Sobj*
 Sobj_set_func
 (struct Sfunc *func);
@@ -37,12 +30,6 @@ Sobj_set_func
 int 
 Sfunc_free
 (struct Sfunc *func);
-
-struct Sfunc *
-Sfunc_set
-(struct Scode *code, 
-int args_size, 
-int code_size);
 
 struct Sframe*
 Sfunc_call_c_api_func

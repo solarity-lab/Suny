@@ -17,6 +17,10 @@ Scompiler_compile_ast_program
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
 
 SUNY_API struct Scode* 
+Scompiler_compile_ast_loop
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
+
+SUNY_API struct Scode* 
 Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
 
@@ -150,6 +154,10 @@ Scompiler_compile_ast_block
 
 SUNY_API struct Scode* 
 Scompiler_compile_ast_body
+(struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size);
+
+SUNY_API struct Scode* 
+Scompiler_compile_ast_local_body
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size);
 
 SUNY_API struct Scode* 

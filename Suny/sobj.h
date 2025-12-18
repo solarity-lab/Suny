@@ -3,6 +3,7 @@
 
 #include "score.h"
 #include "stype.h"
+#include "sclass.h"
 #include "sstr.h"
 #include "sfunc.h"
 #include "scall.h"
@@ -18,13 +19,15 @@ struct Smeta;
 
 #define GC_HEAD struct Sgarbarge_obj* gc
 
-#define MAX_FRAME_SIZE 1024
+#define DEFAULT_MAX 1024
 
 typedef unsigned char byte_t;
 typedef int address_t;
 
 #define null_obj Sobj_new()
-#define Svalue(x) Sobj_set_int(x)
+#define true_obj Sobj_make_true()
+#define false_obj Sobj_make_false()
+#define Svalue(x) Sobj_set_value(x)
 
 #define ValueOf(obj) ((obj)->value->value)
 #define Addressof(obj) ((obj)->address)
@@ -87,6 +90,9 @@ struct Sobj {
     int is_local; // if this object is a local variable
     int is_closure; // if this object is a closure
     int is_return; // if this object is return in a function
+    int is_calle;
+    int is_belong_class; // if this object is a member of a class
+    int is_argument; // if this object is a function argument
 
     struct Smeta* meta; // metatable
 };
@@ -113,7 +119,10 @@ struct Sobj*
 Sobj_make_null(void);
 
 struct Sobj*
-Sobj_set_int
+Sobj_set_value
 (float value);
+
+struct Sobj*
+Sobj_make_type(enum Sobj_t type);
 
 #endif // SOBJ_H

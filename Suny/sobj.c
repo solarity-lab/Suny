@@ -1,5 +1,6 @@
 #include "sobj.h"
 #include "smem.h"
+#include "sdebug.h"
 
 struct Svalue* 
 Svalue_new(void) {
@@ -36,8 +37,9 @@ Sobj_new(void) {
 
     obj->is_global = 0;
     obj->is_local = 0;
-
+    obj->is_calle = 0;
     obj->is_closure = 0;
+    obj->is_argument = 0;
 
     obj->meta = NULL;
 
@@ -61,6 +63,10 @@ int
 Sobj_free
 (struct Sobj* obj) {
     SDEBUG("[sobj.c] Sobj_free(struct Sobj* obj) free %p\n", obj);
+    if (!obj) {
+        __ERROR("Error sobj.c: obj is null\n");
+    }
+
     if (obj->is_free) {
         return 0; 
     }
@@ -79,6 +85,17 @@ Sobj_free
 
     else if (obj->type == FUNC_OBJ) {
         Sfunc_free(obj->f_type->f_func);
+        Smem_Free(obj->f_type);
+    }
+
+    else if (obj->type == CLOSURE_OBJ) {
+        Senvi_free(obj->f_type->f_func->envi);
+        Sfunc_free(obj->f_type->f_func);
+        Smem_Free(obj->f_type);
+    }
+
+    else if (obj->type == CLASS_OBJ) {
+        Sclass_free(obj->f_type->f_class);
         Smem_Free(obj->f_type);
     }
 
@@ -103,7 +120,7 @@ Sobj_free
 }
 
 struct Sobj*
-Sobj_set_int
+Sobj_set_value
 (float value) {
     struct Sobj *obj = Sobj_new();
     obj->type = NUMBER_OBJ;
@@ -151,5 +168,12 @@ struct Sobj*
 Sobj_make_null(void) {
     struct Sobj *obj = Sobj_new();
     obj->type = NULL_OBJ;
+    return obj;
+}
+
+struct Sobj*
+Sobj_make_type(enum Sobj_t type) {
+    struct Sobj *obj = Sobj_new();
+    obj->type = type;
     return obj;
 }

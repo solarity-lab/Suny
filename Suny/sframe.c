@@ -9,21 +9,25 @@ Sframe_new(void) {
 
     frame->f_code = NULL;
 
+    frame->f_globals_index = 0;
     frame->f_globals_size = 0;
+
+    frame->f_locals_index = 0;
     frame->f_locals_size = 0;
 
-    frame->f_globals_index = 0;
-    frame->f_locals_index = 0;
-
     frame->f_heap_index = 0;
-    frame->f_heap_size = 0;
+    frame->f_heap_size = DEFAULT_MAX;
 
     frame->f_stack_index = 0;
-    frame->f_stack_size = MAX_FRAME_SIZE;
+    frame->f_stack_size = DEFAULT_MAX;
 
-    frame->f_stack = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
-    frame->f_locals = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
-    frame->f_globals = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
+    frame->f_const_index = 0;
+    frame->f_const_size = DEFAULT_MAX;
+
+    frame->f_stack = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
+    frame->f_locals = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
+    frame->f_globals = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
+    frame->f_consts = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
     
     frame->f_heaps = NULL;
 
@@ -35,6 +39,9 @@ Sframe_new(void) {
     frame->f_code_index = 0;
 
     frame->f_obj = NULL;
+
+    frame->back_n_times = 0;
+    frame->is_in_back_loop = 0;
 
     SDEBUG("[sframe.c] Sframe_new(void) (done)\n");
     return frame;
@@ -48,6 +55,7 @@ Sframe_free
     Sobj_free_objs(frame->f_stack, frame->f_stack_index);
     Sobj_free_objs(frame->f_locals, frame->f_locals_index);
     Sobj_free_objs(frame->f_globals, frame->f_globals_index);
+    Sobj_free_objs(frame->f_consts, frame->f_const_index);
 
     if (frame->f_label_map) {
         Smem_Free(frame->f_label_map);
@@ -74,10 +82,8 @@ Sframe_push(struct Sframe *frame, struct Sobj *obj) {
     SDEBUG("[sframe.c] Sframe_push(struct Sframe *frame, struct Sobj *obj)\n");
 
     if (frame->f_stack_index >= frame->f_stack_size) {
-        int new_size = frame->f_stack_size * 2;
-        struct Sobj **new_stack = Smem_Realloc(frame->f_stack, new_size * sizeof(struct Sobj *));
-        frame->f_stack = new_stack;
-        frame->f_stack_size = new_size;
+        frame->f_stack_size *= 2;
+        frame->f_stack = Smem_Realloc(frame->f_stack, frame->f_stack_size * sizeof(struct Sobj *));
     }
 
     SUNYINCREF(obj);
@@ -111,44 +117,61 @@ Sframe_pop
 struct Sobj *
 Sframe_back
 (struct Sframe *frame) {
-    return frame->f_stack[frame->f_stack_index - 1];
+    SDEBUG("[sframe.c] Sframe_back(struct Sframe *frame)\n");
+    if (frame->f_stack_index <= 0) {
+        return NULL;
+    }
+
+    struct Sobj *obj = frame->f_stack[frame->f_stack_index - 1];
+
+    if (!obj) {
+        SDEBUG("[sframe.c] Sframe_back(struct Sframe *frame) (done)\n");
+        return NULL;
+    }
+
+    SDEBUG("[sframe.c] Sframe_back(struct Sframe *frame) (done)\n");
+    return obj;
 }
 
-int
+struct Sobj*
 Sframe_store_global
 (struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) {
-    SDEBUG("[sframe.c] Sframe_store_global(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type)\n");
-
-    _SUNYINCREF(obj);
+    SDEBUG("[sframe.c] Sframe_store_global(...)\n");
 
     for (int i = 0; i < frame->f_globals_size; i++) {
         if (frame->f_globals[i]->address == address) {
             struct Sobj *old = frame->f_globals[i]->f_value;
 
             _SUNYDECREF(old);
-            SUNYDECREF(old, frame->gc_pool);
+            MOVETOGC(old, frame->gc_pool);
+
+            _SUNYINCREF(obj);
 
             frame->f_globals[i]->f_value = obj;
             frame->f_globals[i]->type = type;
             frame->f_globals[i]->address = address;
 
-            SDEBUG("[sframe.c] Sframe_store_global(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
-            return 0;
+            SDEBUG("[sframe.c] Sframe_store_global(done, overwrite)\n");
+            return frame->f_globals[i];
         }
     }
 
     struct Sobj *global = Sobj_new();
 
     global->type = type;
+
+    _SUNYINCREF(obj);
     global->f_value = obj;
+
     global->f_value->address = address;
+    global->f_value->is_global = 1;
     global->address = address;
 
     frame->f_globals[frame->f_globals_index++] = global;
     frame->f_globals_size++;
 
-    SDEBUG("[sframe.c] Sframe_store_global(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");    
-    return 0;
+    SDEBUG("[sframe.c] Sframe_store_global(done, new)\n");
+    return global;
 }
 
 struct Sobj *
@@ -157,17 +180,14 @@ Sframe_load_global
     SDEBUG("[sframe.c] Sframe_load_global(struct Sframe *frame, int address)\n");
     struct Sobj *load = NULL;
 
-    int found = 0;
-
     for (int i = 0; i < frame->f_globals_size; i++) {
         if (frame->f_globals[i]->address == address) {
             load = frame->f_globals[i];
-            found = 1;
             break;
         }
     }
 
-    if (!found) {
+    if (!load) {
         __ERROR("Error frame.c: global not found address: %d\n", address);
         return NULL;
     }
@@ -175,46 +195,50 @@ Sframe_load_global
     return load;
 }
 
-int
+struct Sobj*
 Sframe_store_local
 (struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) {
     SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type)\n");
 
-    _SUNYINCREF(obj);
-
     for (int i = 0; i < frame->f_locals_size; i++) {
-        if (frame->f_locals[i]->address == address) {
+        if (frame->f_locals[i]->address == address && !frame->f_locals[i]->is_closure) {
             struct Sobj *old = frame->f_locals[i]->f_value;
 
             _SUNYDECREF(old);
-            SUNYDECREF(old, frame->gc_pool);
+            MOVETOGC(old, frame->gc_pool);
+
+            _SUNYINCREF(obj);
 
             frame->f_locals[i]->f_value = obj;
             frame->f_locals[i]->type = type;
             frame->f_locals[i]->address = address;
 
             SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
-            return 0;
+            return frame->f_locals[i];
         }
     }
 
     for (int i = 0; i < frame->f_globals_size; i++) {
-        if (frame->f_globals[i]->address == address) {
+        if (frame->f_globals[i]->address == address && !frame->f_globals[i]->is_closure) {
             struct Sobj *old = frame->f_globals[i]->f_value;
 
             _SUNYDECREF(old);
-            SUNYDECREF(old, frame->gc_pool);
+            MOVETOGC(old, frame->gc_pool);
+
+            _SUNYINCREF(obj);
 
             frame->f_globals[i]->f_value = obj;
             frame->f_globals[i]->type = type;
             frame->f_globals[i]->address = address;
 
             SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
-            return 0;
+            return frame->f_globals[i];
         }
     }
 
     struct Sobj *local = Sobj_new();
+    
+    _SUNYINCREF(obj);
 
     local->type = LOCAL_OBJ;
     local->f_value = obj;
@@ -225,7 +249,7 @@ Sframe_store_local
     frame->f_locals_size++;
 
     SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
-    return 0;
+    return local;
 }
 
 struct Sobj *
@@ -233,27 +257,24 @@ Sframe_load_local
 (struct Sframe *frame, int address) {
     SDEBUG("[sframe.c] Sframe_load_local(struct Sframe *frame, int address)\n");
     struct Sobj *load = NULL;
-    int found = 0;
     
     for (int i = 0; i < frame->f_locals_size; i++) {
         if (frame->f_locals[i]->address == address) {
             load = frame->f_locals[i];
-            found = 1;
             break;
         }
     }
 
-    if (!found) {
+    if (!load) {
         for (int i = 0; i < frame->f_globals_size; i++) {
             if (frame->f_globals[i]->address == address) {
                 load = frame->f_globals[i];
-                found = 1;
                 break;
             }
         }
     }
 
-    if (!found) {
+    if (!load) {
         __ERROR("Error frame.c: local not found address: %d\n", address);
         return NULL;
     }
@@ -391,7 +412,7 @@ Sframe_call_c_api_func(struct Sframe* frame, void* func) {
 struct Sobj*
 Sframe_true_pop(struct Sframe* frame) {
     struct Sobj* obj = Sframe_pop(frame);
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
     return obj;
 }
 
@@ -423,7 +444,130 @@ Sframe_push_null(struct Sframe* frame) {
 int
 Sframe_initialize_environment
 (struct Sframe *frame) {
-    frame->f_heaps = Smem_Calloc(MAX_FRAME_SIZE, sizeof(struct Sobj *));
+    frame->f_heaps = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
     frame->gc_pool = Sgc_new_pool();
     return 0;
+}
+
+struct Sobj *
+Sframe_load_const
+(struct Sframe *frame, int index) {
+    if (index < 0 || index >= frame->f_const_size) {
+        __ERROR("Error frame.c: const index out of range: %d\n", index);
+        return NULL;
+    }
+
+    return frame->f_consts[index];
+}
+
+struct Sobj *
+Sframe_store_const
+(struct Sframe *frame, int index, struct Sobj *obj) {
+    _SUNYINCREF(obj);
+
+    if (index < 0) {
+        __ERROR("Error frame.c: const index out of range: %d\n", index);
+        return NULL;
+    }
+
+    if (index >= frame->f_const_size) {
+        frame->f_const_size *= 2;
+        frame->f_consts = Smem_Realloc(frame->f_consts, frame->f_const_size * sizeof(struct Sobj *));
+    }
+
+    if (frame->f_consts[index]) {
+        struct Sobj *old = frame->f_consts[index];
+        _SUNYDECREF(old);
+        MOVETOGC(old, frame->gc_pool);
+    }
+
+    frame->f_consts[index] = obj;
+
+    return obj;
+}
+
+struct Sobj*
+Sframe_store_closure
+(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) {
+    SDEBUG("[sframe.c] Sframe_store_closure(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type)\n");
+    obj->is_closure = 1;
+    _SUNYINCREF(obj);
+
+    for (int i = 0; i < frame->f_locals_size; i++) {
+        if (frame->f_locals[i]->address == address && frame->f_locals[i]->is_closure) {
+            struct Sobj *old = frame->f_locals[i]->f_value;
+
+            _SUNYDECREF(old);
+            MOVETOGC(old, frame->gc_pool);
+
+            frame->f_locals[i]->f_value = obj;
+            frame->f_locals[i]->type = type;
+            frame->f_locals[i]->address = address;
+
+            SDEBUG("[sframe.c] Sframe_store_closure(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
+            return frame->f_locals[i];
+        }
+    }
+
+    for (int i = 0; i < frame->f_globals_size; i++) {
+        if (frame->f_globals[i]->address == address) {
+            struct Sobj *old = frame->f_globals[i]->f_value;
+
+            _SUNYDECREF(old);
+            MOVETOGC(old, frame->gc_pool);
+
+            frame->f_globals[i]->f_value = obj;
+            frame->f_globals[i]->type = type;
+            frame->f_globals[i]->address = address;
+
+            SDEBUG("[sframe.c] Sframe_store_global(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
+            return frame->f_globals[i];
+        }
+    }
+
+    struct Sobj *local = Sobj_new();
+
+    local->is_closure = 1;
+
+    local->type = LOCAL_OBJ;
+    local->f_value = obj;
+    local->f_value->address = address;
+    local->address = address;
+
+    frame->f_locals[frame->f_locals_index++] = local;
+    frame->f_locals_size++;
+
+    SDEBUG("[sframe.c] Sframe_store_closure(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
+    return local;
+}
+
+struct Sobj *
+Sframe_load_closure
+(struct Sframe *frame, int address) {
+    SDEBUG("[sframe.c] Sframe_load_closure(struct Sframe *frame, int address)\n");
+    struct Sobj *load = NULL;
+
+    for (int i = 0; i < frame->f_locals_size; i++) {
+        if (frame->f_locals[i]->address == address && frame->f_locals[i]->is_closure) {
+            load = frame->f_locals[i];
+            break;
+        }
+    }
+
+    if (!load) {
+        for (int i = 0; i < frame->f_globals_size; i++) {
+            if (frame->f_globals[i]->address == address) {
+                load = frame->f_globals[i];
+                break;
+            }
+        }
+    }
+
+    if (!load) {
+        __ERROR("Error frame.c: global not found address: %d\n", address);
+        return NULL;
+    }
+
+    SDEBUG("[sframe.c] Sframe_load_closure(struct Sframe *frame, int address) (done)\n");
+    return load;   
 }

@@ -7,12 +7,12 @@
 #include "sframe.h"
 
 #define CLASS_METHOD_NOT_FOUND -1
-#define __INIT__ADDRESS 1
-#define __ADD__ADDRESS 2
-#define __SUB__ADDRESS 3
-#define __MUL__ADDRESS 4
-#define __DIV__ADDRESS 5
-#define __TO_STR__ADDRESS 6
+#define __INIT__ADDRESS 20
+#define __ADD__ADDRESS 21
+#define __SUB__ADDRESS 22
+#define __MUL__ADDRESS 23
+#define __DIV__ADDRESS 24
+#define __TO_STR__ADDRESS 25
 
 struct Sclass*
 Sclass_new
@@ -42,7 +42,7 @@ struct Sobj*
 Sobj_make_class(struct Sclass* sclass);
 
 struct Sobj*
-Sobj_creat_a_copy_version_of_class(struct Sclass* sclass);
+Sobj_copy_class(struct Sclass* sclass);
 
 int
 Sclass_has_method

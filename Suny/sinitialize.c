@@ -28,7 +28,7 @@ int Sinitialize_c_api_func
 {
     SDEBUG("Initializing C API function: %s at address %d with %d args\n", name, address, args_size);
     Sinitialize_loadlib_to_frame(frame, address, args_size, name, func);
-    Stable_add_symbol(table, name, address, args_size, 0, NULL);
+    Ssymbol_add(table, name, address);
     SDEBUG("C API function %s initialized successfully.\n", name);
     return 0;
 }
@@ -44,7 +44,7 @@ int Sinitialize_variables
 
 {
     Sframe_store_global(frame, address, value, GLOBAL_OBJ);
-    Stable_add_symbol(table, name, address, 0, 0, NULL);
+    Ssymbol_add(table, name, address);
     return 0;
 }
 

@@ -32,4 +32,6 @@ struct Slist* Slist_range(int start, int end);
 
 struct Slist *Slist_from_string_chars(char *str);
 
+struct Slist *Slist_store(struct Slist *list, int index, struct Sobj *obj);
+
 #endif

@@ -1,5 +1,6 @@
 #include "scall.h"
 #include "smem.h"
+#include "sdebug.h"
 
 struct Scall_context *
 Scall_context_new(void) {
@@ -33,15 +34,29 @@ Scall_context_free_frame
 
     for (int i = 0; i < frame->f_locals_size; ++i) {
         struct Sobj *local = frame->f_locals[i];
-        if (!local->is_closure && !local->f_value->is_return) {
-            Sobj_free(local);
-            Sobj_free(local->f_value);
-        } else if (!local->is_closure && local->f_value->is_return) {
-            Sobj_free(local);
+        struct Sobj *value = local->f_value;
+
+        if (!value) {
+            __ERROR("Error: value is null\n");
         }
+
+        if (local->is_closure) {
+            continue;
+        }
+
+        if (value->is_return) {
+            Sobj_free(local);
+            continue;
+        }
+
+        _SUNYDECREF(value);
+        MOVETOGC(value, frame->gc_pool);
+
+        Sobj_free(local);
     }
 
     Sobj_free_objs(frame->f_stack, frame->f_stack_index);
+    Sobj_free_objs(frame->f_consts, frame->f_const_index);
     Slabel_map_free(frame->f_label_map);
     Smem_Free(frame->f_locals); 
     Smem_Free(frame->f_globals);
@@ -137,7 +152,8 @@ Scall_context_set_real_func
     Sreverse((void **) temp, n);
 
     for (int i = 0; i < n; ++i) {
-        Sframe_store_local(f_frame, address++, temp[i], LOCAL_OBJ);
+        struct Sobj* value = Sframe_store_local(f_frame, address++, temp[i], LOCAL_OBJ);
+        value->is_belong_class = 1;
     }
 
     Smem_Free(temp);
@@ -153,6 +169,8 @@ Scall_context_set_frame
 
     context = Scall_context_set(context, frame, f_obj);
 
+    struct Sfunc *func = f_obj->f_type->f_func;
+
     struct Sframe *f_frame = context->frame;
 
     int address = 0;
@@ -160,14 +178,19 @@ Scall_context_set_frame
     struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size, sizeof(struct Sobj*));    
 
     for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
-        struct Sobj* value = Sframe_pop(frame);
-        temp[i] = value;
+        struct Sobj* back = Sframe_back(frame);
+        if (back) {
+            struct Sobj* value = Sframe_pop(frame);
+            temp[i] = value;
+        } else {
+            temp[i] = null_obj;
+        }
     }
 
     Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
     
-    for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
-        Sframe_store_local(f_frame, address++, temp[i], LOCAL_OBJ);
+    for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        Sframe_store_local(f_frame, func->args_address[i], temp[i], LOCAL_OBJ);
     }
 
     Smem_Free(temp);
@@ -184,27 +207,34 @@ Scall_context_set_closure
     SDEBUG("[sfunc.c] struct Scall_context* Scall_context_set_closure(struct Scall_context *context, struct Sframe *frame, struct Sobj* f_obj) (building...)\n");
     context = Scall_context_set(context, frame, f_obj);
 
-    struct Senvi* envi = f_obj->f_type->f_func->envi;
+    struct Sfunc *func = f_obj->f_type->f_func;
+    struct Senvi* envi = func->envi;
     struct Sframe *f_frame = context->frame;
+
 
     Sarray_copy((void**) f_frame->f_locals, (void**) envi->envi, envi->size);
     
     f_frame->f_locals_size = envi->size;
     f_frame->f_locals_index = envi->size;
-    
+
     int address = 0;
 
     struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size, sizeof(struct Sobj*));    
 
     for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
-        struct Sobj* value = Sframe_pop(frame);
-        temp[i] = value;
+        struct Sobj* back = Sframe_back(frame);
+        if (back) {
+            struct Sobj* value = Sframe_pop(frame);
+            temp[i] = value;
+        } else {
+            temp[i] = null_obj;
+        }
     }
 
     Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
     
-    for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
-        Sframe_store_local(f_frame, address++, temp[i], LOCAL_OBJ);
+    for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        Sframe_store_local(f_frame, func->args_address[i], temp[i], LOCAL_OBJ);
     }
 
     Smem_Free(temp);

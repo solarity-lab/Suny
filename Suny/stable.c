@@ -1,15 +1,18 @@
 #include "stable.h"
+#include "sdebug.h"
 #include "smem.h"
 
 struct ScompilerUnit *ScompilerUnit_new(void) {
     struct ScompilerUnit *compiler = Smem_Malloc(sizeof(struct ScompilerUnit));
-    compiler->address_counter = 120;
+    compiler->address_counter = 100;
     compiler->label_counter = 0;
+    compiler->args_address_counter = 0;
     compiler->is_in_function = 0;
     compiler->is_in_block = 0;
     compiler->is_in_loop = 0;
     compiler->is_in_class = 0;
     compiler->loop_index = 0;
+    compiler->prev_table = NULL;
     compiler->frame = NULL;
     return compiler;
 }
@@ -21,7 +24,9 @@ struct Stable* Stable_new(void) {
     table->prev = NULL;
     table->is_function_table = 0;
     table->is_closure = 0;
+    table->is_global = 0;
     table->symbols = Smem_Malloc(sizeof(struct Ssymbol) * table->symbol_capacity);
+    table->symbols[0] = NULL;
     table->function_name = NULL;
     return table;
 }
@@ -34,58 +39,11 @@ struct Ssymbol *Symbol_new(char *name, int address, int args_size, int func_tag,
     symbol->args_size = args_size;
     symbol->func_tag = func_tag;
     symbol->func_name = func_name;
+    symbol->is_attribute = 0;
+    symbol->table = NULL;
+    symbol->is_argument = 0;
     return symbol;
 }
-
-int Stable_add_symbol(struct Stable *table, char *name, int address, int args_size, int func_tag, char* func_name) {
-    struct Ssymbol *symbol = Symbol_new(name, address, args_size, func_tag, func_name);
-    
-    if (table->symbol_count >= table->symbol_capacity) {
-        table->symbol_capacity *= 2;
-        table->symbols = Smem_Realloc(table->symbols, sizeof(struct Ssymbol) * table->symbol_capacity);
-    }
-
-    for (int i = 0; i < table->symbol_count; i++) {
-        if (strcmp(table->symbols[i]->name, name) == 0) {
-            return table->symbols[i]->address;
-        }
-    }
-
-    table->symbols[table->symbol_count++] = symbol;
-    return address;
-}
-
-int Stable_find_symbol(struct Stable *table, char *name) {
-    for (int i = 0; i < table->symbol_count; i++) {
-        if (strcmp(table->symbols[i]->name, name) == 0) {
-            return table->symbols[i]->address;
-        }
-    }
-    return -1;
-}
-
-int Stable_remove_symbol(struct Stable *table, char *name) {
-    for (int i = 0; i < table->symbol_count; i++) {
-        if (strcmp(table->symbols[i]->name, name) == 0) {
-            table->symbols[i]->name = NULL;
-            table->symbols[i]->address = 0;
-            return 0;
-        }
-    }
-    return -1;
-}
-
-int Stable_remove_symbol_address(struct Stable *table, int address) {
-    for (int i = 0; i < table->symbol_count; i++) {
-        if (table->symbols[i]->address == address) {
-            table->symbols[i]->name = NULL;
-            table->symbols[i]->address = 0;
-            return 0;
-        }
-    }
-    return -1;
-}
-
 
 int ScompilerUnit_reset(struct ScompilerUnit *compiler) {
     compiler->address_counter = 0;
@@ -124,10 +82,50 @@ struct loop_stack ScompilerUnit_get_loop(struct ScompilerUnit *compiler) {
     return empty_loop;
 }
 
-struct Ssymbol *Symbol_find_symbol(struct Stable *table, char *name) {
+struct Ssymbol *Ssymbol_load(struct Stable *table, char *name) {
     for (int i = 0; i < table->symbol_count; i++) {
         if (strcmp(table->symbols[i]->name, name) == 0) {
             return table->symbols[i];
+        }
+    }
+
+    if (table->global) {
+        for (int i = 0; i < table->global->symbol_count; i++) {
+            if (strcmp(table->global->symbols[i]->name, name) == 0) {
+                table->global->symbols[i]->is_global = 1;
+                return table->global->symbols[i];
+            }
+        }
+    }
+    
+    if (table->prev && !table->prev->is_global) { // this shit blow my mind
+        struct Ssymbol *symbol = Ssymbol_load(table->prev, name);
+        if (!symbol) return NULL;
+
+        symbol->is_closure = 1;
+        return symbol;
+    }
+
+    return NULL;
+}
+
+struct Ssymbol *Ssymbol_store(struct Stable *table, char* name, int address) {
+    if (table->symbol_count == table->symbol_capacity) {
+        table->symbol_capacity *= 2;
+        table->symbols = Smem_Realloc(table->symbols, sizeof(struct Ssymbol) * table->symbol_capacity);
+    }
+
+    for (int i = 0; i < table->symbol_count; i++) {
+        if (strcmp(table->symbols[i]->name, name) == 0) {
+            return table->symbols[i];
+        }
+    }
+    
+    if (table->prev && !table->prev->is_global) {
+        struct Ssymbol *symbol = Ssymbol_load(table->prev, name);
+        if (symbol) {
+            symbol->is_closure = 1;
+            return symbol;
         }
     }
 
@@ -139,40 +137,17 @@ struct Ssymbol *Symbol_find_symbol(struct Stable *table, char *name) {
         }
     }
 
-    if (table->prev) {
-        struct Ssymbol *symbol = Symbol_find_symbol(table->prev, name);
-        if (!symbol) return NULL;
-
-        symbol->is_closure = 1;
-        return symbol;
-    }
-
-    return NULL;
+    struct Ssymbol *symbol = Symbol_new(name, address, 0, 0, NULL);
+    table->symbols[table->symbol_count++] = symbol;
+    return symbol;
 }
 
-struct Ssymbol *Symbol_store(struct Stable *table, char* name, int address) {
-
+struct Ssymbol *
+Ssymbol_add
+(struct Stable *table, char* name, int address) {
     if (table->symbol_count == table->symbol_capacity) {
         table->symbol_capacity *= 2;
         table->symbols = Smem_Realloc(table->symbols, sizeof(struct Ssymbol) * table->symbol_capacity);
-    }
-
-    for (int i = 0; i < table->symbol_count; i++) {
-        if (strcmp(table->symbols[i]->name, name) == 0) {
-            return table->symbols[i];
-        }
-    }
-
-    for (int i = 0; i < table->global->symbol_count; i++) {
-        if (strcmp(table->global->symbols[i]->name, name) == 0) {
-            return table->global->symbols[i];
-        }
-    }
-
-    if (table->prev && !table->prev->is_global) {
-        struct Ssymbol *symbol = Symbol_store(table->prev, name, address);
-        symbol->is_closure = 1;
-        return symbol;
     }
 
     struct Ssymbol *symbol = Symbol_new(name, address, 0, 0, NULL);

@@ -4,60 +4,101 @@
 const char* print_op(unsigned char c) {
     switch (c) {
         case PUSH_FLOAT: return "PUSH_FLOAT";
+
         case BINARY_ADD: return "BINARY_ADD";
         case BINARY_SUB: return "BINARY_SUB";
-        case LOAD_CLOSURE: return "LOAD_CLOSURE";
-        case STORE_CLOSURE: return "STORE_CLOSURE";
-        case MAKE_CLOSURE: return "MAKE_CLOSURE";
-        case END_CLOSURE: return "END_CLOSURE";        
         case BINARY_MUL: return "BINARY_MUL";
         case BINARY_DIV: return "BINARY_DIV";
+
         case PRINT: return "PRINT";
         case POP_TOP: return "POP_TOP";
+
         case LOAD_GLOBAL: return "LOAD_GLOBAL";
         case STORE_GLOBAL: return "STORE_GLOBAL";
+
         case PROGRAM_START: return "PROGRAM_START";
         case PROGRAM_END: return "PROGRAM_END";
+
         case BINARY_BIGGER: return "BINARY_BIGGER";
         case BINARY_SMALLER: return "BINARY_SMALLER";
         case BINARY_EQUAL: return "BINARY_EQUAL";
         case BINARY_BIGGER_EQUAL: return "BINARY_BIGGER_EQUAL";
         case BINARY_SMALLER_EQUAL: return "BINARY_SMALLER_EQUAL";
         case BINARY_NOT_EQUAL: return "BINARY_NOT_EQUAL";
+
         case MAKE_FUNCTION: return "MAKE_FUNCTION";
         case END_FUNCTION: return "END_FUNCTION";
+
         case FUNCTION_CALL: return "FUNCTION_CALL";
         case RETURN_TOP: return "RETURN_TOP";
+
         case PUSH_STRING: return "PUSH_STRING";
+
         case PUSH_TRUE: return "PUSH_TRUE";
         case PUSH_FALSE: return "PUSH_FALSE";
+
         case POP_JUMP_IF_TRUE: return "POP_JUMP_IF_TRUE";
         case POP_JUMP_IF_FALSE: return "POP_JUMP_IF_FALSE";
+
         case JUMP_TO: return "JUMP_TO";
         case ADD_LABEL: return "ADD_LABEL";
+
         case JUMP_FORWARD: return "JUMP_FORWARD";
         case JUMP_BACKWARD: return "JUMP_BACKWARD";
+
         case SKIP_TO_INDEX: return "SKIP_TO_INDEX";
+
         case EXIT_PROGRAM: return "EXIT_PROGRAM";
         case STOP_PROGRAM: return "STOP_PROGRAM";
+
         case LOAD_ITEM: return "LOAD_ITEM";
         case STORE_ITEM: return "STORE_ITEM";
+
         case BUILD_LIST: return "BUILD_LIST";
         case LEN_OF: return "LEN_OF";
+
         case LOAD_TRUE: return "LOAD_TRUE";
         case LOAD_FALSE: return "LOAD_FALSE";
+
         case CLASS_BEGIN: return "CLASS_BEGIN";
         case CLASS_END: return "CLASS_END";
+
         case AND_LOG: return "AND_LOG";
-        case OR_LOG: return "OR_LOG"; 
+        case OR_LOG: return "OR_LOG";
         case NOT_LOG: return "NOT_LOG";
+
         case SKIP: return "SKIP";
+
         case LOAD_ATTR: return "LOAD_ATTR";
         case STORE_ATTR: return "STORE_ATTR";
         case LOAD_METHOD: return "LOAD_METHOD";
+
+        case LOAD_VARARGS: return "LOAD_VARARGS";
+        case STORE_VARARGS: return "STORE_VARARGS";
+        case FUNCTION_CALL_VARARGS: return "FUNCTION_CALL_VARARGS";
+
+        case LOAD_NULL: return "LOAD_NULL";
+
+        case SET_SUPER_CLASS: return "SET_SUPER_CLASS";
+
+        case START_BLOCK: return "START_BLOCK";
+        case END_BLOCK: return "END_BLOCK";
+
+        case MAKE_CLOSURE: return "MAKE_CLOSURE";
+        case END_CLOSURE: return "END_CLOSURE";
+        case LOAD_CLOSURE: return "LOAD_CLOSURE";
+        case STORE_CLOSURE: return "STORE_CLOSURE";
+
+        case JUMP_TO_N_TIMES: return "JUMP_TO_N_TIMES";
+
+        case LOOP_STEP: return "LOOP_STEP";
+        case LOOP_PREP: return "LOOP_PREP";
+
+        case LOAD_LOCAL: return "LOAD_LOCAL";
+        case STORE_LOCAL: return "STORE_LOCAL";
     }
 
-    return "UNKNOWN";
+    return "UNKNOWN_OPCODE";
 }
 
 struct Scode *
@@ -211,23 +252,46 @@ int Scode_print(struct Scode *code) {
                 printf("MAKE_FUNCTION size=%d\n", code->code[i + 1]);
                 i++;
                 break;
+            
+            case JUMP_TO_N_TIMES:
+                printf("JUMP_TO_N_TIMES  %d\n", code->code[i + 1]);
+                i++;
+                break;
 
             case MAKE_CLOSURE:
                 printf("MAKE_CLOSURE size=%d\n", code->code[i + 1]);
+                i++;
+                break;
+            
+            case LOOP_STEP:
+                printf("LOOP_STEP var=%d addr=%d\n", code->code[i + 1], code->code[i + 2]);
+                i += 2;
+                break;
+
+            case LOOP_PREP:
+                printf("LOOP_PREP var=%d addr=%d\n", code->code[i + 1], code->code[i + 2]);
+                i += 2;
+                break;
+            
+            case MAKE_ARGS:
+                printf("MAKE_ARGS %d\n", code->code[i + 1]);
                 i++;
                 break;
 
             case CLASS_BEGIN:        printf("CLASS_BEGIN\n"); break;
             case CLASS_END:          printf("CLASS_END\n"); break;
             case FUNCTION_CALL:      printf("FUNCTION_CALL\n"); break;
+            case STORE_ITEM:         printf("STORE_ITEM\n"); break;
             case END_CLOSURE:        printf("END_CLOSURE\n"); break;
             case END_FUNCTION:       printf("END_FUNCTION\n"); break;
             case PRINT:              printf("PRINT\n"); break;
+            case START_FUNCTION:     printf("START_FUNCTION\n"); break;
             case RETURN_TOP:         printf("RETURN_TOP\n"); break;
             case POP_TOP:            printf("POP_TOP\n"); break;
             case BINARY_ADD:         printf("BINARY_ADD\n"); break;
             case BINARY_SUB:         printf("BINARY_SUB\n"); break;
             case BINARY_MUL:         printf("BINARY_MUL\n"); break;
+            case LEN_OF:             printf("LEN_OF\n"); break;
             case BINARY_DIV:         printf("BINARY_DIV\n"); break;
             case BINARY_EQUAL:       printf("BINARY_EQUAL\n"); break;
             case BINARY_NOT_EQUAL:   printf("BINARY_NOT_EQUAL\n"); break;
@@ -283,6 +347,15 @@ void Scode_print_disasm(struct Scode *code) {
                     i += size;
                 }
                 break;
+            
+            case LOOP_STEP:
+            case LOOP_PREP:
+                if (i + 2 <= code->size) {
+                    printf(" 0x%02X 0x%02X  // %s operand\n", code->code[i], code->code[i + 1],
+                        c == LOOP_STEP ? "LOOP_STEP" : "LOOP_PREP");
+                    i += 2;
+                }
+                break;
 
             case LOAD_GLOBAL:
             case STORE_GLOBAL:
@@ -292,6 +365,7 @@ void Scode_print_disasm(struct Scode *code) {
             case LOAD_ATTR:
             case STORE_ATTR:
             case ADD_LABEL:
+            case JUMP_TO_N_TIMES:
             case JUMP_TO:
             case POP_JUMP_IF_TRUE:
             case POP_JUMP_IF_FALSE:
@@ -302,10 +376,11 @@ void Scode_print_disasm(struct Scode *code) {
                         c == LOAD_GLOBAL ? "LOAD_GLOBAL" :
                         c == LOAD_CLOSURE ? "LOAD_CLOSURE" :
                         c == STORE_GLOBAL ? "STORE_GLOBAL" :
+                        c == JUMP_TO_N_TIMES ? "JUMP_TO_N_TIMES" :
                         c == STORE_CLOSURE ? "STORE_CLOSURE" :
+                        c == STORE_ITEM ? "STORE_ITEM" :
                         c == MAKE_CLOSURE ? "MAKE_CLOSURE" :
                         c == LOAD_ATTR ? "LOAD_ATTR" :
-                        c == STORE_ATTR ? "STORE_ATTR" :
                         c == ADD_LABEL ? "ADD_LABEL" :
                         c == JUMP_TO ? "JUMP_TO" :
                         c == POP_JUMP_IF_TRUE ? "POP_JUMP_IF_TRUE" :
@@ -319,7 +394,12 @@ void Scode_print_disasm(struct Scode *code) {
             case CLASS_END:          printf("  // CLASS_END\n"); break;
             case FUNCTION_CALL:      printf("  // FUNCTION_CALL\n"); break;
             case END_FUNCTION:       printf("  // END_FUNCTION\n"); break;
+            case STORE_ITEM:         printf("  // STORE_ITEM\n"); break;
             case PRINT:              printf("  // PRINT\n"); break;
+            case LEN_OF:             printf("  // LEN_OF\n"); break;
+            case LOAD_NULL:          printf("  // LOAD_NULL\n"); break;
+            case LOAD_TRUE:          printf("  // LOAD_TRUE\n"); break;
+            case LOAD_FALSE:         printf("  // LOAD_FALSE\n"); break;
             case RETURN_TOP:         printf("  // RETURN_TOP\n"); break;
             case POP_TOP:            printf("  // POP_TOP\n"); break;
             case BINARY_ADD:         printf("  // BINARY_ADD\n"); break;

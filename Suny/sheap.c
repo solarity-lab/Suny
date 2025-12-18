@@ -23,6 +23,8 @@ int Sheap_store(struct Sheap *heap, struct Sobj *obj) {
         heap->f_heap = Smem_Realloc(heap->f_heap, heap->f_heap_size * sizeof(struct Sobj*));
     }
 
+    SUNYINCREF(obj->f_value);
+
     heap->f_heap[heap->f_heap_index++] = obj;
     return 0;
 }

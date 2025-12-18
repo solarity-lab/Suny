@@ -2,7 +2,7 @@
 #include "smem.h"
 
 struct Sfunc *
-Sfunc_obj_new(void) {
+Sfunc_new(void) {
     struct Sfunc *func = Smem_Malloc(sizeof(struct Sfunc));
 
     func->params = Smem_Calloc(MAX_ARGS_SIZE, sizeof(struct Sobj*));
@@ -21,6 +21,8 @@ Sfunc_obj_new(void) {
     func->envi = NULL;
 
     func->is_closure = 0;
+
+    func->args_address[0] = 0;
 
     return func;
 }
@@ -50,29 +52,6 @@ Sfunc_free
     return 0;
 }
 
-struct Sfunc *
-Sfunc_set
-(struct Scode *code, 
-    int args_size, 
-    int code_size) {
-    struct Sfunc *func = Sfunc_obj_new();
-    func->code = code;
-    func->args_size = args_size;
-    func->code_size = code_size;
-    return func;
-}
-
-struct Sfunc*
-Sfunc_set_func
-(struct Sfunc *func, 
-    struct Sframe *frame, 
-    struct Scode *code, 
-    int args_size) {
-    func->code = code;
-    func->args_size = args_size;
-    return func;
-}
-
 struct Sobj*
 Sobj_set_func
 (struct Sfunc *func) {
@@ -92,7 +71,6 @@ Sobj_set_closure
     obj->f_type->f_func = func;
     return obj;
 }
-
 
 struct Sfunc*
 Sfunc_set_code

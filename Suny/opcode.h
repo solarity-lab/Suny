@@ -95,4 +95,15 @@
 #define LOAD_CLOSURE '\x58'
 #define STORE_CLOSURE '\x59'
 
+#define JUMP_TO_N_TIMES '\x60' // JUMP_TO_N_TIMES + <address> + <number of times>
+
+#define LOOP_STEP '\x61' // LOOP_STEP + <loop variable counter> + <address to jump back>
+#define LOOP_PREP '\x62'  // LOOP_PREP + <loop variable counter> + <address to jump if done>
+
+#define LOAD_LOCAL '\x63'
+#define STORE_LOCAL '\x64'
+
+#define START_FUNCTION '\x65'
+#define MAKE_ARGS '\x66'
+
 #endif // OPCODE_H

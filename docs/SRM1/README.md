@@ -12,7 +12,7 @@ Suny is intended to be a language that is:
 
 ## 1.1 Origins and Motivation
 
-Suny was created as an experiment: *Can one person design and build a language from scratch that is both minimal and useful?*
+Suny was created as an experiment: *Can one person mind design and build a language from scratch that is both minimal and useful?*   
 
 Many modern languages are large, with complex standard libraries, heavy runtime systems, and thousands of pages of documentation. While this makes them powerful, it also makes them intimidating to beginners and difficult to fully understand.
 
@@ -931,7 +931,7 @@ They allow you to make decisions, repeat actions, and handle complex logic.
 
 Suny provides these main control structures:
 
-* **Conditional Statements** (`if`, `elif`, `else`)
+* **Conditional Statements** (`if`, `else`)
 * **Loops** (`while`, `for`)
 * **Special Controls** (`break`, `continue`)
 
@@ -969,22 +969,16 @@ end
 ```
 
 If the first condition fails, the `else` block executes.
-
+elif
 ---
 
-### 7.1.3 `if ... elif ... else`
-
-You can chain multiple conditions with `elif` (short for *else if*).
+### 7.1.3 `if ... else`
 
 ```suny
 score = 85
 
 if score >= 90 do
     print("Excellent")
-elif score >= 75 do
-    print("Good job")
-elif score >= 50 do
-    print("You passed")
 else
     print("Failed")
 end
@@ -1190,6 +1184,10 @@ end
 
 ---
 
+## 7.4 `loop`
+
+---
+
 ## 7.4 Combining Control Structures
 
 Complex programs often use **if statements inside loops**:
@@ -1219,7 +1217,7 @@ They allow you to model real-world decisions, repeat tasks, and build dynamic pr
 
 ---
 
-# 8. Include
+## 8. Include
 
 The **`include`** statement in Suny allows you to organize your program across multiple files or folders.
 Instead of writing everything in a single file, you can split your code into smaller parts (modules, configs, helpers) and bring them together when needed.
@@ -1240,7 +1238,7 @@ pi = 3.14
 
 ```suny
 # main.suny
-include "config"
+include "config.suny"
 
 print(pi)   # 3.14
 ```
@@ -1275,67 +1273,37 @@ Suny only loads `math/main.suny` by default.
 If you need extra files (`extra.suny` in this example), you must include them explicitly:
 
 ```suny
-include "math/extra"
+include "math/extra.suny"
 ```
 
 ---
 
-## 8.3 Search Paths
-
-Suny resolves includes in this order:
-
-1. **Current directory** – looks for a file or folder in the same place as the current `.suny` file.
-
-2. **Library directory** – if not found locally, Suny searches in the global library folder:
-
-   ```
-   C:/Suny/libs
-   ```
-
-   Example:
-
-   ```
-   C:/Suny/libs/
-     └── std/
-          └── main.suny
-   ```
-
-   ```suny
-   include "std"
-   ```
-
-   This would load the standard library `std/main.suny`.
-
-3. **Error** – if nothing is found, Suny throws a compilation error.
-
----
-
-## 8.4 Error Cases
+## 8.3 Error Cases
 
 * **Missing file or folder**
 
-  ```suny
-  include "not_found"
-  ```
+```suny
+include "not_found"
+```
 
-  ```
-  Error: include target 'not_found' not found
-  ```
+```
+Error: include target 'not_found' not found
+```
 
 * **Folder without main.suny**
 
-  ```
-  mylib/
-    └── helper.suny
-  ```
+```
+mylib/
+└── helper.suny
+```
 
-  ```suny
-  include "mylib"
-  ```
+```suny
+include "mylib"
+```
 
-  ```
-  Error: no main.suny in folder 'mylib'
-  ```
+```
+Error: no main.suny in folder 'mylib'
+```
 
 * **Name conflicts**
 

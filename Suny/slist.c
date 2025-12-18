@@ -95,13 +95,13 @@ struct Slist* Slist_range(int start, int end) {
 
     if (start > end) {
         for (int i = end; i < start; i++) {
-            struct Sobj* value = Sobj_set_int(i);
+            struct Sobj* value = Sobj_set_value(i);
             SUNYINCREF(value);
             Slist_add(list, value);
         }
     } else {
         for (int i = start; i < end; i++) {
-            struct Sobj* value = Sobj_set_int(i);
+            struct Sobj* value = Sobj_set_value(i);
             SUNYINCREF(value);
             Slist_add(list, value);
         }
@@ -127,5 +127,25 @@ struct Slist *Slist_from_string_chars(char *str) {
         Slist_add(list, value);
     }
     
+    return list;
+}
+
+struct Slist *Slist_store(struct Slist *list, int index, struct Sobj *obj) {
+    SDEBUG("[slist.c] Slist_store(struct Slist *list, int index, struct Sobj *obj) (storing...)\n");
+
+    if (index >= list->capacity) {
+        list->capacity *= 2;
+        list->array = (struct Sobj**)Smem_Realloc(list->array, sizeof(struct Sobj*) * list->capacity);
+    }
+
+    if (index >= list->count) {
+        for (int i = list->count; i <= index; ++i) {
+            Slist_add(list, null_obj);
+        }
+    }
+
+    list->array[index] = obj;
+
+    SDEBUG("[slist.c] Slist_store(struct Slist *list, int index, struct Sobj *obj) (done)\n");
     return list;
 }

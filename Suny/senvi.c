@@ -11,6 +11,11 @@ struct Senvi* Senvi_new(void) {
 }
 
 int Senvi_free(struct Senvi* envi) {
+    for (int i = 0; i < envi->size; i++) {
+        Sobj_free(envi->envi[i]->f_value);
+        Sobj_free(envi->envi[i]);    
+    }
+
     Smem_Free(envi->envi);
     Smem_Free(envi);
     return 0;

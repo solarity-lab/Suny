@@ -56,7 +56,6 @@ Serror_syntax_error
     printf("At file '%s', line %d\n", error->lexer->file->file, error->lexer->line);
 
     SUNY_BREAK_POINT;
-
     return 0;
 }
 

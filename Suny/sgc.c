@@ -72,7 +72,7 @@ int SUNYINCREF(struct Sobj* obj) {
     return 0;
 }
 
-int SUNYDECREF(struct Sobj* obj, struct Garbage_pool* pool) {
+int MOVETOGC(struct Sobj* obj, struct Garbage_pool* pool) {
     if (!pool) {
         __ERROR("Error: pool is null\n");
     }

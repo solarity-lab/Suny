@@ -19,6 +19,7 @@ struct loop_stack {
 struct ScompilerUnit {
     int address_counter;
     int label_counter;
+    int args_address_counter;
 
     int is_in_function;
     int is_in_block;
@@ -29,6 +30,8 @@ struct ScompilerUnit {
     int loop_index;
 
     struct Sframe *frame;
+
+    struct Stable *prev_table;
 };
 
 struct Ssymbol {
@@ -41,6 +44,11 @@ struct Ssymbol {
     struct Stable* table;
 
     int is_closure;
+    int is_attribute;
+    int is_argument;
+
+    int is_global;
+    int is_local;
 };
 
 struct Stable {
@@ -59,19 +67,39 @@ struct Stable {
     int is_global;
 };
 
-struct Stable* Stable_new(void);
-struct Ssymbol *Symbol_new(char *name, int address, int args_size, int func_tag, char* func_name);
-struct Ssymbol *Symbol_find_symbol(struct Stable *table, char *name);
-struct Ssymbol *Symbol_store(struct Stable *table, char* name, int address);
-struct ScompilerUnit *ScompilerUnit_new(void);
-struct loop_stack ScompilerUnit_get_loop(struct ScompilerUnit *compiler);
+struct Stable* 
+Stable_new(void);
 
-int Stable_add_symbol(struct Stable *table, char *name, int address, int args_size, int func_tag, char* func_name);
-int Stable_find_symbol(struct Stable *table, char *name);
-int Stable_remove_symbol(struct Stable *table, char *name);
-int Stable_remove_symbol_address(struct Stable *table, int address);
-int ScompilerUnit_reset(struct ScompilerUnit *compiler);
-int ScompilerUnit_add_loop(struct ScompilerUnit *compiler, int continue_label, int break_label);
-int ScompilerUnit_pop_loop(struct ScompilerUnit *compiler);
+struct Ssymbol *
+Symbol_new
+(char *name, int address, int args_size, int func_tag, char* func_name);
+
+struct Ssymbol *
+Ssymbol_load
+(struct Stable *table, char *name);
+
+struct Ssymbol *
+Ssymbol_store
+(struct Stable *table, char* name, int address);
+
+struct Ssymbol *
+Ssymbol_add
+(struct Stable *table, char* name, int address);
+
+struct ScompilerUnit *
+ScompilerUnit_new(void);
+
+struct loop_stack 
+ScompilerUnit_get_loop
+(struct ScompilerUnit *compiler);
+
+int ScompilerUnit_reset
+(struct ScompilerUnit *compiler);
+
+int ScompilerUnit_add_loop
+(struct ScompilerUnit *compiler, int continue_label, int break_label);
+
+int ScompilerUnit_pop_loop
+(struct ScompilerUnit *compiler);
 
 #endif // STABLE_H

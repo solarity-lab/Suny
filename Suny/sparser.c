@@ -106,10 +106,6 @@ Sparser_parse(struct Sparser *parser) {
         return node;
     }
 
-    if (parser->token->type == DO) {
-        return Sparser_parse_block(parser);
-    }
-
     if (parser->token->type == FOR) {
         return Sparser_parse_for(parser);
     }
@@ -689,6 +685,8 @@ Sparser_parse_block_expression
         }
     }
 
+    // parser->token = Slexer_get_next_token(parser->lexer);
+
     return node;
 }
 
@@ -1207,16 +1205,18 @@ Sparser_parse_loop
     parser->token = Slexer_get_next_token(parser->lexer);
 
     if (parser->token->type == DO) {
-        parser->token = Slexer_get_next_token(parser->lexer);
         struct Sast *block = Sparser_parse_block(parser);
         node->block = block->block;
         node->block_size = block->block_size;
         return node;
     } else {
         struct Sast *times = Sparser_parse(parser);
-        node->expr = times;
+        
         Sast_set_line(parser->lexer, times);
         Sast_expected_expression(times);
+
+        node->times = times;
+        node->is_times = 1;
 
         if (parser->token->type == TIMES) {
             parser->token = Slexer_get_next_token(parser->lexer);
@@ -1316,6 +1316,7 @@ struct Sast *
 Sparser_parse_attribute_expression
 (struct Sparser *parser, struct Sast* object) {
     struct Sast *node = AST(AST_ATTRIBUTE_EXPRESSION, 0, NULL);
+    node->target = object;
 
     parser->token = Slexer_get_next_token(parser->lexer);
 
@@ -1326,19 +1327,21 @@ Sparser_parse_attribute_expression
 
     parser->token = Slexer_get_next_token(parser->lexer);
 
-    struct Sast *attribute = Sparser_parse_primary_expression(parser);
-
-    node->expr = object;
-    node->attribute = attribute;
+    if (parser->token->type == IDENTIFIER) {
+        node->attr_name = parser->token->lexeme;
+    } else {
+        Serror_parser("Expected identifier", parser->lexer);
+        return NULL;
+    }
 
     parser->next_token = Slexer_look_ahead(parser->lexer);
 
-    if (parser->next_token->type == DOT) {
-        return Sparser_parse_attribute_expression(parser, node);
+    if (parser->next_token->type == LPAREN) {
+        return Sparser_parse_function_call(parser, node);
     } else if (parser->next_token->type == LBRACKET) {
         return Sparser_parse_extract(parser, node);
-    } else if (parser->next_token->type == LPAREN) {
-        return Sparser_parse_function_call(parser, node);
+    } else if (parser->next_token->type == DOT) {
+        return Sparser_parse_attribute_expression(parser, node);
     }
 
     return node;
@@ -1348,15 +1351,14 @@ struct Sast *
 Sparser_parse_store_attribute
 (struct Sparser *parser, struct Sast* object) {
     struct Sast *node = AST(AST_STORE_ATTRIBUTE, 0, NULL);
-    node->expr = object;
     
     parser->token = Slexer_get_next_token(parser->lexer);
-
     struct Sast *value = Sparser_parse(parser);
 
     Sast_set_line(parser->lexer, value);
     Sast_expected_expression(value);
 
+    node->expr = object;
     node->attribute = value;
 
     return node;

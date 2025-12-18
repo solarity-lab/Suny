@@ -68,11 +68,16 @@ Scompiler_compile
             return Scompiler_compile_ast_import(compiler, ast, table);
         case AST_INCLUDE:
             return Scompiler_compile_ast_include(compiler, ast, table);
+        case AST_LOOP:
+            return Scompiler_compile_ast_loop(compiler, ast, table);
+        case AST_NULL_EXPRESSION: {
+            PUSH(code, LOAD_NULL);
+            return code;
+        }
         case AST_TRUE: {
             PUSH(code, LOAD_TRUE);
             return code;
         }
-
         case AST_FALSE: {
             PUSH(code, LOAD_FALSE);
             return code;
@@ -92,6 +97,7 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_program
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     table->global = table;
+    table->is_global = 1;
     table->global->is_global = 1;
 
     if (!ast || ast->type != AST_PROGRAM) {
@@ -176,7 +182,7 @@ Scompiler_compile_ast_identifier
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
 
-    struct Ssymbol* symbol = Symbol_find_symbol(table, ast->lexeme);
+    struct Ssymbol* symbol = Ssymbol_load(table, ast->lexeme);
 
     if (!symbol) {
         char* message = string("Undefined variable '%s'", ast->lexeme);
@@ -200,7 +206,11 @@ Scompiler_compile_ast_assignment
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
 
-    struct Ssymbol* symbol = Symbol_store(table, ast->var_name, ++compiler->address_counter);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->var_name, ++compiler->address_counter);
+
+    if (compiler->is_in_class) {
+        symbol->is_attribute = 1;
+    }
 
     if (!symbol) {
         struct Serror *error = Serror_set("COMPILER_ERROR", "Global scope have not intialized yet", ast->lexer);
@@ -239,20 +249,15 @@ Scompiler_compile_ast_function_call
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
 
-    int address = Stable_find_symbol(table, ast->lexeme);
+    struct Ssymbol* symbol = Ssymbol_load(table, ast->lexeme);
 
-    if (not_found(address) && table->global != NULL && table->is_function_table) {
-        address = Stable_find_symbol(table->global, ast->lexeme);
-        if (not_found(address)) {
-            char* message = string("Undefined function '%s'", ast->lexeme);
-            struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
-            Serror_syntax_error(error);
-        }
-    } else if (not_found(address)) {
+    if (!symbol) {
         char* message = string("Undefined function '%s'", ast->lexeme);
         struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
         Serror_syntax_error(error);
     }
+
+    byte_t address = symbol->address;
 
     struct Scode *param_code = Scompiler_compile_ast_block(compiler, ast->params, table, ast->param_count);
     INSERT(code, param_code);
@@ -404,9 +409,9 @@ Scompiler_compile_ast_closure
 SUNY_API struct Scode* 
 Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-    int address = ++compiler->address_counter;
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
 
-    byte_t faddress = Stable_add_symbol(table, ast->lexeme, address, 0, 0, NULL);
+    byte_t faddress = symbol->address;
     byte_t fargs_count = ast->args_count;
     
     table->function_name = ast->lexeme;
@@ -545,7 +550,6 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_for
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     int iden = compiler->address_counter++;
-
     int loop_start = compiler->label_counter++;
     int loop_end = compiler->label_counter++;
 
@@ -553,7 +557,7 @@ Scompiler_compile_ast_for
 
     ScompilerUnit_add_loop(compiler, loop_start, loop_end);
 
-    iden = Stable_add_symbol(table, ast->lexeme, iden, 0, 0, NULL);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, iden);
 
     struct Scode *for_body = Scompiler_compile_ast_body(compiler, ast->block, table, ast->block_size);
     struct Scode *iter = Scompiler_compile(compiler, ast->expr, table);
@@ -643,18 +647,27 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_class
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     if (compiler->is_in_function) {
-        struct Serror *error = Serror_set("COMPILER_ERROR", "Class definition inside function is not allowed", ast->lexer);
+        struct Serror *error = Serror_set("COMPILER_ERROR", "Class can't be inside function", ast->lexer);
         Serror_syntax_error(error);
     }
 
     if (compiler->is_in_loop) {
-        struct Serror *error = Serror_set("COMPILER_ERROR", "Class definition inside loop is not allowed", ast->lexer);
+        struct Serror *error = Serror_set("COMPILER_ERROR", "Class can't be inside loop", ast->lexer);
         Serror_syntax_error(error);
     }
     
-    struct Scode *class_body = Scompiler_compile_ast_body(compiler, ast->body, table, ast->body_size);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
 
-    int address = Stable_add_symbol(table, ast->var_name, ++compiler->address_counter, 0, 1, ast->var_name);
+    Ssymbol_store(table, "__init__", __INIT__ADDRESS);
+    Ssymbol_store(table, "__add__", __ADD__ADDRESS);
+    Ssymbol_store(table, "__sub__", __SUB__ADDRESS);
+    Ssymbol_store(table, "__mul__", __MUL__ADDRESS);
+    Ssymbol_store(table, "__div__", __DIV__ADDRESS);
+    Ssymbol_store(table, "__tostring__", __TO_STR__ADDRESS);
+
+    compiler->is_in_class = 1;
+    struct Scode *class_body = Scompiler_compile_ast_body(compiler, ast->block, table, ast->block_size);
+    compiler->is_in_class = 0;
 
     struct Scode *code = NULL_CODE_PTR;
 
@@ -666,7 +679,7 @@ Scompiler_compile_ast_class
 
     PUSH(code, STORE_GLOBAL);
 
-    PUSH(code, address);
+    PUSH(code, symbol->address);
 
     return code;
 }
@@ -776,12 +789,12 @@ Scompiler_compile_ast_include
     }
 
     if (if_folder_exists(ast->lexeme)) {
-        char* file = string("%s/main.mer", ast->lexeme);
+        char* file = string("%s/main.suny", ast->lexeme);
 
         if (if_file_exists(file)) {
             return Scode_get_code_from_file(file, compiler, table);
         } else {
-            char* message = string("Cannot find file '%s' make sure main.mer exists in the folder", file);
+            char* message = string("Cannot find file '%s' make sure main.suny exists in the folder", file);
             struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
             Serror_syntax_error(error);
             return NULL_CODE_PTR;
@@ -794,12 +807,12 @@ Scompiler_compile_ast_include
     }
 
     if (if_folder_exists_in(ast->lexeme, "C:\\Suny\\libs\\")) {
-        char* file = string("C:\\Suny\\libs\\%s\\main.mer", ast->lexeme);
+        char* file = string("C:\\Suny\\libs\\%s\\main.suny", ast->lexeme);
 
         if (if_file_exists(file)) {
             return Scode_get_code_from_file(file, compiler, table);
         } else {
-            char* message = string("Cannot find folder '%s' make sure main.mer exists in Library folder (C:\\Suny\\libs)", ast->lexeme);
+            char* message = string("Cannot find folder '%s' make sure main.suny exists in Library folder (C:\\Suny\\libs)", ast->lexeme);
             struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
             Serror_syntax_error(error);
             return NULL_CODE_PTR;
@@ -830,57 +843,33 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_attribute
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
-    struct Scode *expr = Scompiler_compile(compiler, ast->expr, table);
+    struct Scode *target = Scompiler_compile(compiler, ast->target, table);
+    char* name = ast->attr_name;
 
-    if (ast->attribute->type == AST_IDENTIFIER) {
-        struct Ssymbol* symbol = Symbol_find_symbol(table, ast->attribute->lexeme);
+    struct Ssymbol* symbol = Ssymbol_load(table, name);
 
-        if (!symbol && table->global != NULL && table->is_function_table) {
-            symbol = Symbol_find_symbol(table->global, ast->attribute->lexeme);
+    if (!symbol && table->global != NULL && table->is_function_table) {
+        symbol = Ssymbol_load(table->global, name);
 
-            if (!symbol) {
-                char* message = string("Undefined variable '%s'", ast->attribute->lexeme);
-                struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
-                Serror_syntax_error(error);
-            }
-        } else if (!symbol) {
-            char* message = string("Undefined variable '%s'", ast->attribute->lexeme);
+        if (!symbol) {
+            char* message = string("Undefined attribute '%s'", name);
             struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
             Serror_syntax_error(error);
+            return NULL_CODE_PTR;
         }
-
-        INSERT(code, expr);
-        PUSH(code, LOAD_ATTR);
-        PUSH(code, symbol->address);
-        
-    } else if (ast->attribute->type == AST_FUNCTION_CALL_EXPRESSION) {
-        struct Ssymbol* symbol = Symbol_find_symbol(table, ast->attribute->lexeme);
-
-        if (!symbol && table->global != NULL && table->is_function_table) {
-            symbol = Symbol_find_symbol(table->global, ast->attribute->lexeme);
-
-            if (!symbol) {
-                char* message = string("Undefined function '%s'", ast->attribute->lexeme);
-                struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
-                Serror_syntax_error(error);
-            }
-        } else if (!symbol) {
-            char* message = string("Undefined function '%s'", ast->attribute->lexeme);
-            struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
-            Serror_syntax_error(error);
-        }
-
-        struct Scode *params = Scompiler_compile_ast_block(compiler, ast->attribute->params, table, ast->attribute->param_count);
-        
-        INSERT(code, params);
-
-        INSERT(code, expr);
-
-        PUSH(code, LOAD_ATTR);
-        PUSH(code, symbol->address);
-
-        PUSH(code, FUNCTION_CALL);
     }
+
+    if (!symbol) {
+        char* message = string("Undefined attribute '%s'", name);
+        struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
+        Serror_syntax_error(error);
+        return NULL_CODE_PTR;
+    }
+
+    INSERT(code, target);
+
+    PUSH(code, LOAD_ATTR);
+    PUSH(code, symbol->address);
 
     return code;
 }
@@ -890,41 +879,32 @@ Scompiler_compile_ast_store_attribute
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Sast* assign = ast->expr;
     struct Sast* value = ast->attribute;
-    
-    struct Scode *assign_c = Scompiler_compile(compiler, assign->expr, table);
-    struct Scode *value_c = Scompiler_compile(compiler, value, table);
 
-    struct Scode *code = NULL_CODE_PTR;
-    
-    INSERT(code, value_c);
-    INSERT(code, assign_c);
+    if (assign->type == AST_ATTRIBUTE_EXPRESSION) {
+        char* name = assign->attr_name;
+        struct Ssymbol* symbol = Ssymbol_load(table, name);
 
-    if (assign->attribute->type == AST_IDENTIFIER) {
-        struct Ssymbol* symbol = Symbol_find_symbol(table, assign->attribute->lexeme);
-
-        if (!symbol && table->global != NULL && table->is_function_table) {
-            symbol = Symbol_find_symbol(table->global, assign->attribute->lexeme);
-
-            if (!symbol) {
-                char* message = string("Undefined variable '%s'", assign->attribute->lexeme);
-                struct Serror *error = Serror_set("COMPILER_ERROR", message, assign->lexer);
-                Serror_syntax_error(error);
-            }
-        } else if (!symbol) {
-            char* message = string("Undefined variable '%s'", assign->attribute->lexeme);
-            struct Serror *error = Serror_set("COMPILER_ERROR", message, assign->lexer);
+        if (!symbol) {
+            char* message = string("Undefined attribute '%s'", name);
+            struct Serror *error = Serror_set("COMPILER_ERROR", message, ast->lexer);
             Serror_syntax_error(error);
+            return NULL_CODE_PTR;
         }
+
+        struct Scode *code = NULL_CODE_PTR;
+        struct Scode *target = Scompiler_compile(compiler, assign->target, table);
+        struct Scode *value_code = Scompiler_compile(compiler, value, table);
+
+        INSERT(code, value_code);
+        INSERT(code, target);
 
         PUSH(code, STORE_ATTR);
         PUSH(code, symbol->address);
-    } else {
-        char* message = string("Wrong attribute can not assign to it '%s'", assign->attribute->lexeme);
-        struct Serror *error = Serror_set("COMPILER_ERROR", message, assign->lexer);
-        Serror_syntax_error(error);
+
+        return code;
     }
-    
-    return code;
+
+    return NULL_CODE_PTR;
 }
 
 SUNY_API struct Scode* 
@@ -966,6 +946,28 @@ Scompiler_compile_ast_body
 }
 
 SUNY_API struct Scode* 
+Scompiler_compile_ast_local_body
+(struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size) {
+    struct Scode *code = NULL_CODE_PTR;
+
+    struct Stable *local_table = Stable_new();
+    local_table->global = table->global;
+    local_table->global->is_global = 1;
+    local_table->prev = table;
+
+    for (int i = 0; i < block_size; i++) {
+        struct Scode *child = Scompiler_compile(compiler, block[i], local_table);
+        INSERT(code, child);
+
+        if (is_expr(block[i])) {
+            PUSH(code, POP_TOP);
+        }
+    }
+
+    return code;
+}
+
+SUNY_API struct Scode* 
 Scompiler_compile_ast_function_body
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size, char **args, int args_size) {
     struct Scode *code = NULL_CODE_PTR;
@@ -974,15 +976,19 @@ Scompiler_compile_ast_function_body
     
     local_table->is_function_table = 1;
     local_table->global = table->global;
+    
     local_table->prev = table;
 
     compiler->is_in_function = 1;
-
-    int args_address = 0;
-
+    
     for (int i = 0; i < args_size; i++) {
-        Stable_add_symbol(local_table, args[i], args_address++, 0, 0, NULL);
+        struct Ssymbol* symbol = Ssymbol_store(local_table, args[i], ++compiler->address_counter);
+        symbol->is_argument = 1;
+        PUSH(code, MAKE_ARGS);
+        PUSH(code, symbol->address);
     }
+
+    PUSH(code, START_FUNCTION);
 
     for (int i = 0; i < block_size; i++) {
         struct Scode *child = Scompiler_compile(compiler, block[i], local_table);
@@ -1004,21 +1010,33 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_function_body_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table, int args_count, char **param_names) {
     compiler->is_in_function = 1;
+    struct Scode *code = NULL_CODE_PTR;
 
     struct Stable *local_table = Stable_new();
-    local_table->global = table->global;
+    
     local_table->is_function_table = 1;
+    local_table->global = table->global;
+    
     local_table->prev = table;
 
-    int args_address = 0;
+    compiler->is_in_function = 1;
 
     for (int i = 0; i < args_count; i++) {
-        Stable_add_symbol(local_table, param_names[i], args_address++, 0, 0, NULL);
+        struct Ssymbol* symbol = Ssymbol_store(local_table, param_names[i], ++compiler->address_counter);
+        symbol->is_argument = 1;
+
+        PUSH(code, MAKE_ARGS);
+        PUSH(code, symbol->address);
     }
 
-    struct Scode *code = Scompiler_compile(compiler, ast, local_table);
+    PUSH(code, START_FUNCTION);
+
+    struct Scode *body = Scompiler_compile(compiler, ast, local_table);
+
     local_table->is_function_table = 0;
     compiler->is_in_function = 0;
+
+    INSERT(code, body);
 
     return code;
 }
@@ -1058,4 +1076,60 @@ Scompiler_compile_ast_store_index
     PUSH(code, STORE_ITEM);
 
     return code;
+}
+
+SUNY_API struct Scode* 
+Scompiler_compile_ast_loop
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+    struct Scode *code = NULL_CODE_PTR;
+    int loop_start = compiler->label_counter++;
+    int loop_end = compiler->label_counter++;
+    compiler->is_in_loop = 1;
+    ScompilerUnit_add_loop(compiler, loop_start, loop_end);
+    struct Scode *loop_block = Scompiler_compile_ast_body(compiler, ast->block, table, ast->block_size);
+    ScompilerUnit_pop_loop(compiler);
+    compiler->is_in_loop = 0;
+    if (ast->is_times) {
+        int LOOP_COUNTER = 14;
+
+        struct Scode *times_expr = Scompiler_compile(compiler, ast->times, table);
+
+        INSERT(code, times_expr);
+        PUSH(code, STORE_GLOBAL);
+        PUSH(code, LOOP_COUNTER);
+
+        PUSH(code, ADD_LABEL);
+        PUSH(code, loop_start);
+
+        PUSH(code, LOOP_PREP);
+        PUSH(code, LOOP_COUNTER);
+        PUSH(code, loop_end);
+
+        INSERT(code, loop_block);
+
+        PUSH(code, LOOP_STEP);
+        PUSH(code, LOOP_COUNTER);
+        PUSH(code, loop_start);
+
+        PUSH(code, ADD_LABEL);
+        PUSH(code, loop_end);
+
+        ScompilerUnit_pop_loop(compiler);
+
+        return code;
+    }
+
+    PUSH(code, ADD_LABEL);
+    PUSH(code, loop_start);
+
+    INSERT(code, loop_block);
+
+    PUSH(code, JUMP_TO);
+    PUSH(code, loop_start);
+
+    PUSH(code, ADD_LABEL);
+    PUSH(code, loop_end);
+
+
+    return code;    
 }

@@ -187,16 +187,16 @@ Seval_bigger
         int result = Scharcmp_bigger(a, b, size_a, size_b);
 
         if (result) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp > 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_gt) {
@@ -212,9 +212,9 @@ Seval_bigger
         }
     } else {
         if (obj1->value->value > obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }
@@ -239,16 +239,16 @@ Seval_smaller
         int result = Scharcmp_smaller(a, b, size_a, size_b);
 
         if (result) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp < 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_lt) {
@@ -264,9 +264,9 @@ Seval_smaller
         }
     } else {
         if (obj1->value->value < obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }
@@ -276,9 +276,9 @@ Seval_equal
 (struct Sobj *obj1, struct Sobj *obj2) {
     if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
         if (obj1->type == NULL_OBJ && obj2->type == NULL_OBJ) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 
@@ -295,16 +295,16 @@ Seval_equal
         int result = Scharcmp_equal(a, b, size_a, size_b);
 
         if (result) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp == 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_eq) {
@@ -320,9 +320,9 @@ Seval_equal
         }
     } else {
         if (obj1->value->value == obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }
@@ -332,9 +332,9 @@ Seval_not_equal
 (struct Sobj *obj1, struct Sobj *obj2) {
     if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
         if (obj1->type == NULL_OBJ && obj2->type == NULL_OBJ) {
-            return Sobj_make_false();
+            return false_obj;
         } else {
-            return Sobj_make_true();
+            return true_obj;
         }
     }
 
@@ -351,16 +351,16 @@ Seval_not_equal
         int result = Scharcmp_equal(a, b, size_a, size_b);
 
         if (!result) {
-            return Sobj_make_true();   
+            return true_obj;   
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp != 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_ne) {
@@ -376,9 +376,9 @@ Seval_not_equal
         }
     } else {
         if (obj1->value->value != obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }
@@ -388,9 +388,9 @@ Seval_bigger_and_equal
 (struct Sobj *obj1, struct Sobj *obj2) {
     if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
         if (obj1->type == NULL_OBJ && obj2->type == NULL_OBJ) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 
@@ -408,16 +408,16 @@ Seval_bigger_and_equal
         int result2 = Scharcmp_equal(a, b, size_a, size_b);
 
         if (result || result2) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp > 0 || cmp == 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_ge) {
@@ -433,9 +433,9 @@ Seval_bigger_and_equal
         }
     } else {
         if (obj1->value->value > obj2->value->value || obj1->value->value == obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }
@@ -445,9 +445,9 @@ Seval_smaller_and_equal
 (struct Sobj *obj1, struct Sobj *obj2) {
     if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
         if (obj1->type == NULL_OBJ && obj2->type == NULL_OBJ) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 
@@ -465,16 +465,16 @@ Seval_smaller_and_equal
         int result2 = Scharcmp_equal(a, b, size_a, size_b);
 
         if (result || result2) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
         int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
         if (cmp < 0 || cmp == 0) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     } else if (obj1->type == USER_DATA_OBJ) {
         if (obj1->meta && obj1->meta->mm_le) {
@@ -490,9 +490,9 @@ Seval_smaller_and_equal
         }
     } else {
         if (obj1->value->value < obj2->value->value || obj1->value->value == obj2->value->value) {
-            return Sobj_make_true();
+            return true_obj;
         } else {
-            return Sobj_make_false();
+            return false_obj;
         }
     }
 }

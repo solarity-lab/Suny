@@ -40,6 +40,9 @@
 #define __i__ "__i__"
 #define __i__a 33
 
+#define __calle__ "calle"
+#define __calle__a 34
+
 #define SUNY_BREAK_POINT while(1)
 #define SUNY_EXIT exit(0)
 

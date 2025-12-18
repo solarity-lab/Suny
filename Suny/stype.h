@@ -18,6 +18,7 @@ struct Sbool;
 struct Sclass;
 struct Stype;
 struct Suserdata;
+struct Smeta;
 
 struct Suserdata {
     void* data;
@@ -29,10 +30,8 @@ struct Sfunc {
 
     struct Scode *code;
 
-    int args_index;
     int code_index;
 
-    int args_size;
     int code_size;
 
     struct Sobj **params;
@@ -42,6 +41,10 @@ struct Sfunc {
 
     struct Sobj* cf; // closure function
     struct Senvi* envi;
+
+    int args_address[DEFAULT_MAX];
+    int args_size;
+    int args_index;
 };
 
 struct Scall_context {
@@ -84,6 +87,7 @@ struct Sclass {
     struct Sobj** methods;
     struct Sclass* super_class;
     struct Sclass* dad;
+    struct Smeta* meta;
     int count;
     int capacity;
 };

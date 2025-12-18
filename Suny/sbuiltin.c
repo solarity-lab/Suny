@@ -25,19 +25,7 @@ SUNY_API struct Sobj* Sisdigit_builtin(struct Sframe *frame) {
         return result;
     }
 
-    return NULL;
-}
-
-SUNY_API struct Sobj* Snumber(struct Sframe* frame) {
-    struct Sobj *string = Sframe_pop(frame);
-
-    float value = Satof(string->f_type->f_str->string);
-
-    struct Sobj *obj = Svalue(value);
-
-    SUNYDECREF(string, frame->gc_pool);
-
-    return obj;
+    return null_obj;
 }
 
 SUNY_API struct Sobj* Sputs(struct Sframe* frame) {
@@ -45,17 +33,17 @@ SUNY_API struct Sobj* Sputs(struct Sframe* frame) {
 
     Sio_write(obj);
 
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     return null_obj;
 }
 
-SUNY_API struct Sobj* Sprintf(struct Sframe* frame) {
+SUNY_API struct Sobj* Sprint(struct Sframe* frame) {
     struct Sobj *obj = Sframe_pop(frame);
 
     if (obj->type == CLASS_OBJ) {
         if (obj->meta->meta_f_tostring) {
-            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 1);
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
             args[0] = obj;
 
             struct Scall_context *context = Scall_context_new();
@@ -78,7 +66,7 @@ SUNY_API struct Sobj* Sprintf(struct Sframe* frame) {
 
     printf("\n");
 
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     return null_obj;
 }
@@ -132,8 +120,8 @@ SUNY_API struct Sobj* Sload_dll(struct Sframe *frame) {
 
     struct Sobj *result = f(frame);
 
-    SUNYDECREF(func, frame->gc_pool);
-    SUNYDECREF(dll, frame->gc_pool);
+    MOVETOGC(func, frame->gc_pool);
+    MOVETOGC(dll, frame->gc_pool);
 
     return result;
 }
@@ -157,7 +145,7 @@ SUNY_API struct Sobj* Spush(struct Sframe* frame) {
     Slist_add(list->f_type->f_list, value);
 
     SUNYINCREF(value);
-    SUNYDECREF(list, frame->gc_pool);
+    MOVETOGC(list, frame->gc_pool);
 
     return list;
 }
@@ -171,7 +159,7 @@ SUNY_API struct Sobj* Spop(struct Sframe* frame) {
     list->count -= 1;
 
     _SUNYDECREF(last);
-    SUNYDECREF(last, frame->gc_pool);
+    MOVETOGC(last, frame->gc_pool);
 
     return obj;
 }
@@ -186,60 +174,8 @@ SUNY_API struct Sobj* Srange(struct Sframe *frame) {
     struct Slist *list = Slist_range(start_value, end_value);
     struct Sobj *obj = Sobj_make_list(list);
 
-    SUNYDECREF(start, frame->gc_pool);
-    SUNYDECREF(end, frame->gc_pool);
-
-    return obj;
-}
-
-SUNY_API struct Sobj* Sint(struct Sframe *frame) {
-    struct Sobj *value = Sframe_pop(frame);
-    int value_int = value->value->value;
-    struct Sobj *obj = Svalue(value_int);
-
-    return obj;
-}
-
-SUNY_API struct Sobj* Stostring(struct Sframe* frame) {
-    struct Sobj *obj = Sframe_pop(frame);
-
-    char* str = Sio_sprintf(obj);
-
-    struct Sobj *result = Sobj_make_str(str, strlen(str));
-
-    return result;
-}
-
-SUNY_API struct Sobj* Scast(struct Sframe* frame) {
-    struct Sobj *type = Sframe_pop(frame);
-    struct Sobj *obj = Sframe_pop(frame);
-
-    char* type_str = type->f_type->f_str->string;
-
-    if (strcmp(type_str, "float") == 0) {
-        return Svalue(obj->value->value);
-    } else if (strcmp(type_str, "string") == 0) {
-        char* str = Sio_sprintf(obj);
-        struct Sobj *result = Sobj_make_str(str, strlen(str));
-        return result;
-    } else if (strcmp(type_str, "bool") == 0) {
-        return Sobj_make_bool(obj->value->value);
-    } else if (strcmp(type_str, "int") == 0) {
-        int value = obj->value->value;
-        struct Sobj *result = Svalue(value);
-        return result;
-    } else if (strcmp(type_str, "list") == 0) {
-        if (obj->type == LIST_OBJ) {
-            return obj;
-        } else if (obj->type == STRING_OBJ) {
-            char* str = obj->f_type->f_str->string;
-            struct Slist *list = Slist_from_string_chars(str);
-            struct Sobj *result = Sobj_make_list(list);
-            return result;
-        }
-    } else if (strcmp(type_str, "null") == 0) {
-        return Sobj_make_null();
-    }
+    MOVETOGC(start, frame->gc_pool);
+    MOVETOGC(end, frame->gc_pool);
 
     return obj;
 }
@@ -259,7 +195,6 @@ SUNY_API struct Sobj* Slist_cast(struct Sframe* frame) {
 
 SUNY_API struct Sobj* Sstring_cast(struct Sframe* frame) {
     struct Sobj *obj = Sframe_pop(frame);
-    
     char* str = Sio_sprintf(obj);
     struct Sobj *result = Sobj_make_str(str, strlen(str));
     return result;
@@ -267,7 +202,12 @@ SUNY_API struct Sobj* Sstring_cast(struct Sframe* frame) {
 
 SUNY_API struct Sobj* Sint_cast(struct Sframe* frame) {
     struct Sobj *obj = Sframe_pop(frame);
-    
+    if (obj->type == STRING_OBJ) {
+        char* str = obj->f_type->f_str->string;
+        int int_value = Satof(str);
+        return Svalue(int_value);
+    }
+
     int value = obj->value->value;
     return Svalue(value);;
 }

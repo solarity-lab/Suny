@@ -84,9 +84,12 @@ struct Sast* Sast_new(void) {
     sast->is_assign = 0;
     sast->is_lambda = 0;
     sast->has_until = 0;
-    sast->has_times = 0;
+    sast->is_times = 0;
+    sast->is_until = 0;
     sast->is_having_params = 0;
 
+    sast->times = NULL;
+    sast->until = NULL;
     sast->var_name = NULL;
     sast->var_value = NULL;
 
@@ -129,6 +132,9 @@ struct Sast* Sast_new(void) {
     sast->extract_obj = NULL;
     sast->extract_value = NULL;
     sast->attribute = NULL;
+    
+    sast->target = NULL;
+    sast->attr_name = NULL;
 
     sast->list_capacity = 1024;
     sast->list_count = 0;

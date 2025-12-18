@@ -40,6 +40,7 @@ Sclass_store_object
     for (int i = 0; i < sclass->count; i++) {
         if (sclass->methods[i]->address == address) {
             _SUNYDECREF(sclass->methods[i]->f_value);
+            MOVETOGC(sclass->methods[i]->f_value, frame->gc_pool);
             sclass->methods[i]->f_value = object;
             return sclass;
         }
@@ -49,6 +50,9 @@ Sclass_store_object
     method->type = LOCAL_OBJ;
     method->f_value = object;
     method->address = address;
+
+    _SUNYINCREF(object);
+    _SUNYINCREF(method);
 
     sclass->methods[sclass->count++] = method;
 
@@ -76,6 +80,7 @@ Sobj_make_class(struct Sclass* sclass) {
     struct Sobj* obj = Sobj_new();
     obj->type = CLASS_OBJ;
     obj->f_type = Stype_new();
+    obj->meta = Smeta_new();
     obj->f_type->f_class = sclass;
     return obj;
 }
@@ -88,6 +93,7 @@ Sclass_push_obj
         sclass->methods = Smem_Realloc(sclass->methods, sizeof(struct Sobj*) * sclass->capacity);
     }
 
+    _SUNYINCREF(obj->f_value);
     sclass->methods[sclass->count++] = obj;
     return obj;
 }
@@ -98,7 +104,7 @@ Sclass_store_local_obj
     for (int i = 0; i < sclass->count; i++) {
         if (sclass->methods[i]->address == address) {
             _SUNYDECREF(sclass->methods[i]->f_value);
-            SUNYDECREF(sclass->methods[i]->f_value, frame->gc_pool);
+            MOVETOGC(sclass->methods[i]->f_value, frame->gc_pool);
 
             sclass->methods[i]->f_value = value;
             return sclass;
@@ -110,17 +116,19 @@ Sclass_store_local_obj
     method->f_value = value;
     method->address = address;
 
+    _SUNYINCREF(value);
+    _SUNYINCREF(method);
+
     sclass->methods[sclass->count++] = method;
     
     return NULL;
 }
 
 struct Sobj*
-Sobj_creat_a_copy_version_of_class(struct Sclass* sclass) {
+Sobj_copy_class(struct Sclass* sclass) {
     struct Sclass* new_sclass = Sclass_copy(sclass);
     return Sobj_make_class(new_sclass);
-}
-
+}   
 
 int
 Sclass_has_method
@@ -154,7 +162,7 @@ Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
         return frame;
     }
 
-    struct Sobj *obj = Sobj_creat_a_copy_version_of_class(f_obj->f_type->f_class);
+    struct Sobj *obj = Sobj_copy_class(f_obj->f_type->f_class);
 
     obj->prev = f_obj;
 
@@ -166,20 +174,6 @@ Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
     struct Sobj* div_f = Sclass_get_object(obj->f_type->f_class, __DIV__ADDRESS);
 
     struct Sobj* tostring_f = Sclass_get_object(obj->f_type->f_class, __TO_STR__ADDRESS);
-    
-    if (init_f) {
-        struct Scall_context *context = Scall_context_new();
-
-        init_f->f_value->prev = obj;
-
-        Scall_context_set_real_func(context, frame, init_f->f_value);
-        Svm_run_call_context(context);
-        Scall_context_free(context);
-    }
-
-    if (!obj->meta) {
-        obj->meta = Smeta_new();
-    }
 
     if (add_f && add_f->f_value->type == FUNC_OBJ) {
         obj->meta->meta_f_add = add_f->f_value;
@@ -210,6 +204,18 @@ Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
         tostring_f->f_value->prev = obj;
         obj->meta->is_meta_class = 1;
     }
+
+    if (init_f) {
+        struct Scall_context *context = Scall_context_new();
+
+        init_f->f_value->prev = obj;
+
+        Scall_context_set_real_func(context, frame, init_f->f_value);
+        Svm_run_call_context(context);
+        Scall_context_free(context);
+    }
+
+    Sframe_push(frame, obj);
 
     return frame;
 }

@@ -18,6 +18,7 @@ SUNY_API struct Sobj *Seval_binary_add(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_add, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
 
@@ -36,6 +37,7 @@ SUNY_API struct Sobj *Seval_binary_add(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_add, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
 
@@ -47,8 +49,8 @@ SUNY_API struct Sobj *Seval_binary_add(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_add(obj1, obj2);
 
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -69,6 +71,7 @@ SUNY_API struct Sobj *Seval_binary_sub(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_sub, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
 
@@ -86,6 +89,7 @@ SUNY_API struct Sobj *Seval_binary_sub(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_sub, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
 
@@ -96,8 +100,8 @@ SUNY_API struct Sobj *Seval_binary_sub(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_sub(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -118,6 +122,8 @@ SUNY_API struct Sobj *Seval_binary_mul(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_mul, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
+            
             struct Sobj* value = context->ret_obj;
 
             Smem_Free(args);
@@ -134,6 +140,7 @@ SUNY_API struct Sobj *Seval_binary_mul(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_mul, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
 
@@ -144,8 +151,8 @@ SUNY_API struct Sobj *Seval_binary_mul(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_mul(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -166,6 +173,7 @@ SUNY_API struct Sobj *Seval_binary_div(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_div, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -183,6 +191,7 @@ SUNY_API struct Sobj *Seval_binary_div(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_div, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
             
@@ -193,8 +202,8 @@ SUNY_API struct Sobj *Seval_binary_div(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_div(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -215,6 +224,7 @@ SUNY_API struct Sobj *Seval_binary_bigger(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_ge, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -232,6 +242,7 @@ SUNY_API struct Sobj *Seval_binary_bigger(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_ge, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -242,8 +253,8 @@ SUNY_API struct Sobj *Seval_binary_bigger(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_bigger(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -264,6 +275,7 @@ SUNY_API struct Sobj *Seval_binary_smaller(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_le, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -281,6 +293,7 @@ SUNY_API struct Sobj *Seval_binary_smaller(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_le, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -291,8 +304,8 @@ SUNY_API struct Sobj *Seval_binary_smaller(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_smaller(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }   
@@ -313,6 +326,7 @@ SUNY_API struct Sobj *Seval_binary_equal(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_eq, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -330,6 +344,7 @@ SUNY_API struct Sobj *Seval_binary_equal(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_eq, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -340,8 +355,8 @@ SUNY_API struct Sobj *Seval_binary_equal(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_equal(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -362,6 +377,7 @@ SUNY_API struct Sobj *Seval_binary_not_equal(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_ne, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -379,6 +395,7 @@ SUNY_API struct Sobj *Seval_binary_not_equal(struct Sframe *frame) {
 
             Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_ne, args);
             Svm_run_call_context(context);
+            Scall_context_free(context);
 
             struct Sobj* value = context->ret_obj;
      
@@ -389,8 +406,8 @@ SUNY_API struct Sobj *Seval_binary_not_equal(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_not_equal(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -402,8 +419,8 @@ SUNY_API struct Sobj *Seval_binary_bigger_and_equal(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_bigger_and_equal(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -415,8 +432,8 @@ SUNY_API struct Sobj *Seval_binary_smaller_and_equal(struct Sframe *frame) {
 
     struct Sobj *sobj = Seval_smaller_and_equal(obj1, obj2);
     
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     return sobj;
 }
@@ -562,7 +579,23 @@ Svm_run_program(struct Sframe *frame) {
 
             else if (op == LOAD_FALSE) {
                 frame = Svm_evaluate_LOAD_FALSE(frame);
-            } 
+            }
+
+            else if (op == EXIT_PROGRAM) {
+                frame = Svm_evaluate_EXIT_PROGRAM(frame);
+            }
+
+            else if (op == STOP_PROGRAM) {
+                frame = Svm_evaluate_STOP_PROGRAM(frame);
+            }
+
+            else if (op == LOOP_PREP) {
+                frame = Svm_evaluate_LOOP_PREP(frame);
+            }
+
+            else if (op == LOOP_STEP) {
+                frame = Svm_evaluate_LOOP_STEP(frame);
+            }
 
             else {
                 __ERROR("Invalid op %s\n", print_op(op));
@@ -725,6 +758,26 @@ Svm_run_call_context(struct Scall_context *context) {
             f_frame = Svm_evaluate_LOAD_FALSE(f_frame);
         }
 
+        else if (op == EXIT_PROGRAM) {
+            f_frame = Svm_evaluate_EXIT_PROGRAM(f_frame);
+        }
+
+        else if (op == MAKE_FUNCTION) {
+            f_frame = Svm_evaluate_MAKE_FUNCTION(f_frame);
+        }
+
+        else if (op == STOP_PROGRAM) {
+            f_frame = Svm_evaluate_STOP_PROGRAM(f_frame);
+        }
+        
+        else if (op == LOOP_PREP) {
+            f_frame = Svm_evaluate_LOOP_PREP(f_frame);
+        }
+
+        else if (op == LOOP_STEP) {
+            f_frame = Svm_evaluate_LOOP_STEP(f_frame);
+        }
+
         else {
             __ERROR("Error: unknown opcode in function: %s\n", print_op(op));
         }
@@ -748,16 +801,31 @@ Svm_evaluate_MAKE_FUNCTION
 (struct Sframe *frame) {
     SDEBUG("[svm.c 401] Svm_evaluate_MAKE_FUNCTION(struct Sframe *frame) (building...)\n");
 
-    byte_t args_count = get_next_code(frame);
+    byte_t op = get_next_code(frame);
+    int args_count = op;
 
     int code_size = 0;
 
     struct Scode *code = Scode_new();
 
+    struct Sfunc *func = Sfunc_new();
+
     int func_level = 1;
 
-    byte_t op = get_next_code(frame);
+    op = get_next_code(frame);
 
+    while (op != START_FUNCTION) {
+        if (op == MAKE_ARGS) {
+            op = get_next_code(frame);
+            func->args_address[func->args_index++] = op;
+            func->args_size++;
+        }
+
+        op = get_next_code(frame);
+    }
+
+    op = get_next_code(frame);
+     
     while (1) {
         if (op == END_FUNCTION) {
             func_level--;
@@ -774,9 +842,15 @@ Svm_evaluate_MAKE_FUNCTION
         op = get_next_code(frame);
     }
 
+    if (args_count != func->args_size) {
+        __ERROR("Invalid number of arguments");
+        return NULL;
+    }
+
     PUSH(code, END_FUNCTION);
 
-    struct Sfunc *func = Sfunc_set(code, args_count, code_size);
+    func->code = code;
+    func->code_size = code_size + 1;
 
     struct Sobj *f_obj = Sobj_set_func(func);
 
@@ -795,11 +869,16 @@ Svm_evaluate_FUNCTION_CALL
     struct Sobj *f_obj = Sframe_pop(frame);
     
     if (f_obj->type == BUILTIN_OBJ) Sfunc_call_c_api_func(frame, f_obj);
+
     else if (f_obj->type == CLASS_OBJ) Sclass_call(frame, f_obj);
+
     else if (f_obj->type == CLOSURE_OBJ) Svm_call_closure(frame, f_obj);
+
     else if (f_obj->type == FUNC_OBJ) Svm_call_func(frame, f_obj);
 
-    SUNYDECREF(f_obj, frame->gc_pool);
+    else Sframe_push_null(frame);
+
+    MOVETOGC(f_obj, frame->gc_pool);
     
     SDEBUG("[svm.c] Svm_evaluate_FUNCTION_CALL(struct Sframe *frame) (done)\n");
 
@@ -816,9 +895,9 @@ Svm_evalutate_PUSH_FLOAT
     byte_t b3 = get_next_code(frame);
     byte_t b4 = get_next_code(frame);
 
-    uint32_t i = (uint32_t)b1 |
-                ((uint32_t)b2 << 8) |
-                ((uint32_t)b3 << 16) |
+    uint32_t i = (uint32_t)b1           |
+                ((uint32_t)b2 << 8)     |
+                ((uint32_t)b3 << 16)    |
                 ((uint32_t)b4 << 24);
 
     float value;
@@ -904,7 +983,7 @@ Svm_evalutate_BINARY_OPER
             obj = Seval_binary_smaller_and_equal(frame);
             break;
         } default: {
-            __ERROR("Error: unknown binary operator\n");
+            Sframe_push(frame, null_obj);
             break;
         }
     }
@@ -926,7 +1005,7 @@ Svm_evaluate_PRINT
 
     printf("%g\n", val);
     
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_PRINT(struct Sframe *frame) (done)\n");
     return frame;
@@ -966,7 +1045,7 @@ Svm_evaluate_POP_JUMP_IF_FALSE
         jump_to(frame, address);
     }
 
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_POP_JUMP_IF_FALSE(struct Sframe *frame) (done)\n");
 
@@ -986,7 +1065,7 @@ Svm_evaluate_POP_JUMP_IF_TRUE
         jump_to(frame, address);
     }
 
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_POP_JUMP_IF_TRUE(struct Sframe *frame) (done)\n");
     return frame;
@@ -1038,26 +1117,26 @@ Svm_evaluate_LOAD_ITEM
     struct Sobj *list = Sframe_pop(frame);
 
     if (index->value->value < 0) {
-        __ERROR("Error: index below zero, index: %f\n", index->value->value);
+        Sframe_push(frame, null_obj);
         return frame;
     }
 
     if (list->type == LIST_OBJ) {
         if (index->value->value >= list->f_type->f_list->count) {
-            __ERROR("Error: index out of range, index: %f, size: %d\n", index->value->value, list->f_type->f_list->count);
+            Sframe_push(frame, null_obj);
             return frame;
         };
 
         struct Sobj *item = Slist_get(list->f_type->f_list, index->value->value);
 
         if (!item) {
-            __ERROR("Error: item is null\n");
+            Sframe_push(frame, null_obj);
         }
 
         Sframe_push(frame, item);
     } else if (list->type == STRING_OBJ) {
         if (index->value->value > list->f_type->f_str->size) {
-            __ERROR("Error: index out of range\n");
+            Sframe_push(frame, null_obj);
             return frame;
         };
 
@@ -1066,7 +1145,7 @@ Svm_evaluate_LOAD_ITEM
         struct Sobj *obj = Sobj_make_char(c);
 
         if (!obj) {
-            __ERROR("Error: index out of range\n");
+            Sframe_push(frame, null_obj);
         }
 
         Sframe_push(frame, obj);
@@ -1076,14 +1155,14 @@ Svm_evaluate_LOAD_ITEM
             ret = list->meta->mm_index(list, index);
             Sframe_push(frame, ret);
         } else {
-            __ERROR("Error: user data index not supported\n");
+            Sframe_push(frame, null_obj);
         }
     } else {
-        Sframe_push(frame, Svalue(0));
+        Sframe_push(frame, null_obj);
     }
 
-    SUNYDECREF(list, frame->gc_pool);
-    SUNYDECREF(index, frame->gc_pool);
+    MOVETOGC(list, frame->gc_pool);
+    MOVETOGC(index, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_LOAD_ITEM(struct Sframe *frame) (done)\n");
 
@@ -1103,25 +1182,43 @@ Svm_evaluate_STORE_ITEM
         if (list->meta && list->meta->mm_store_item) {
             list->meta->mm_store_item(list, index, value);
         } else {
-            __ERROR("Error: user data store item not supported\n");
+            Sframe_push(frame, null_obj);
         }
 
-        SUNYDECREF(index, frame->gc_pool);
+        MOVETOGC(index, frame->gc_pool);
+        MOVETOGC(list, frame->gc_pool);
+        MOVETOGC(value, frame->gc_pool);
 
         return frame;
     }
 
-    int index_value = index->value->value;
+    if (list->type == LIST_OBJ) {
+        struct Slist *slist = list->f_type->f_list;
+        int index_value = index->value->value;
 
-    struct Sobj *pre_item = list->f_type->f_list->array[index_value];
+        if (index_value >= slist->capacity) {
+            slist->capacity *= 2;
+            slist->array = (struct Sobj**)Smem_Realloc(slist->array, sizeof(struct Sobj*) * slist->capacity);
+        }
 
-    list->f_type->f_list->array[index_value] = value;
+        if (index_value >= slist->count) {
+            for (int i = slist->count; i <= index_value; ++i) {
+                Slist_add(slist, null_obj);
+            }
+        }
+        
+        struct Sobj *pre_item = slist->array[index_value];
+        slist->array[index_value] = value;
+        
+        _SUNYDECREF(pre_item);
+        MOVETOGC(pre_item, frame->gc_pool);
+    }
 
     _SUNYINCREF(value);
-    _SUNYDECREF(pre_item);
 
-    SUNYDECREF(pre_item, frame->gc_pool);
-    SUNYDECREF(index, frame->gc_pool);
+    MOVETOGC(value, frame->gc_pool);
+    MOVETOGC(index, frame->gc_pool);
+    MOVETOGC(list, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_STORE_ITEM(struct Sframe *frame) (done)\n");
 
@@ -1142,10 +1239,10 @@ Svm_evaluate_LEN_OF
         struct Sobj *obj = Svalue(list->f_type->f_str->size);
         Sframe_push(frame, obj);
     } else {
-        Sframe_push_null(frame);
+        Sframe_push(frame, null_obj);
     }
 
-    SUNYDECREF(list, frame->gc_pool);
+    MOVETOGC(list, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_LEN_OF(struct Sframe *frame) (done)\n");
 
@@ -1157,6 +1254,7 @@ Svm_evaluate_LOAD_TRUE
 (struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_LOAD_TRUE(struct Sframe *frame) (building...)\n");
     
+    // Sframe_push(frame, Sframe_load_const(frame, TRUE_INDEX));
     Sframe_push_bool(frame, 1);
 
     SDEBUG("[svm.c] Svm_evaluate_LOAD_TRUE(struct Sframe *frame) (done)\n");
@@ -1168,6 +1266,7 @@ Svm_evaluate_LOAD_FALSE
 (struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_LOAD_FALSE(struct Sframe *frame) (building...)\n");
     
+    // Sframe_push(frame, Sframe_load_const(frame, FALSE_INDEX));
     Sframe_push_bool(frame, 0);
 
     SDEBUG("[svm.c] Svm_evaluate_LOAD_FALSE(struct Sframe *frame) (done)\n");
@@ -1311,7 +1410,23 @@ Svm_evaluate_CLASS_BEGIN
         else if (op == LOAD_FALSE) {
             frame = Svm_evaluate_LOAD_FALSE(frame);
         }
-        
+
+        else if (op == EXIT_PROGRAM) {
+            frame = Svm_evaluate_EXIT_PROGRAM(frame);
+        }
+
+        else if (op == STOP_PROGRAM) {
+            frame = Svm_evaluate_STOP_PROGRAM(frame);
+        }
+
+        else if (op == LOOP_PREP) {
+            frame = Svm_evaluate_LOOP_PREP(frame);
+        }
+
+        else if (op == LOOP_STEP) {
+            frame = Svm_evaluate_LOOP_STEP(frame);
+        }
+
         else {
             __ERROR("Invalid program in class %s\n", print_op(op));
             exit(1);
@@ -1342,7 +1457,7 @@ Svm_evaluate_NOT_LOG
 
     Sframe_push_bool(frame, value);
 
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_NOT_LOG(struct Sframe *frame) (done)\n");
     return frame;
@@ -1360,8 +1475,8 @@ Svm_evaluate_AND_LOG
 
     Sframe_push_bool(frame, value);
 
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
     
     SDEBUG("[svm.c] Svm_evaluate_AND_LOG(struct Sframe *frame) (done)\n");
     return frame;
@@ -1378,8 +1493,8 @@ Svm_evaluate_OR_LOG
     
     Sframe_push_bool(frame, value);
 
-    SUNYDECREF(obj1, frame->gc_pool);
-    SUNYDECREF(obj2, frame->gc_pool);
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_OR_LOG(struct Sframe *frame) (done)\n");
     return frame;
@@ -1409,7 +1524,7 @@ Svm_evaluate_LOAD_ATTR
         Sframe_push(frame, null_obj);
     }
 
-    SUNYDECREF(class, frame->gc_pool);
+    MOVETOGC(class, frame->gc_pool);
 
     SDEBUG("[svm.c] Svm_evaluate_LOAD_ATTR(struct Sframe *frame) (done)\n");
     return frame;
@@ -1429,6 +1544,9 @@ Svm_evaluate_STORE_ATTR
         Sclass_store_local_obj(sclass, frame, value, address);
     }
 
+    MOVETOGC(class, frame->gc_pool);
+    MOVETOGC(value, frame->gc_pool);
+
     SDEBUG("[svm.c] Svm_evaluate_STORE_ATTR(struct Sframe *frame) (done)\n");
     return frame;
 }
@@ -1437,7 +1555,7 @@ SUNY_API struct Sframe*
 Svm_evaluate_LOAD_NULL
 (struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_LOAD_NULL(struct Sframe *frame) (building...)\n");
-    Sframe_push_null(frame);
+    Sframe_push(frame, null_obj);
     SDEBUG("[svm.c] Svm_evaluate_LOAD_NULL(struct Sframe *frame) (done)\n");
     return frame;
 }
@@ -1464,7 +1582,7 @@ SUNY_API struct Sframe*
 Svm_evaluate_POP(struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_POP(struct Sframe *frame) (building...)\n");
     struct Sobj *obj = Sframe_pop(frame);
-    SUNYDECREF(obj, frame->gc_pool);
+    MOVETOGC(obj, frame->gc_pool);
     SDEBUG("[svm.c] Svm_evaluate_POP(struct Sframe *frame) (done)\n");
     return frame;
 }
@@ -1518,7 +1636,7 @@ Svm_evaluate_STORE_CLOSURE
 
     struct Sobj *obj = Sframe_pop(frame);
 
-    Sframe_store_local(frame, address, obj, LOCAL_OBJ);
+    Sframe_store_closure(frame, address, obj, LOCAL_OBJ);
 
     SDEBUG("[svm.c] Svm_evaluate_STORE_CLOSURE(struct Sframe *frame) (done)\n");
     return frame;
@@ -1530,7 +1648,7 @@ Svm_evaluate_LOAD_CLOSURE
     SDEBUG("[svm.c] Svm_evaluate_LOAD_CLOSURE(struct Sframe *frame) (building...)\n");
     int address = get_next_code(frame);
 
-    struct Sobj *obj = Sframe_load_local(frame, address);
+    struct Sobj *obj = Sframe_load_closure(frame, address);
 
     Sframe_push(frame, obj->f_value);
 
@@ -1546,7 +1664,10 @@ Svm_evaluate_MAKE_CLOSURE
     int address_box[1024];
     int address_box_size = 0;
 
-    byte_t fargs_count = get_next_code(frame);
+    struct Sfunc *func = Sfunc_new();
+
+    byte_t op = get_next_code(frame);
+    int args_count = op;
 
     struct Senvi *f_envi = Senvi_new();
 
@@ -1554,7 +1675,19 @@ Svm_evaluate_MAKE_CLOSURE
 
     struct Scode *code = Scode_new();
 
-    byte_t op = get_next_code(frame); 
+    op = get_next_code(frame); 
+
+    while (op != START_FUNCTION) {
+        if (op == MAKE_ARGS) {
+            op = get_next_code(frame);
+            func->args_address[func->args_index++] = op;
+            func->args_size++;
+        }
+
+        op = get_next_code(frame);
+    }
+
+    op = get_next_code(frame);
 
     int func_level = 1;
 
@@ -1600,7 +1733,8 @@ Svm_evaluate_MAKE_CLOSURE
 
     PUSH(code, END_CLOSURE);
 
-    struct Sfunc *func = Sfunc_set(code, fargs_count, code_size);
+    func->code = code;
+    func->code_size = code_size + 1;
 
     func->envi = f_envi;
 
@@ -1610,4 +1744,65 @@ Svm_evaluate_MAKE_CLOSURE
     
     SDEBUG("[svm.c] Svm_evaluate_MAKE_CLOSURE(struct Sframe *frame, struct Scall_context *context) (done)\n");
     return frame;   
+}
+
+SUNY_API struct Sframe*
+Svm_evaluate_JUMP_TO_N_TIMES   
+(struct Sframe *frame) {
+    SDEBUG("[svm.c] Svm_evaluate_JUMP_TO_N_TIMES(struct Sframe *frame) (building...)\n");
+
+    struct Sobj* times_obj = Sframe_pop(frame);
+
+    int times = ValueOf(times_obj);
+    int address = get_next_code(frame);
+
+    if (!frame->is_in_back_loop && frame->back_n_times == 0) {
+        frame->is_in_back_loop = 1;
+        frame->back_n_times = times;
+    } else {
+        frame->back_n_times--;
+        jump_to(frame, address);
+
+        if (frame->back_n_times <= 0) {
+            frame->is_in_back_loop = 0;
+        }
+    }
+
+    MOVETOGC(times_obj, frame->gc_pool);
+
+    SDEBUG("[svm.c] Svm_evaluate_JUMP_TO_N_TIMES(struct Sframe *frame) (done)\n");
+    return frame;
+}
+
+
+SUNY_API struct Sframe*
+Svm_evaluate_LOOP_PREP   
+(struct Sframe *frame) {
+    int address = get_next_code(frame);
+    int label = get_next_code(frame);
+
+    struct Sobj* loop_counter = Sframe_load_global(frame, address);
+
+    if (loop_counter->f_value->value->value <= 0) {
+        jump_to(frame, label);
+    }
+
+    return frame;
+}
+
+SUNY_API struct Sframe*
+Svm_evaluate_LOOP_STEP   
+(struct Sframe *frame) {
+    int address = get_next_code(frame);
+    int label = get_next_code(frame);
+
+    struct Sobj* loop_counter = Sframe_load_global(frame, address);
+
+    loop_counter->f_value->value->value--;
+
+    if (loop_counter->f_value->value->value != 0) {
+        jump_to(frame, label);
+    }
+
+    return frame;
 }

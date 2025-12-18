@@ -26,7 +26,7 @@ struct Garbage_pool {
 #define _SUNYINCREF(obj) ((obj)->gc->ref_count++)
 #define _SUNYDECREF(obj) ((obj)->gc->ref_count--)
 
-#define POOL_SIZE_LIMIT 1024
+#define POOL_SIZE_LIMIT 500
 
 struct Sgarbarge_obj* Sgc_new(void);
 
@@ -39,7 +39,7 @@ struct Garbage_pool* Sgc_push_garbage_obj(struct Garbage_pool* pool, struct Sobj
 void Sgc_collect(struct Garbage_pool* pool);
 
 int SUNYINCREF(struct Sobj* obj);
-int SUNYDECREF(struct Sobj* obj, struct Garbage_pool* pool);
+int MOVETOGC(struct Sobj* obj, struct Garbage_pool* pool);
 
 int Sgc_activate(struct Sframe *frame);
 int Sgc_deactivate(struct Sframe *frame);

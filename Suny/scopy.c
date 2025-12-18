@@ -8,6 +8,7 @@ struct Sobj* Sobj_deep_copy(struct Sobj* obj) {
     new_obj->size = obj->size;
     new_obj->address = obj->address;
     new_obj->gc = Sgc_new();
+    new_obj->meta = obj->meta;
     
     if (obj->type == STRING_OBJ) {
         new_obj->f_type->f_str = Sstr_new_from_char(obj->f_type->f_str->string, obj->f_type->f_str->size);
@@ -35,7 +36,7 @@ struct Scode* Scode_deep_copy(struct Scode* code) {
 }
 
 struct Sfunc* Sfunc_deep_copy(struct Sfunc* func) {
-    struct Sfunc* new_func = Sfunc_obj_new();
+    struct Sfunc* new_func = Sfunc_new();
     new_func->args_size = func->args_size;
     new_func->code_size = func->code_size;
     new_func->code = Scode_deep_copy(func->code);

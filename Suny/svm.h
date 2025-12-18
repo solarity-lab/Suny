@@ -178,6 +178,18 @@ Svm_evaluate_EXIT_PROGRAM
 (struct Sframe *frame);
 
 SUNY_API struct Sframe*
+Svm_evaluate_JUMP_TO_N_TIMES   
+(struct Sframe *frame);
+
+SUNY_API struct Sframe*
+Svm_evaluate_LOOP_PREP   
+(struct Sframe *frame);
+
+SUNY_API struct Sframe*
+Svm_evaluate_LOOP_STEP   
+(struct Sframe *frame);
+
+SUNY_API struct Sframe*
 Svm_evaluate_STOP_PROGRAM
 (struct Sframe *frame);
 

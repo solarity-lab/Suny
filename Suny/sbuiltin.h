@@ -41,17 +41,13 @@ struct Sc_api_func*
 Sc_api_func_set
 (void* func, char* name, int address, int args_size);
 
-SUNY_API struct Sobj* Sprintf(struct Sframe* frame);
-
-SUNY_API struct Sobj* Stostring(struct Sframe* frame);
+SUNY_API struct Sobj* Sprint(struct Sframe* frame);
 
 SUNY_API struct Sobj* Sexit(struct Sframe* frame);
 
 SUNY_API struct Sobj* Sputs(struct Sframe* frame);
 
 SUNY_API struct Sobj* Sread(struct Sframe* frame);
-
-SUNY_API struct Sobj* Snumber(struct Sframe* frame);
 
 SUNY_API struct Sobj* Ssize(struct Sframe* frame);
 
@@ -63,20 +59,12 @@ SUNY_API struct Sobj* Sload_dll(struct Sframe *frame);
 
 SUNY_API struct Sobj* Sisdigit_builtin(struct Sframe *frame);
 
-SUNY_API struct Sobj* Sint(struct Sframe *frame);
-
 SUNY_API struct Sobj* Srange(struct Sframe *frame);
 
-SUNY_API struct Sobj* Scast(struct Sframe* frame);
-
 SUNY_API struct Sobj* Slist_cast(struct Sframe* frame);
-
 SUNY_API struct Sobj* Sstring_cast(struct Sframe* frame);
-
 SUNY_API struct Sobj* Sint_cast(struct Sframe* frame);
-
 SUNY_API struct Sobj* Sfloat_cast(struct Sframe* frame);
-
 SUNY_API struct Sobj* Sbool_cast(struct Sframe* frame);
 
 SUNY_API struct Sobj* Stype(struct Sframe* frame);
