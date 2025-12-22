@@ -109,4 +109,10 @@ Sarray_copy(void** dest, void** src, int src_size);
 void
 Sarray_insert(void** arr1, void** arg2, int arg2_size, int index);
 
+void
+Sarray_push_to_start(void** arr, void* value, int size);
+
+void
+Sarray_push(void** arr, void* value, int size);
+
 #endif

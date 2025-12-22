@@ -18,14 +18,6 @@ Scall_context_new(void) {
     return context;
 }
 
-struct Scall_context *
-Scall_context_set_func
-(struct Scall_context *context, 
-    struct Sfunc *func) {
-    Sframe_init(context->frame, func->code);
-    return context;
-}
-
 int 
 Scall_context_free_frame
 (struct Scall_context *context) {
@@ -45,6 +37,7 @@ Scall_context_free_frame
         }
 
         if (value->is_return) {
+            _SUNYDECREF(value);
             Sobj_free(local);
             continue;
         }
@@ -117,47 +110,46 @@ Scall_context_set
 }
 
 struct Scall_context*
-Scall_context_set_real_func
+Scall_context_set_class_function
 (struct Scall_context *context, 
-    struct Sframe *frame, 
-    struct Sobj* f_obj) {
+struct Sframe *frame, 
+struct Sobj* f_obj)
+
+{
     struct Sobj* class_f = f_obj->prev;
 
     if (!class_f) {
         return Scall_context_set_frame(context, frame, f_obj);
-    }     
+    }
 
-    SDEBUG("[sfunc.c] struct Scall_context* Scall_context_set_real_func(struct Scall_context *context, struct Sframe *frame, struct Sobj* f_obj) (building...)\n");
+    SDEBUG("[sfunc.c] struct Scall_context* Scall_context_set_class_function(struct Scall_context *context, struct Sframe *frame, struct Sobj* f_obj) (building...)\n");
 
     context = Scall_context_set(context, frame, f_obj);
 
     struct Sframe *f_frame = context->frame;
 
-    int address = 0;
-
     struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size + 1, sizeof(struct Sobj*));
 
-    int n = f_obj->f_type->f_func->args_size;
-    if (n <= 0) {
-        Smem_Free(temp);
-        return context;
+    for (int i = 0; i < f_obj->f_type->f_func->args_size - 1; i++) {
+        struct Sobj* back = Sframe_back(frame);
+        if (back) {
+            struct Sobj* value = Sframe_pop(frame);
+            temp[i] = value;
+        } else {
+            temp[i] = true_obj;
+        }
     }
 
-    for (int i = 0; i < n - 1; ++i) {
-        struct Sobj* value = Sframe_pop(frame);
-        temp[i] = value;
+    temp[f_obj->f_type->f_func->args_size - 1] = class_f;
+
+    Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
+
+    for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        Sframe_store_local(f_frame, f_obj->f_type->f_func->args_address[i], temp[i], LOCAL_OBJ);
     }
-
-    temp[n - 1] = class_f;
-    Sreverse((void **) temp, n);
-
-    for (int i = 0; i < n; ++i) {
-        struct Sobj* value = Sframe_store_local(f_frame, address++, temp[i], LOCAL_OBJ);
-        value->is_belong_class = 1;
-    }
-
-    Smem_Free(temp);
     
+    Smem_Free(temp);
+
     return context;
 }
 
@@ -172,8 +164,6 @@ Scall_context_set_frame
     struct Sfunc *func = f_obj->f_type->f_func;
 
     struct Sframe *f_frame = context->frame;
-
-    int address = 0;
 
     struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size, sizeof(struct Sobj*));    
 
@@ -217,8 +207,6 @@ Scall_context_set_closure
     f_frame->f_locals_size = envi->size;
     f_frame->f_locals_index = envi->size;
 
-    int address = 0;
-
     struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size, sizeof(struct Sobj*));    
 
     for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
@@ -243,15 +231,6 @@ Scall_context_set_closure
     return context;
 }
 
-struct Scall_context *
-Scall_context_store_local
-(struct Scall_context *context, 
-    struct Sobj *local, 
-    int address) {
-    Sframe_store_local(context->frame, address, local, LOCAL_OBJ);
-    return context;
-}
-
 struct Scall_context*
 Scall_context_set_frame_with_args
 (struct Scall_context *context, 
@@ -261,13 +240,12 @@ Scall_context_set_frame_with_args
     context->main_frame = frame;
 
     struct Sframe *f_frame = context->frame;
+    struct Sfunc* func = f_obj->f_type->f_func;
 
     context = Scall_context_set(context, frame, f_obj);
 
-    int address = 0;
-
-    for (int i = 0; i < f_obj->f_type->f_func->args_size; ++i) {
-        Sframe_store_local(f_frame, address++, args[i], LOCAL_OBJ);
+    for (int i = 0; i < func->args_size; i++) {
+        Sframe_store_local(f_frame, func->args_address[i], args[i], LOCAL_OBJ);
     }
 
     return context;

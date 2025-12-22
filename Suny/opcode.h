@@ -1,109 +1,69 @@
 #ifndef OPCODE_H
 #define OPCODE_H
-
-#define PUSH_FLOAT '\x01'
-
-#define BINARY_ADD '\x02' 
-
-#define BINARY_SUB '\x03'
-#define BINARY_MUL '\x04'
-#define BINARY_DIV '\x05'
-
-#define PRINT '\x06'
-#define POP_TOP '\x07'
-
-#define LOAD_GLOBAL '\x08'
-#define STORE_GLOBAL '\x09'
-
-#define PROGRAM_START '\x10'
-#define PROGRAM_END '\x11'
-
-#define BINARY_BIGGER '\x12'
-#define BINARY_SMALLER '\x13'
-#define BINARY_EQUAL '\x14'
-#define BINARY_BIGGER_EQUAL '\x15'
-#define BINARY_SMALLER_EQUAL '\x16'
-#define BINARY_NOT_EQUAL '\x17'
-
-#define MAKE_FUNCTION '\x18'
-#define END_FUNCTION '\x19'
-
-#define FUNCTION_CALL '\x20'
-
-#define RETURN_TOP '\x21'
-
-#define PUSH_STRING '\x22'
-
-#define PUSH_TRUE '\x23'
-#define PUSH_FALSE '\x24'
-
-#define JUMP_TO '\x27'
-#define ADD_LABEL '\x28'
-
-#define POP_JUMP_IF_TRUE '\x25'
-#define POP_JUMP_IF_FALSE '\x26'
-
-#define JUMP_IF_TOP_IS_TRUE '\x27'
-#define JUMP_IF_TOP_IS_FALSE '\x28'
-
-#define JUMP_FORWARD '\x29'
-#define JUMP_BACKWARD '\x30'
-
-#define SKIP_TO_INDEX '\x31'
-
-#define EXIT_PROGRAM '\x32'
-#define STOP_PROGRAM '\x33'
-
-#define LOAD_ITEM '\x34'
-#define STORE_ITEM '\x35'
-
-#define BUILD_LIST '\x36'
-
-#define LEN_OF '\x37'
-
-#define LOAD_TRUE '\x38'
-#define LOAD_FALSE '\x39'
-
-#define CLASS_BEGIN '\x40'
-#define CLASS_END '\x41'
-
-#define AND_LOG '\x42'
-#define OR_LOG '\x43'
-#define NOT_LOG '\x44'
-
-#define SKIP '\x45' // program will skip this op and jump to next op
-
-#define LOAD_ATTR '\x46'
-#define STORE_ATTR '\x47'
-
-#define LOAD_METHOD '\x48'
-
-#define LOAD_VARARGS '\x49'
-#define STORE_VARARGS '\x50'
-
-#define FUNCTION_CALL_VARARGS '\x51'
-
-#define LOAD_NULL '\x52'
-
-#define SET_SUPER_CLASS '\x53'
-
-#define START_BLOCK '\x54'
-#define END_BLOCK '\x55'
-
-#define MAKE_CLOSURE '\x56'
-#define END_CLOSURE '\x57'
-#define LOAD_CLOSURE '\x58'
-#define STORE_CLOSURE '\x59'
-
-#define JUMP_TO_N_TIMES '\x60' // JUMP_TO_N_TIMES + <address> + <number of times>
-
-#define LOOP_STEP '\x61' // LOOP_STEP + <loop variable counter> + <address to jump back>
-#define LOOP_PREP '\x62'  // LOOP_PREP + <loop variable counter> + <address to jump if done>
-
-#define LOAD_LOCAL '\x63'
-#define STORE_LOCAL '\x64'
-
-#define START_FUNCTION '\x65'
-#define MAKE_ARGS '\x66'
-
+#define PUSH_FLOAT                      0x01
+#define PUSH_STRING                     0x02
+#define PUSH_TRUE                       0x03
+#define PUSH_FALSE                      0x04
+#define LOAD_NULL                       0x05
+#define BINARY_ADD                      0x10
+#define BINARY_SUB                      0x11
+#define BINARY_MUL                      0x12
+#define BINARY_DIV                      0x13
+#define BINARY_BIGGER                   0x14
+#define BINARY_SMALLER                  0x15
+#define BINARY_EQUAL                    0x16
+#define BINARY_NOT_EQUAL                0x17
+#define BINARY_BIGGER_EQUAL             0x18
+#define BINARY_SMALLER_EQUAL            0x19
+#define AND_LOG                         0x1A
+#define OR_LOG                          0x1B
+#define NOT_LOG                         0x1C
+#define POP_TOP                         0x20
+#define PRINT                           0x21
+#define LEN_OF                          0x22
+#define BUILD_LIST                      0x23
+#define LOAD_GLOBAL                     0x30
+#define STORE_GLOBAL                    0x31
+#define LOAD_LOCAL                      0x32
+#define STORE_LOCAL                     0x33
+#define LOAD_ITEM                       0x34
+#define STORE_ITEM                      0x35
+#define LOAD_ATTR                       0x36
+#define STORE_ATTR                      0x37
+#define LOAD_METHOD                     0x38
+#define MAKE_FUNCTION                   0x40
+#define START_FUNCTION                  0x41
+#define END_FUNCTION                    0x42
+#define MAKE_ARGS                       0x43
+#define FUNCTION_CALL                   0x44
+#define FUNCTION_CALL_VARARGS           0x45
+#define RETURN_TOP                      0x46
+#define MAKE_CLOSURE                    0x47
+#define END_CLOSURE                     0x48
+#define LOAD_CLOSURE                    0x49
+#define STORE_CLOSURE                   0x4A
+#define JUMP                            0x50
+#define JUMP_FORWARD                    0x51
+#define JUMP_BACKWARD                   0x52
+#define JUMP_IF_TRUE                    0x53
+#define JUMP_IF_FALSE                   0x54
+#define POP_JUMP_IF_TRUE                0x55
+#define POP_JUMP_IF_FALSE               0x56
+#define JUMP_TO_N_TIMES                 0x57
+#define LOOP_PREP                       0x58
+#define LOOP_STEP                       0x59
+#define START_BLOCK                     0x60
+#define END_BLOCK                       0x61
+#define CLASS_BEGIN                     0x62
+#define CLASS_END                       0x63
+#define SET_SUPER_CLASS                 0x64
+#define PROGRAM_START                   0x70
+#define PROGRAM_END                     0x71
+#define EXIT_PROGRAM                    0x72
+#define STOP_PROGRAM                    0x73
+#define SKIP                            0x7F
+#define LOAD_TRUE                       0x80
+#define LOAD_FALSE                      0x81
+#define JUMP_TO                         0x82
+#define ADD_LABEL                       0x83
 #endif // OPCODE_H

@@ -7,11 +7,9 @@ struct SZIO {
     char *file;
     char *buffer;
     int size;
-
     char** folders;
     int nf;
     int maxf;
-    
 };
 
 struct SZIO*

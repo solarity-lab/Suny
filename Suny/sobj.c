@@ -96,18 +96,20 @@ Sobj_free
 
     else if (obj->type == CLASS_OBJ) {
         Sclass_free(obj->f_type->f_class);
+        Smem_Free(obj->meta);
         Smem_Free(obj->f_type);
     }
 
     else if (obj->type == USER_DATA_OBJ) {
-        Suserdata_free(obj->f_type->f_userdata);
-        Stype_free(obj->f_type);
-
         if (obj->meta) {
             if (obj->meta->mm_free) {
                 obj->meta->mm_free(obj);
+            } else {
+                __ERROR("Error: LIKE, DAMN MAN? CODING IN C WITH NO FREE FUNCTION?");
             }
         }
+        Suserdata_free(obj->f_type->f_userdata);
+        Stype_free(obj->f_type);
     }
 
     Smem_Free(obj->value);

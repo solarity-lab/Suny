@@ -46,42 +46,29 @@
 enum Sobj_t;
 
 struct Sframe {
-    int f_locals_index;
-    int f_locals_size;
-
-    int f_globals_index;
-    int f_globals_size;
-
+    int f_code_index;
+    struct Scode *f_code;
+    struct Slabel_map *f_label_map;
+    struct Sobj **f_stack;
     int f_stack_index;
     int f_stack_size;
-
+    struct Sobj **f_locals;
+    int f_locals_index;
+    int f_locals_size;
+    struct Sobj **f_globals;
+    int f_globals_index;
+    int f_globals_size;
+    struct Sobj **f_heaps;
     int f_heap_index;
     int f_heap_size;
-
+    struct Sobj **f_consts;
     int f_const_index;
     int f_const_size;
-
-    int f_code_index;
-
-    struct Scode *f_code;
-
-    struct Slabel_map *f_label_map;
-    
-    struct Sobj **f_stack;
-    struct Sobj **f_locals;
-    struct Sobj **f_globals;
-    struct Sobj **f_heaps;
-    struct Sobj **f_consts;
-
     struct Garbage_pool *gc_pool;
-    
     struct ScompilerUnit *compiler;
     struct Stable *table;
-
     struct Sobj* f_obj; // for closure
-
     struct Senvi* envi;
-
     int back_n_times;
     int is_in_back_loop;
 };

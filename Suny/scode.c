@@ -46,8 +46,6 @@ const char* print_op(unsigned char c) {
         case JUMP_FORWARD: return "JUMP_FORWARD";
         case JUMP_BACKWARD: return "JUMP_BACKWARD";
 
-        case SKIP_TO_INDEX: return "SKIP_TO_INDEX";
-
         case EXIT_PROGRAM: return "EXIT_PROGRAM";
         case STOP_PROGRAM: return "STOP_PROGRAM";
 
@@ -73,8 +71,6 @@ const char* print_op(unsigned char c) {
         case STORE_ATTR: return "STORE_ATTR";
         case LOAD_METHOD: return "LOAD_METHOD";
 
-        case LOAD_VARARGS: return "LOAD_VARARGS";
-        case STORE_VARARGS: return "STORE_VARARGS";
         case FUNCTION_CALL_VARARGS: return "FUNCTION_CALL_VARARGS";
 
         case LOAD_NULL: return "LOAD_NULL";

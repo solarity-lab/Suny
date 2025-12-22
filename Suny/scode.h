@@ -21,10 +21,8 @@ typedef unsigned char byte_t;
 
 struct Sop {
     unsigned char op;
-
     int line;
     int column;
-
     int source_line;
     int source_column;
 };
@@ -34,10 +32,8 @@ struct Scode {
     int capacity;
     int op_size;
     int op_capacity;
-
     char *source;
     char *file;
-
     unsigned char code[MAX_CODE_SIZE];
     struct Sop op[MAX_CODE_SIZE];
 };

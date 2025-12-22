@@ -401,15 +401,13 @@ Scompiler_compile_ast_while
 }
 
 SUNY_API struct Scode* 
-Scompiler_compile_ast_closure
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-    return NULL_CODE_PTR;
-}
-
-SUNY_API struct Scode* 
 Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
+
+    if (compiler->is_in_class) {
+        symbol->is_attribute = 1;
+    }
 
     byte_t faddress = symbol->address;
     byte_t fargs_count = ast->args_count;
@@ -557,7 +555,7 @@ Scompiler_compile_ast_for
 
     ScompilerUnit_add_loop(compiler, loop_start, loop_end);
 
-    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, iden);
+    Ssymbol_store(table, ast->lexeme, iden);
 
     struct Scode *for_body = Scompiler_compile_ast_body(compiler, ast->block, table, ast->block_size);
     struct Scode *iter = Scompiler_compile(compiler, ast->expr, table);

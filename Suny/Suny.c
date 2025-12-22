@@ -1,6 +1,6 @@
 #include "Suny.h"
 
-int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit* compiler, struct Stable* table) {
+int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit*, struct Stable* table) {
     Sinitialize_variables(frame, table, "inf", 29, Svalue(INFINITY));
     Sinitialize_variables(frame, table, "nan", 30, Svalue(0.0/0.0));
 
@@ -82,7 +82,7 @@ struct Sframe* SunyRunSimpleString(char* str) {
 
     frame = Sframe_init(frame, code);
     frame = Svm_run_program(frame);
-    
+
     return frame;
 }
 

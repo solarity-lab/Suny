@@ -1,5 +1,6 @@
 #include "sbuff.h"
 #include "smem.h"
+#include "sdebug.h"
 #include <dirent.h>
 
 struct SZIO*
@@ -21,9 +22,9 @@ int
 Sbuff_free
 (struct SZIO *zio) {
     if (!zio) return 0;
-    Smem_Free(zio->buffer);
+    if (zio->buffer) Smem_Free(zio->buffer);
+    Smem_Free(zio->folders);
     Smem_Free(zio);
-
     return 1;
 }
 
@@ -34,7 +35,7 @@ Sbuff_read_file
 
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        perror("fopen");
+        __ERROR("Error: Failed to open file '%s'\n", file);
         return NULL;
     }
 

@@ -79,7 +79,7 @@ int Scompare_smaller(struct Sobj* obj1, struct Sobj* obj2) {
         }
     } else if (obj2->type == USER_DATA_OBJ) {
         if (obj2->meta && obj2->meta->mm_lt) {
-            obj2->meta->mm_lt(obj1, obj2)->value->value;
+            return obj2->meta->mm_lt(obj1, obj2)->value->value;
         } else {
             return SFALSE;
         }

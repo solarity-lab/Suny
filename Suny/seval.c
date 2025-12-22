@@ -1,4 +1,5 @@
 #include "seval.h"
+#include "smem.h"
 #include "sdebug.h"
 
 int Slist_cmp(struct Slist *list1, struct Slist *list2) {
@@ -495,4 +496,468 @@ Seval_smaller_and_equal
             return false_obj;
         }
     }
+}
+
+SUNY_API int Seval_evaluate_add(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_add) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_add, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } 
+    
+    if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_add) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_add, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_add(obj1, obj2);
+
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_sub(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_sub) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_sub, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+    
+    if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_sub) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_sub, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_sub(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_mul(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_mul) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_mul, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+            
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_mul) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_mul, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_mul(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_div(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_div) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_div, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_div) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_div, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+            
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_div(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_bigger(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_ge) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_ge, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_ge) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_ge, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_bigger(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_smaller(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_le) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_le, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_le) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_le, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_smaller(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}   
+
+SUNY_API int Seval_evaluate_equal(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_eq) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_eq, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_eq) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_eq, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_equal(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_not_equal(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    if (obj1->type == CLASS_OBJ) {
+        if (obj1->meta->meta_f_ne) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj1->meta->meta_f_ne, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    } else if (obj2->type == CLASS_OBJ) {
+        if (obj2->meta->meta_f_ne) {
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            args[0] = obj1;
+            args[1] = obj2;
+
+            struct Scall_context *context = Scall_context_new();
+
+            Scall_context_set_frame_with_args(context, frame, obj2->meta->meta_f_ne, args);
+            Svm_run_call_context(context);
+            Scall_context_free(context);
+     
+            Smem_Free(args);
+
+            MOVETOGC(obj1, frame->gc_pool);
+            MOVETOGC(obj2, frame->gc_pool);
+
+            return 0;
+        }
+    }
+
+    struct Sobj *sobj = Seval_not_equal(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_bigger_and_equal(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    struct Sobj *sobj = Seval_bigger_and_equal(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
+}
+
+SUNY_API int Seval_evaluate_smaller_and_equal(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    struct Sobj *sobj = Seval_smaller_and_equal(obj1, obj2);
+    
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+    
+    Sframe_push(frame, sobj);
+
+    return 0;
 }

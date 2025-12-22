@@ -16,7 +16,7 @@
 
 #define isdigit(lexer) (lexer->cur >= '0' && lexer->cur <= '9')
 
-#define isalpha(lexer) (lexer->cur >= 'a' && lexer->cur <= 'z' || lexer->cur >= 'A' && lexer->cur <= 'Z')
+#define isalpha(lexer) ((lexer->cur >= 'a' && lexer->cur <= 'z') || (lexer->cur >= 'A' && lexer->cur <= 'Z'))
 
 #define isalnum(lexer) (isalpha(lexer) || isdigit(lexer))
 

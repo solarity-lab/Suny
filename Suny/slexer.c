@@ -26,15 +26,15 @@ struct Slexer *
 Slexer_init
 (char *input) {
     struct Slexer *lexer = Slexer_new();
-
     lexer->input = input;
-
     return lexer;
 }
 
 int 
 Slexer_free
 (struct Slexer *lexer) {
+    Stok_free(lexer->token);
+    Sbuff_free(lexer->file);
     Smem_Free(lexer);
     lexer = NULL;
     return 0;

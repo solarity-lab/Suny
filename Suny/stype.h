@@ -27,21 +27,14 @@ struct Suserdata {
 
 struct Sfunc {
     struct Sfunc* parent;
-
     struct Scode *code;
-
     int code_index;
-
     int code_size;
-
     struct Sobj **params;
-
     struct Sframe* f_frame;
     int is_closure;
-
     struct Sobj* cf; // closure function
     struct Senvi* envi;
-
     int args_address[DEFAULT_MAX];
     int args_size;
     int args_index;
@@ -49,17 +42,13 @@ struct Sfunc {
 
 struct Scall_context {
     struct Sfunc *func;
-
     struct Sframe *frame;
     struct Sframe *main_frame;
-    
     struct Scode *code;
-
     int args_index;
     int code_index;
     int stack_index;
     int local_index;
-
     struct Sobj *ret_obj;
 };
 
@@ -72,9 +61,7 @@ struct Sstr {
 struct Slist {
     struct Sobj *start;
     struct Sobj *end;
-
     struct Sobj** array;
-    
     int count;
     int capacity;
 };
@@ -85,35 +72,23 @@ struct Sbool {
 
 struct Sclass {
     struct Sobj** methods;
-    struct Sclass* super_class;
-    struct Sclass* dad;
     struct Smeta* meta;
     int count;
     int capacity;
 };
 
 struct Stype {
-    struct Sfunc *f_func;
-    struct Sstr *f_str;
-    struct Svalue *f_value;
-    struct Sframe *f_frame;
-    struct Scode *f_code;
-    struct Sclass *f_class;
-    struct Sobj *f_obj;
-    struct Slist *f_list;
-    struct Sbool *f_bool;
-
-    struct Scall_context *f_call_context;
-
-    struct Suserdata *f_userdata;
-
-    SunyGcFn gc;
-    SunyToStringFn tostring;
-
-    char* doc; // document of userdata
-    char* name; // name of userdata
-    
-    int f_size;
+    struct Sfunc            *f_func;
+    struct Sstr             *f_str;
+    struct Svalue           *f_value;
+    struct Sframe           *f_frame;
+    struct Scode            *f_code;
+    struct Sclass           *f_class;
+    struct Sobj             *f_obj;
+    struct Slist            *f_list;
+    struct Sbool            *f_bool;
+    struct Scall_context    *f_call_context;
+    struct Suserdata        *f_userdata;
 };
 
 struct Stype *

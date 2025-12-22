@@ -20,17 +20,13 @@ struct ScompilerUnit {
     int address_counter;
     int label_counter;
     int args_address_counter;
-
     int is_in_function;
     int is_in_block;
     int is_in_loop;
     int is_in_class;
-
     struct loop_stack loop_stack[1024];  
     int loop_index;
-
     struct Sframe *frame;
-
     struct Stable *prev_table;
 };
 
@@ -40,29 +36,22 @@ struct Ssymbol {
     int args_size;
     int func_tag; // if this global is in a function
     char* func_name; // same but its its function
-
-    struct Stable* table;
-
     int is_closure;
     int is_attribute;
     int is_argument;
-
     int is_global;
     int is_local;
+    struct Stable* table;
 };
 
 struct Stable {
     struct Ssymbol **symbols;
     int symbol_count;
     int symbol_capacity;
-
     struct Stable *prev; // for nested scopes
     struct Stable *global;
-
     int is_function_table; // flag to indicate if this table is for function scope 
-
     char* function_name;
-
     int is_closure;
     int is_global;
 };

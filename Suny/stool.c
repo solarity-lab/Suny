@@ -352,3 +352,17 @@ Sarray_insert(void** arr1, void** arg2, int arg2_size, int index) {
         arr1[index + i] = arg2[i];
     }
 }
+
+void
+Sarray_push_to_start(void** arr, void* value, int size)
+{
+    for (int i = size; i > 0; i--) {
+        arr[i] = arr[i - 1];
+    }
+    arr[0] = value;
+}
+
+void
+Sarray_push(void** arr, void* value, int size) {
+    arr[size] = value;
+}

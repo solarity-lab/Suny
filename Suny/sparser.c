@@ -4,14 +4,10 @@
 struct Sparser *
 Sparser_new(void) {
     struct Sparser *parser = Smem_Malloc(sizeof(struct Sparser));
-
-    parser->ast = Sast_new();
-
-    parser->lexer = Slexer_new();
-
-    parser->token = Stok_new();
-    parser->next_token = Stok_new();
-
+    parser->ast = NULL;
+    parser->lexer = NULL;
+    parser->token = NULL;
+    parser->next_token = NULL;
     return parser;
 }
 
@@ -19,19 +15,18 @@ struct Sparser *
 Sparser_init
 (struct Slexer *lexer) {
     struct Sparser *parser = Sparser_new();
-
     parser->lexer = lexer;
-
     return parser;
 }
 
 int 
 Sparser_free
 (struct Sparser *parser) {
-    Slexer_free(parser->lexer);
-    Stok_free(parser->token);
-    Stok_free(parser->next_token);
-
+    if (parser->lexer) Slexer_free(parser->lexer);
+    if (parser->ast) Sast_free(parser->ast);
+    if (parser->token) Stok_free(parser->token);
+    if (parser->next_token) Stok_free(parser->next_token);
+    parser = NULL;
     return 0;
 }
 
@@ -82,9 +77,9 @@ Sparser_parse(struct Sparser *parser) {
         return Sparser_parse_block(parser);
     }
 
-    // if (parser->token->type == CLASS) {
-    //     return Sparser_parse_class(parser);
-    // }
+    if (parser->token->type == CLASS) {
+        return Sparser_parse_class(parser);
+    }
 
     if (parser->token->type == RETURN) {
         return Sparser_parse_return(parser);

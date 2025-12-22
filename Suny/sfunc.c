@@ -23,6 +23,7 @@ Sfunc_new(void) {
     func->is_closure = 0;
 
     func->args_address[0] = 0;
+    memset(func->args_address, 0, sizeof(func->args_address));
 
     return func;
 }
@@ -100,8 +101,10 @@ Sfunc_call_c_api_func
 (struct Sframe *frame, 
     struct Sobj* f_obj) {
     if (f_obj->type == BUILTIN_OBJ) {
-        Sframe_call_c_api_func(frame, load_c_api_func(f_obj));
+        Sframe_call_c_api_func(frame, get_c_api_func(f_obj));
         return frame;
+    } else {
+        Sframe_push_null(frame);
     }
 
     return frame;

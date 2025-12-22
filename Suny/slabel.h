@@ -13,12 +13,9 @@ struct Spos {
 
 struct Slabel_map {
     struct Scode *code;
-
     struct Spos label[MAX_LABEL_SIZE];
-
     int label_count;
     int label_size;
-
     int program_count;
     int program_size;
 };

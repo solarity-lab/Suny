@@ -19,7 +19,7 @@ typedef struct Sframe* (*main_func)(struct Sframe*, struct Stable*);
 
 #define call_func(func, frame) ((struct Sobj* (*)(struct Sframe*)) (func))((frame));
 
-#define load_c_api_func(f_obj) (f_obj)->c_api_func->func
+#define get_c_api_func(f_obj) (f_obj)->c_api_func->func
 
 struct Sc_api_func {
     void* func;

@@ -60,32 +60,21 @@ struct Svalue {
 
 struct Sobj {
     GC_HEAD;
-
     enum Sobj_t type;
     struct Svalue* value;
-    
     int address;
     int size;
-
     int is_free;
-
     char* dname; // data name
     char* ddoc; // data document
-
     struct Sobj *next;
     struct Sobj *prev;
-
     struct Sobj *f_value; // variable value
-    
     struct Stype *f_type; // real value
-
     struct Sc_api_func* c_api_func;
-
     int global_address; // for global variable
     int local_address; // for local variable
-
     int is_variable; // if this object is a variable
-
     int is_global; // if this object is a global variable
     int is_local; // if this object is a local variable
     int is_closure; // if this object is a closure
@@ -93,7 +82,6 @@ struct Sobj {
     int is_calle;
     int is_belong_class; // if this object is a member of a class
     int is_argument; // if this object is a function argument
-
     struct Smeta* meta; // metatable
 };
 

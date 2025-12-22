@@ -1,5 +1,6 @@
 #include "sclass.h"
 #include "smem.h"
+#include "sdebug.h"
 
 struct Sclass*
 Sclass_new
@@ -16,10 +17,16 @@ Sclass_new
 int 
 Sclass_free
 (struct Sclass* sclass) {
-    Smem_Free(sclass->methods);
     for (int i = 0; i < sclass->count; i++) {
+        if (sclass->methods[i]->type != LOCAL_OBJ && sclass->methods[i]->type != GLOBAL_OBJ) {
+            __ERROR("Error sclass.c: invalid object type\n");
+            return -1;
+        }
+        Sobj_free(sclass->methods[i]->f_value);
         Sobj_free(sclass->methods[i]);
     }
+
+    Smem_Free(sclass->methods);
     Smem_Free(sclass);
     return 0;
 }
@@ -32,15 +39,20 @@ Sclass_store_object
 #endif
     struct Sobj* object = Sframe_pop(frame);
 
-    if (sclass->count == sclass->capacity) {
+    if (sclass->count >= sclass->capacity) {
         sclass->capacity *= 2;
         sclass->methods = Smem_Realloc(sclass->methods, sizeof(struct Sobj*) * sclass->capacity);
     }
 
     for (int i = 0; i < sclass->count; i++) {
         if (sclass->methods[i]->address == address) {
-            _SUNYDECREF(sclass->methods[i]->f_value);
-            MOVETOGC(sclass->methods[i]->f_value, frame->gc_pool);
+            struct Sobj* prev = sclass->methods[i]->f_value;
+
+            _SUNYDECREF(prev);
+            MOVETOGC(prev, frame->gc_pool);
+
+            _SUNYINCREF(object);
+
             sclass->methods[i]->f_value = object;
             return sclass;
         }
@@ -52,7 +64,6 @@ Sclass_store_object
     method->address = address;
 
     _SUNYINCREF(object);
-    _SUNYINCREF(method);
 
     sclass->methods[sclass->count++] = method;
 
@@ -103,8 +114,12 @@ Sclass_store_local_obj
 (struct Sclass* sclass, struct Sframe* frame, struct Sobj* value, int address) {
     for (int i = 0; i < sclass->count; i++) {
         if (sclass->methods[i]->address == address) {
-            _SUNYDECREF(sclass->methods[i]->f_value);
-            MOVETOGC(sclass->methods[i]->f_value, frame->gc_pool);
+            struct Sobj* prev = sclass->methods[i]->f_value;
+
+            _SUNYDECREF(prev);
+            MOVETOGC(prev, frame->gc_pool);
+
+            _SUNYINCREF(value);
 
             sclass->methods[i]->f_value = value;
             return sclass;
@@ -130,32 +145,6 @@ Sobj_copy_class(struct Sclass* sclass) {
     return Sobj_make_class(new_sclass);
 }   
 
-int
-Sclass_has_method
-(struct Sclass* sclass, int address) {
-    for (int i = 0; i < sclass->count; i++) {
-        if (sclass->methods[i]->address == address) {
-            return 1;
-        }
-    }
-
-    if (sclass->super_class) {
-        return Sclass_has_method(sclass->super_class, address);
-    }
-
-    return 0;
-}
-
-struct Sclass* 
-Sclass_extends_class
-(struct Sclass* sclass, struct Sclass* super_class) {
-    sclass->super_class = super_class;
-    for (int i = 0; i < super_class->count; i++) {
-        Sclass_push_obj(sclass, super_class->methods[i]);
-    }
-    return sclass;
-}
-
 struct Sframe*
 Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
     if (f_obj->type != CLASS_OBJ) {
@@ -166,14 +155,12 @@ Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
 
     obj->prev = f_obj;
 
-    struct Sobj *init_f = Sclass_get_object(obj->f_type->f_class, __INIT__ADDRESS);
-    
-    struct Sobj* add_f = Sclass_get_object(obj->f_type->f_class, __ADD__ADDRESS);
-    struct Sobj* sub_f = Sclass_get_object(obj->f_type->f_class, __SUB__ADDRESS);
-    struct Sobj* mul_f = Sclass_get_object(obj->f_type->f_class, __MUL__ADDRESS);
-    struct Sobj* div_f = Sclass_get_object(obj->f_type->f_class, __DIV__ADDRESS);
-
-    struct Sobj* tostring_f = Sclass_get_object(obj->f_type->f_class, __TO_STR__ADDRESS);
+    struct Sobj *init_f =       Sclass_get_object(f_obj->f_type->f_class, __INIT__ADDRESS);
+    struct Sobj* add_f =        Sclass_get_object(f_obj->f_type->f_class, __ADD__ADDRESS);
+    struct Sobj* sub_f =        Sclass_get_object(f_obj->f_type->f_class, __SUB__ADDRESS);
+    struct Sobj* mul_f =        Sclass_get_object(f_obj->f_type->f_class, __MUL__ADDRESS);
+    struct Sobj* div_f =        Sclass_get_object(f_obj->f_type->f_class, __DIV__ADDRESS);
+    struct Sobj* tostring_f =   Sclass_get_object(f_obj->f_type->f_class, __TO_STR__ADDRESS);
 
     if (add_f && add_f->f_value->type == FUNC_OBJ) {
         obj->meta->meta_f_add = add_f->f_value;
@@ -210,9 +197,11 @@ Sclass_call(struct Sframe* frame, struct Sobj* f_obj) {
 
         init_f->f_value->prev = obj;
 
-        Scall_context_set_real_func(context, frame, init_f->f_value);
+        Scall_context_set_class_function(context, frame, init_f->f_value);
         Svm_run_call_context(context);
         Scall_context_free(context);
+
+        return frame;
     }
 
     Sframe_push(frame, obj);

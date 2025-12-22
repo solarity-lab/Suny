@@ -18,50 +18,6 @@
 
 #include <math.h>
 
-// EVALUATE
-
-SUNY_API struct Sobj *
-Seval_binary_add
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_sub
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_mul
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_div
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_bigger
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_smaller
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_equal
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_not_equal
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_bigger_and_equal
-(struct Sframe *frame);
-
-SUNY_API struct Sobj *
-Seval_binary_smaller_and_equal
-(struct Sframe *frame);
-
-// INSTRUCTION
-
 byte_t
 get_next_code
 (struct Sframe *frame);
@@ -215,6 +171,10 @@ Svm_evalutate_BINARY_OPER
 
 SUNY_API struct Sframe*
 Svm_run_call_context
+(struct Scall_context *context);
+
+SUNY_API struct Sframe*
+Scall_context_run_and_get_ret_val
 (struct Scall_context *context);
 
 SUNY_API struct Sframe*

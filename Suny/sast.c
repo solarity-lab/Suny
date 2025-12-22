@@ -160,27 +160,75 @@ Sast_init
     return sast;
 }
 
-int 
-Sast_free
-(struct Sast *sast) {
-    if (sast == NULL) return 0;
+int Sast_free(struct Sast *sast) {
+    if (!sast) return 0;
 
-    if (sast->lexeme != NULL) {
-        Smem_Free(sast->lexeme);
+    Smem_Free(sast->left);
+    Smem_Free(sast->right);
+    Smem_Free(sast->expr);
+    Smem_Free(sast->condition);
+    Smem_Free(sast->ret_val);
+
+    for (int i = 0; i < sast->if_body_size; i++) {
+        Sast_free(sast->if_body[i]);
     }
+    Smem_Free(sast->if_body);
+
+    for (int i = 0; i < sast->else_body_size; i++) {
+        Sast_free(sast->else_body[i]);
+    }
+    Smem_Free(sast->else_body);
+
+    for (int i = 0; i < sast->body_size; i++) {
+        Sast_free(sast->body[i]);
+    }
+    Smem_Free(sast->body);
+
+    for (int i = 0; i < sast->param_count; i++) {
+        Sast_free(sast->params[i]);
+    }
+    Smem_Free(sast->params);
+
+    Smem_Free(sast->param_names);
+
+    for (int i = 0; i < sast->block_size; i++) {
+        Sast_free(sast->block[i]);
+    }
+    Smem_Free(sast->block);
+
+    for (int i = 0; i < sast->list_count; i++) {
+        Sast_free(sast->list[i]);
+    }
+    Smem_Free(sast->list);
 
     for (int i = 0; i < sast->child_count; i++) {
         Sast_free(sast->children[i]);
     }
+    Smem_Free(sast->children);
 
-    if (sast->children != NULL) {
-        Smem_Free(sast->children);
+    Smem_Free(sast->var_list);
+    Smem_Free(sast->var_list_values);
+
+    Smem_Free(sast->times);
+    Smem_Free(sast->until);
+
+    Smem_Free(sast->extract_obj);
+    Smem_Free(sast->extract_value);
+    Smem_Free(sast->attribute);
+    Smem_Free(sast->target);
+    Smem_Free(sast->attr_name);
+
+    Smem_Free(sast->print_value);
+
+    if (sast->lexer) {
+        Slexer_free(sast->lexer);
+        sast->lexer = NULL;
     }
 
     Smem_Free(sast);
-
-    return 1;
+    return 0;
 }
+
 
 int 
 Sast_add_child

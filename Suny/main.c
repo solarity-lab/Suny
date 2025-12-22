@@ -44,6 +44,6 @@ int main(int argc, char** argv) {
     }
 
     SunyRunFile(file_name);
-    
+
     return 0;
 }

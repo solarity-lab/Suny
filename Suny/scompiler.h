@@ -25,10 +25,6 @@ Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
 
 SUNY_API struct Scode* 
-Scompiler_compile_ast_closure
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
-
-SUNY_API struct Scode* 
 Scompiler_compile_ast_binary_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
 
