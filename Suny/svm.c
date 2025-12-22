@@ -611,9 +611,10 @@ Svm_evaluate_FUNCTION_CALL
     struct Sobj *f_obj = Sframe_pop(frame);
     
     if (f_obj->type == BUILTIN_OBJ) Sfunc_call_c_api_func(frame, f_obj);
+    else if (f_obj->type == FUNC_OBJ && f_obj->prev) Svm_call_class_function(frame, f_obj);
     else if (f_obj->type == CLASS_OBJ) Sclass_call(frame, f_obj);
     else if (f_obj->type == CLOSURE_OBJ) Svm_call_closure(frame, f_obj);
-    else if (f_obj->type == FUNC_OBJ) Svm_call_func(frame, f_obj);
+    else if (f_obj->type == FUNC_OBJ) Svm_call_function(frame, f_obj);
     else Sframe_push_null(frame);
 
     MOVETOGC(f_obj, frame->gc_pool);
@@ -1335,8 +1336,8 @@ Svm_evaluate_RETURN_TOP(struct Sframe *frame, struct Scall_context *context) {
 }
 
 SUNY_API struct Sframe*
-Svm_call_func(struct Sframe *frame, struct Sobj *f_obj) {
-    SDEBUG("[svm.c] Svm_call_func(struct Sframe *frame, struct Sobj *f_obj) (building...)\n");
+Svm_call_function(struct Sframe *frame, struct Sobj *f_obj) {
+    SDEBUG("[svm.c] Svm_call_function(struct Sframe *frame, struct Sobj *f_obj) (building...)\n");
 
     struct Scall_context *context = Scall_context_new();
 
@@ -1344,7 +1345,7 @@ Svm_call_func(struct Sframe *frame, struct Sobj *f_obj) {
     Svm_run_call_context(context);
     Scall_context_free(context);
 
-    SDEBUG("[svm.c] Svm_call_func(struct Sframe *frame, struct Sobj *f_obj) (done)\n");
+    SDEBUG("[svm.c] Svm_call_function(struct Sframe *frame, struct Sobj *f_obj) (done)\n");
     return frame;
 }
 
@@ -1537,5 +1538,19 @@ Svm_evaluate_LOOP_STEP
         jump_to(frame, label);
     }
 
+    return frame;
+}
+
+SUNY_API struct Sframe*
+Svm_call_class_function(struct Sframe *frame, struct Sobj *f_obj) {
+    SDEBUG("[svm.c] Svm_call_function(struct Sframe *frame, struct Sobj *f_obj) (building...)\n");
+
+    struct Scall_context *context = Scall_context_new();
+
+    Scall_context_set_class_function(context, frame, f_obj);
+    Svm_run_call_context(context);
+    Scall_context_free(context);
+
+    SDEBUG("[svm.c] Svm_call_function(struct Sframe *frame, struct Sobj *f_obj) (done)\n");
     return frame;
 }

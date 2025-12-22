@@ -98,8 +98,6 @@ Scall_context_set
     f_frame->f_heap_size = frame->f_heap_size;
     f_frame->f_heap_index = frame->f_heap_index;
 
-    f_frame->f_obj = f_obj;
-
     f_frame->gc_pool = frame->gc_pool;
     f_frame->f_code = f_code;
     f_frame->f_code_index = 0;
@@ -128,7 +126,7 @@ struct Sobj* f_obj)
 
     struct Sframe *f_frame = context->frame;
 
-    struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size + 1, sizeof(struct Sobj*));
+    struct Sobj** temp = Smem_Calloc(f_obj->f_type->f_func->args_size, sizeof(struct Sobj*));
 
     for (int i = 0; i < f_obj->f_type->f_func->args_size - 1; i++) {
         struct Sobj* back = Sframe_back(frame);
@@ -140,11 +138,17 @@ struct Sobj* f_obj)
         }
     }
 
-    temp[f_obj->f_type->f_func->args_size - 1] = class_f;
+    if (f_obj->f_type->f_func->args_size > 0) {
+        temp[f_obj->f_type->f_func->args_size - 1] = class_f;
+    }
 
     Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
 
     for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        if (!temp[i]) {
+            continue;
+        }
+
         Sframe_store_local(f_frame, f_obj->f_type->f_func->args_address[i], temp[i], LOCAL_OBJ);
     }
     
@@ -180,6 +184,9 @@ Scall_context_set_frame
     Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
     
     for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        if (!temp[i]) {
+            continue;
+        }
         Sframe_store_local(f_frame, func->args_address[i], temp[i], LOCAL_OBJ);
     }
 
@@ -222,6 +229,9 @@ Scall_context_set_closure
     Sreverse((void **) temp, f_obj->f_type->f_func->args_size);
     
     for (int i = 0; i < f_obj->f_type->f_func->args_size; i++) {
+        if (!temp[i]) {
+            continue;
+        }
         Sframe_store_local(f_frame, func->args_address[i], temp[i], LOCAL_OBJ);
     }
 
@@ -245,6 +255,9 @@ Scall_context_set_frame_with_args
     context = Scall_context_set(context, frame, f_obj);
 
     for (int i = 0; i < func->args_size; i++) {
+        if (!args[i]) {
+            continue;
+        }
         Sframe_store_local(f_frame, func->args_address[i], args[i], LOCAL_OBJ);
     }
 

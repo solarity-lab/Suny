@@ -178,7 +178,10 @@ Scall_context_run_and_get_ret_val
 (struct Scall_context *context);
 
 SUNY_API struct Sframe*
-Svm_call_func(struct Sframe *frame, struct Sobj *f_obj);
+Svm_call_function(struct Sframe *frame, struct Sobj *f_obj);
+
+SUNY_API struct Sframe*
+Svm_call_class_function(struct Sframe *frame, struct Sobj *f_obj);
 
 SUNY_API struct Sframe*
 Svm_call_closure(struct Sframe *frame, struct Sobj *f_obj);
