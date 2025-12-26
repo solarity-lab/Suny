@@ -105,7 +105,6 @@ Sgchrfromf(float value, int index) {
     return buffer[index];
 }
 
-
 int
 Scharcmp_bigger(char *a, char *b, int size_a, int size_b) {
     int min = size_a < size_b ? size_a : size_b;

@@ -19,6 +19,8 @@ struct Sframe* SunyRunFile(char* file);
 
 struct Scode* SunyCompileFile(char* file);
 
+struct Sframe* SunyRunBytecode(unsigned char* code, int size);
+
 int prompt(void);
 
 #endif

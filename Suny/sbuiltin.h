@@ -13,6 +13,8 @@ struct Scall_context;
 
 struct Sframe *Svm_run_call_context(struct Scall_context *context);
 
+struct Sframe *Scall_context_run_and_get_ret_val(struct Scall_context *context);
+
 typedef struct Sobj* (*builtin_func)(struct Sframe*);
 
 typedef struct Sframe* (*main_func)(struct Sframe*, struct Stable*);

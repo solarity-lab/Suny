@@ -6,11 +6,14 @@
 #include "stype.h"
 #include "sgc.h"
 #include "seval.h"
+#include "scompare.h"
 
 struct Sobj;
 struct Slist;
 
 int Slist_free(struct Slist* list);
+
+int Slist_cmp(struct Slist* list1, struct Slist* list2);
 
 struct Slist* Slist_new(void);
 

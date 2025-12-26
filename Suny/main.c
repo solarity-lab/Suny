@@ -17,9 +17,50 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    if (same_string(argv[1], "-m")) {
+        if (argc < 3) {
+            printf("Usage: suny -m <file> [-o output]\n");
+            return 1;
+        }
+
+        struct Scode *code = SunyCompileFile(argv[2]);
+        const char *out = "a.o";
+
+        if (argc >= 5 && same_string(argv[3], "-o")) {
+            out = argv[4];
+        }
+
+        struct SZIO *zio = Sbuff_write_bytecode_file(code->code, code->size, out);
+
+        Sbuff_free(zio);
+        Scode_free(code);
+
+        return 0;
+    }
+
+    if (same_string(file_name, "-asm")) {
+        file_name = argv[2];
+
+        struct SZIO *zio = Sbuff_read_bytecode_file(file_name);
+
+        if (!zio) {
+            printf("Error: Cannot read bytecode file: %s\n", file_name);
+        }
+
+        SunyRunBytecode(zio->bytecode, zio->bytecode_size);
+        return 0;
+    }
+
     if (same_string(file_name, "-cr")) {
         file_name = argv[2];
-        compilefileRAW(file_name);
+        struct SZIO *zio = Sbuff_read_bytecode_file(file_name);
+
+        if (!zio) {
+            printf("Error: Cannot read bytecode file: %s\n", file_name);
+        }
+
+        SunyRunBytecode(zio->buffer, zio->size);
+
         return 0;
     }
 

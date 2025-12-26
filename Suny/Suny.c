@@ -1,4 +1,5 @@
 #include "Suny.h"
+#include "sdebug.h"
 
 int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit*, struct Stable* table) {
     Sinitialize_variables(frame, table, "inf", 29, Svalue(INFINITY));
@@ -135,4 +136,31 @@ struct Scode* SunyCompileFile(char* file) {
     struct Scode *code = Scompiler_compile_ast_program(compiler, ast, table);
 
     return code;
+}
+
+struct Sframe* SunyRunBytecode(unsigned char* code, int size) {
+    struct ScompilerUnit *compiler = ScompilerUnit_new();
+    struct Stable *table = Stable_new();
+    struct Sframe *frame = Sframe_new();
+    compiler->frame = frame;
+    frame->compiler = compiler;
+    frame->f_heaps = Smem_Calloc(DEFAULT_MAX, sizeof(struct Sobj *));
+    frame->gc_pool = Sgc_new_pool();
+
+    SunyInstallLibrary(frame, compiler, table);
+
+    struct Scode *c = Scode_new();
+
+    if (size > MAX_CODE_SIZE) {
+        __ERROR("Bytecode too large\n");
+        return NULL;
+    }
+
+    memcpy(c->code, code, size);
+    c->size = size;
+    
+    frame = Sframe_init(frame, c);
+    frame = Svm_run_program(frame);
+
+    return frame;
 }

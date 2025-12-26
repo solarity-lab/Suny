@@ -10,6 +10,9 @@ struct SZIO {
     char** folders;
     int nf;
     int maxf;
+
+    unsigned char* bytecode;
+    int bytecode_size;
 };
 
 struct SZIO*
@@ -28,6 +31,14 @@ Sbuff_free
 struct SZIO*
 Sbuff_read_file
 (char* file);
+
+struct SZIO* 
+Sbuff_write_bytecode_file
+(unsigned char* content, size_t size, const char* filename);
+
+struct SZIO* 
+Sbuff_read_bytecode_file
+(const char* filename);
 
 struct SZIO* 
 Sbuff_write_bytecode_file

@@ -252,7 +252,9 @@ Sast_add_block
     if (parent->block_capacity == 0) {
         parent->block_capacity = 1024;
         parent->block = (struct Sast **)Smem_Malloc(sizeof(struct Sast *) * parent->block_capacity);
-    } else if (parent->block_count >= parent->block_capacity) {
+    }
+    
+    if (parent->block_count >= parent->block_capacity) {
         parent->block_capacity *= 2;
         parent->block = (struct Sast **)Smem_Realloc(parent->block, sizeof(struct Sast *) * parent->block_capacity);
     }
@@ -334,7 +336,9 @@ Sast_add_element(struct Sast *list, struct Sast *element) {
     if (list->list_capacity == 0) {
         list->list_capacity = 1024;
         list->list = (struct Sast **)Smem_Malloc(sizeof(struct Sast *) * list->list_capacity);
-    } else if (list->list_count >= list->list_capacity) {
+    } 
+    
+    if (list->list_count >= list->list_capacity) {
         list->list_capacity *= 2;
         list->list = (struct Sast **)Smem_Realloc(list->list, sizeof(struct Sast *) * list->list_capacity);
     }

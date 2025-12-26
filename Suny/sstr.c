@@ -89,3 +89,24 @@ struct Sobj *Sobj_make_char(char chr) {
 
     return sobj;
 }
+
+int Sstr_cmp(struct Sstr *str1, struct Sstr *str2)
+{
+    if (!str1 || !str2) return 0;
+
+    char *a = str1->string;
+    char *b = str2->string;
+
+    int size_a = str1->size;
+    int size_b = str2->size;
+
+    int min = size_a < size_b ? size_a : size_b;
+
+    for (int i = 0; i < min; i++) {
+        if (a[i] != b[i]) {
+            return (unsigned char)a[i] - (unsigned char)b[i];
+        }
+    }
+
+    return size_a - size_b;
+}

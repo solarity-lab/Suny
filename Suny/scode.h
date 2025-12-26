@@ -72,6 +72,7 @@ Scode_print
 void 
 Scode_print_disasm(struct Scode *code);
 
-const char* print_op(unsigned char c);
+const char* 
+print_op(unsigned char c);
 
 #endif // SCODE_H 

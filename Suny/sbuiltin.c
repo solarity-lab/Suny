@@ -18,16 +18,12 @@ SUNY_API struct Sobj* Sisdigit_builtin(struct Sframe *frame) {
     char* str = obj->f_type->f_str->string;
 
     if (Sisstrdigit(str)) {
-        struct Sobj *result = Svalue(1);
         MOVETOGC(obj, frame->gc_pool);
-        return result;
-    } else {
-        struct Sobj *result = Svalue(0);
-        MOVETOGC(obj, frame->gc_pool);
-        return result;
+        return Svalue(1);
     }
 
-    return null_obj;
+    MOVETOGC(obj, frame->gc_pool);
+    return Svalue(0);;
 }
 
 SUNY_API struct Sobj* Sputs(struct Sframe* frame) {
@@ -45,22 +41,23 @@ SUNY_API struct Sobj* Sprint(struct Sframe* frame) {
 
     if (obj->type == CLASS_OBJ) {
         if (obj->meta->meta_f_tostring) {
-            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 2);
+            struct Sobj** args = (struct Sobj**)Smem_Malloc(sizeof(struct Sobj*) * 1);
             args[0] = obj;
 
             struct Scall_context *context = Scall_context_new();
+            struct Sobj *value = NULL;
 
             Scall_context_set_frame_with_args(context, frame, obj->meta->meta_f_tostring, args);
-            Svm_run_call_context(context);
-            Scall_context_free(context);
+            Scall_context_run_and_get_ret_val(context);
+            value = context->ret_obj;
 
             Smem_Free(args);
 
-            struct Sobj* value = Sframe_pop(frame);
             Sio_write(value);
 
             MOVETOGC(value, frame->gc_pool);
-            MOVETOGC(obj, frame->gc_pool);
+
+            Scall_context_free(context);
 
             return null_obj;
         }
@@ -136,8 +133,10 @@ SUNY_API struct Sobj* Ssize(struct Sframe* frame) {
     struct Sobj *obj = Sframe_pop(frame);
 
     if (obj->type == LIST_OBJ) {
+        MOVETOGC(obj, frame->gc_pool);
         return Svalue(obj->f_type->f_list->count);
     } else if (obj->type == STRING_OBJ) {
+        MOVETOGC(obj, frame->gc_pool);
         return Svalue(obj->f_type->f_str->size);
     }
 

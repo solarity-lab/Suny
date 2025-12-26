@@ -1299,7 +1299,9 @@ SUNY_API struct Sframe*
 Svm_evaluate_EXIT_PROGRAM
 (struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_EXIT_PROGRAM(struct Sframe *frame) (building...)\n");
-    exit(0);
+    
+    SUNY_EXIT;
+
     SDEBUG("[svm.c] Svm_evaluate_EXIT_PROGRAM(struct Sframe *frame) (done)\n");
     return frame;
 }
@@ -1308,7 +1310,9 @@ SUNY_API struct Sframe*
 Svm_evaluate_STOP_PROGRAM
 (struct Sframe *frame) {
     SDEBUG("[svm.c] Svm_evaluate_STOP_PROGRAM(struct Sframe *frame) (building...)\n");
-    exit(1);
+    
+    SUNY_BREAK_POINT;
+
     SDEBUG("[svm.c] Svm_evaluate_STOP_PROGRAM(struct Sframe *frame) (done)\n");
     return frame;
 }
@@ -1327,8 +1331,11 @@ Svm_evaluate_RETURN_TOP(struct Sframe *frame, struct Scall_context *context) {
     SDEBUG("[svm.c] Svm_evaluate_RETURN_TOP(struct Sframe *frame) (building...)\n");
     
     struct Sobj *obj = Sframe_pop(frame);
+
     obj->is_return = 1;
+
     Sobj_free(context->ret_obj);
+
     context->ret_obj = obj; 
 
     SDEBUG("[svm.c] Svm_evaluate_RETURN_TOP(struct Sframe *frame) (done)\n");

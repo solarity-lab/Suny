@@ -165,3 +165,47 @@ Sbuff_find_file_in(char* filename, char* path) {
     closedir(dir);
     return zio;
 }
+
+struct SZIO* 
+Sbuff_read_bytecode_file
+(const char* filename) {
+    if (!filename) return NULL;
+
+    FILE *fp = fopen(filename, "rb");
+    if (!fp) {
+        __ERROR("Cannot open bytecode file: %s\n", filename);
+        return NULL;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    rewind(fp);
+
+    if (size <= 0) {
+        fclose(fp);
+        return NULL;
+    }
+
+    struct SZIO *zio = Sbuff_new();
+    if (!zio) {
+        fclose(fp);
+        return NULL;
+    }
+
+    zio->file = strdup(filename);
+    zio->buffer = Smem_Malloc(size);
+    zio->size = size;
+    zio->bytecode_size = size;
+    zio->bytecode = zio->buffer;
+
+    if (!zio->buffer) {
+        Sbuff_free(zio);
+        fclose(fp);
+        return NULL;
+    }
+
+    fread(zio->buffer, 1, size, fp);
+    fclose(fp);
+
+    return zio;
+}

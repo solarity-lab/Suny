@@ -1,5 +1,6 @@
 #include "slist.h"
 #include "smem.h"
+#include "sdebug.h"
 
 int Slist_free(struct Slist* list) {
     for (int i = 0; i < list->count; i++) {
@@ -148,4 +149,24 @@ struct Slist *Slist_store(struct Slist *list, int index, struct Sobj *obj) {
 
     SDEBUG("[slist.c] Slist_store(struct Slist *list, int index, struct Sobj *obj) (done)\n");
     return list;
+}
+
+int Slist_cmp(struct Slist* list1, struct Slist* list2) {
+    int min = list1->count < list2->count ? list1->count : list2->count;
+
+    for (int i = 0; i < min; i++) {
+        struct Sobj* a = list1->array[i];
+        struct Sobj* b = list2->array[i];
+
+        if (!a || !b) __ERROR("null element in list compare");
+
+        if (Scompare(a, b, CMP_LT)) return -1;
+
+        if (Scompare(a, b, CMP_GT)) return 1;
+    }
+
+    if (list1->count < list2->count) return -1;
+    if (list1->count > list2->count) return 1;
+
+    return 0;
 }

@@ -1,145 +1,90 @@
 #include "scompare.h"
 
-int Scompare_bigger(struct Sobj* obj1, struct Sobj* obj2) {
-        if (obj1->type == SFALSE || obj2->type == SFALSE) {
-        Serror_fatal_error("attempt to perform arithmetic on a null value\n");
-    }
+static int call_meta(struct Sobj* a, struct Sobj* b, struct Sobj* (*fn)(struct Sobj*, struct Sobj*)) {
+    if (!fn) return CMP_FALSE;
 
-    if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) {
-        struct Sstr *str1 = obj1->f_type->f_str;
-        struct Sstr *str2 = obj2->f_type->f_str;
+    struct Sobj* r = fn(a, b);
+    if (!r || !r->value) return CMP_FALSE;
 
-        char* a = str1->string;
-        char* b = str2->string;
-
-        int size_a = str1->size;
-        int size_b = str2->size;
-
-        int result = Scharcmp_bigger(a, b, size_a, size_b);
-
-        return result;
-    } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
-        int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
-        if (cmp > 0) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj1->type == USER_DATA_OBJ) {
-        if (obj1->meta && obj1->meta->mm_gt) {
-            return obj1->meta->mm_gt(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj2->type == USER_DATA_OBJ) {
-        if (obj2->meta && obj2->meta->mm_gt) {
-            return obj2->meta->mm_gt(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else {
-        if (obj1->value->value > obj2->value->value) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    }
+    return r->value->value;
 }
 
-int Scompare_smaller(struct Sobj* obj1, struct Sobj* obj2) {
-    if (obj1->type == SFALSE || obj2->type == SFALSE) {
-        Serror_fatal_error("attempt to perform arithmetic on a null value\n");
-    }
+static int compare_raw(struct Sobj* a, struct Sobj* b, int op) {
+    int x = a->value->value;
+    int y = b->value->value;
 
-    if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) {
-        struct Sstr *str1 = obj1->f_type->f_str;
-        struct Sstr *str2 = obj2->f_type->f_str;
+    if (op == CMP_EQ)  return x == y;
+    if (op == CMP_LT)  return x <  y;
+    if (op == CMP_GT)  return x >  y;
+    if (op == CMP_NEQ) return x != y;
+    if (op == CMP_GE)  return x >= y;
+    if (op == CMP_LE)  return x <= y;
 
-        char* a = str1->string;
-        char* b = str2->string;
-
-        int size_a = str1->size;
-        int size_b = str2->size;
-
-        int result = Scharcmp_smaller(a, b, size_a, size_b);
-
-        return result;
-    } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
-        int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
-        if (cmp < 0) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj1->type == USER_DATA_OBJ) {
-        if (obj1->meta && obj1->meta->mm_lt) {
-            return obj1->meta->mm_lt(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj2->type == USER_DATA_OBJ) {
-        if (obj2->meta && obj2->meta->mm_lt) {
-            return obj2->meta->mm_lt(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else {
-        if (obj1->value->value < obj2->value->value) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    }
-
-    return SFALSE;
+    return CMP_FALSE;
 }
 
-int Scompare_equal(struct Sobj* obj1, struct Sobj* obj2) {
-    if (obj1->type == SFALSE || obj2->type == SFALSE) {
-        if (obj1->type == SFALSE && obj2->type == SFALSE) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
+static int cmp_by_result(int cmp, int op) {
+    if (op == CMP_EQ)  return cmp == 0;
+    if (op == CMP_LT)  return cmp < 0;
+    if (op == CMP_GT)  return cmp > 0;
+    if (op == CMP_NEQ) return cmp != 0;
+    if (op == CMP_GE)  return cmp >= 0;
+    if (op == CMP_LE)  return cmp <= 0;
+
+    return CMP_FALSE;
+}
+
+static int compare_string(struct Sobj* a, struct Sobj* b, int op) {
+    return cmp_by_result(Sstr_cmp(a->f_type->f_str, b->f_type->f_str), op);
+}
+
+static int compare_list(struct Sobj* a, struct Sobj* b, int op) {
+    return cmp_by_result(Slist_cmp(a->f_type->f_list, b->f_type->f_list), op);
+}
+
+static int compare_user_data(struct Sobj* a, struct Sobj* b, int op) {
+    struct Smeta* m1 = a->meta;
+    struct Smeta* m2 = b->meta;
+
+    if (op == CMP_EQ) {
+        if (m1 && m1->mm_eq) return call_meta(a, b, m1->mm_eq);
+        if (m2 && m2->mm_eq) return call_meta(a, b, m2->mm_eq);
     }
 
-    if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) {
-        struct Sstr *str1 = obj1->f_type->f_str;
-        struct Sstr *str2 = obj2->f_type->f_str;
+    else if (op == CMP_LT && m1 && m1->mm_lt) return call_meta(a, b, m1->mm_lt);
 
-        char* a = str1->string;
-        char* b = str2->string;
+    else if (op == CMP_GT && m1 && m1->mm_gt) return call_meta(a, b, m1->mm_gt);
 
-        int size_a = str1->size;
-        int size_b = str2->size;
+    else if (op == CMP_NEQ && m1 && m1->mm_ne) return call_meta(a, b, m1->mm_ne);
 
-        int result = Scharcmp_equal(a, b, size_a, size_b);
+    else if (op == CMP_GE && m1 && m1->mm_ge) return call_meta(a, b, m1->mm_ge);
 
-        return result;
-    } else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) {
-        int cmp = Slist_cmp(obj1->f_type->f_list, obj2->f_type->f_list);
-        if (cmp == 0) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj1->type == USER_DATA_OBJ) {
-        if (obj1->meta && obj1->meta->mm_eq) {
-            return obj1->meta->mm_eq(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else if (obj2->type == USER_DATA_OBJ) {
-        if (obj2->meta && obj2->meta->mm_eq) {
-            return obj2->meta->mm_eq(obj1, obj2)->value->value;
-        } else {
-            return SFALSE;
-        }
-    } else {
-        if (obj1->value->value == obj2->value->value) {
-            return STRUE;
-        } else {
-            return SFALSE;
-        }
-    }
+    else if (op == CMP_LE && m1 && m1->mm_le) return call_meta(a, b, m1->mm_le);
+
+    return CMP_FALSE;
+}
+
+int Scompare(struct Sobj* a, struct Sobj* b, int op) {
+    if (!a || !b || a->type == NULL_OBJ || b->type == NULL_OBJ)
+        Serror_fatal_error("attempt to compare null value");
+
+    if (a->type == STRING_OBJ && b->type == STRING_OBJ) return compare_string(a, b, op);
+
+    if (a->type == LIST_OBJ && b->type == LIST_OBJ) return compare_list(a, b, op);
+
+    if (a->type == USER_DATA_OBJ || b->type == USER_DATA_OBJ) return compare_user_data(a, b, op);
+
+    return compare_raw(a, b, op);
+}
+
+int Scompare_bigger(struct Sobj* a, struct Sobj* b) {
+    return Scompare(a, b, CMP_GT);
+}
+
+int Scompare_smaller(struct Sobj* a, struct Sobj* b) {
+    return Scompare(a, b, CMP_LT);
+}
+
+int Scompare_equal(struct Sobj* a, struct Sobj* b) {
+    return Scompare(a, b, CMP_EQ);
 }

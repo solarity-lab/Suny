@@ -19,4 +19,6 @@ struct Sobj *Sobj_make_str(char* str, int size);
 
 struct Sobj *Sobj_make_char(char chr);
 
+int Sstr_cmp(struct Sstr *str1, struct Sstr *str2);
+
 #endif
