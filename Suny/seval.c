@@ -340,7 +340,7 @@ struct Sobj *eval_userdata(struct Sobj *obj1, struct Sobj *obj2, int op) {
 
 struct Sobj* Seval_mod(struct Sobj *obj1, struct Sobj *obj2) {
     if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
-    if (obj1->type == STRING_OBJ || obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __mod);
+    if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __mod);
     return Svalue((int) obj1->value->value % (int) obj2->value->value);
 }
 

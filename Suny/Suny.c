@@ -25,6 +25,7 @@ int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit*, struct Stabl
 
 int prompt() {
     printf("Suny 1.0 Copyright (C) 2025-present, by dinhsonhai132\n");
+    printf("Type \"exit()\" or press Ctrl+C to quit.\n");
 
     struct Sframe *frame = Sframe_new();
     struct ScompilerUnit *compiler = ScompilerUnit_new();
