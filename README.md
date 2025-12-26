@@ -4,7 +4,7 @@
     <img src="assets/logo.png" alt="logo" width="300"/>
 </div>
 
-👉 [Watch document (PDF)](./docs/SRM1/README.md)
+👉 [Watch document (PDF)](./docs/SRM1/document.pdf)
 
 My youtube: https://www.youtube.com/@haidinhson
 
@@ -17,3 +17,4 @@ My youtube: https://www.youtube.com/@haidinhson
 - rename `Suny-main` into `Suny`
 
 - run `make` to build
+
