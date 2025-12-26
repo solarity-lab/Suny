@@ -62,7 +62,7 @@ print("Hello, Suny!")
 
 i = 1
 while i <= 5 do
-    print("Count:", i)
+    print("Count: %s" % string(i))
     i = i + 1
 end
 ```
@@ -142,7 +142,7 @@ The `print` function is versatile. Here are a few variations:
 
 ```suny
 print(123)                  -- prints a number
-print("Suny", "Language")   -- prints multiple values
+print("Suny %s" % "Language")   -- sub string with %
 print(10 + 20)              -- prints the result of an expression
 print(nil)                  -- prints "nil"
 ```
@@ -188,7 +188,7 @@ Type "exit()" or press Ctrl+C to quit.
 Suny is fun!
 >>> 5 * (2 + 3)
 25
->>> exit()
+>>> exit(1)
 PS C:\Suny>
 ```
 
@@ -232,9 +232,9 @@ You will see:
 Suny 1.0 Copyright (C) 2025-present, by dinhsonhai132
 Usage: suny [options] [file]
 Options:
-  -c [file]   Compile the file
-  -p          Run the prompt
-  -h          Show this help
+  -c [file] Compile the file
+  -p Run the prompt
+  -h Show this help
 ```
 
 ### Explanation:
@@ -273,6 +273,7 @@ print(2 + 3)       # Addition: 5
 print(5 - 2)       # Subtraction: 3
 print(4 * 2)       # Multiplication: 8
 print(10 / 2)      # Division: 5.0
+print(10 % 2)      # modulo: 1
 print((1 + 2) * 3) # Parentheses control order: 9
 ```
 
@@ -281,41 +282,9 @@ print((1 + 2) * 3) # Parentheses control order: 9
 * `+` adds numbers.
 * `-` subtracts numbers.
 * `*` multiplies numbers.
+* `%` returns the remainder after division.
 * `/` divides numbers and always produces a floating-point result (e.g., `5 / 2` → `2.5`).
 * Parentheses `()` can be used to control precedence, just like in mathematics.
-
----
-
-### Integer Division and Remainder
-
-In addition to normal division, Suny provides:
-
-```suny
-print(7 // 2)  # Integer division: 3
-print(7 % 2)   # Modulo (remainder): 1
-```
-
-* `//` performs **floor division**, discarding the decimal part.
-* `%` returns the **remainder** after division.
-
----
-
-### Exponentiation
-
-You can raise numbers to a power with `**`:
-
-```suny
-print(2 ** 3)  # 2^3 = 8
-print(9 ** 0.5) # Square root of 9 = 3.0
-```
-
----
-
-### Notes on Arithmetic
-
-* Division `/` always returns a floating-point number, even if the result is mathematically an integer.
-* Using `//` guarantees an integer result (rounded down).
-* Exponentiation works with both integers and floats.
 
 ---
 
@@ -383,10 +352,9 @@ These Boolean results are often used in **if statements** and **loops** (explain
 When multiple operators appear in the same expression, Suny follows a **precedence order**:
 
 1. Parentheses `()`
-2. Exponentiation `**`
-3. Multiplication, Division, Floor Division, Modulo `* / // %`
-4. Addition and Subtraction `+ -`
-5. Comparisons `< > <= >= == !=`
+2. Multiplication, Division, Modulo `* / %`
+3. Addition and Subtraction `+ -`
+4. Comparisons `< > <= >= == !=`
 
 Example:
 
@@ -401,8 +369,7 @@ print((2 + 3) * 4)  # 20, because () overrides precedence
 
 In this section, you learned:
 
-* Suny supports **basic arithmetic operators**: `+ - * / // % **`.
-* Division `/` always returns a float; use `//` for integer division.
+* Suny supports **basic arithmetic operators**: `+ - * / %`.
 * The modulo operator `%` returns the remainder.
 * **Comparison operators** return Booleans (`true`/`false`) and include `<, >, ==, !=, <=, >=`.
 * Operator precedence follows standard mathematical rules.
@@ -515,25 +482,6 @@ a = a + 1   # now a is 1
 a = a * 2   # now a is 2
 ```
 
-### Compound Assignment
-
-Suny also supports shorthand operators:
-
-```suny
-a = 0  
-a += 1  # increase by 1  
-a -= 1  # decrease by 1  
-a *= 2  # multiply by 2  
-a /= 2  # divide by 2  
-```
-
-These are equivalent to the longer forms:
-
-* `a += 1` → `a = a + 1`
-* `a -= 1` → `a = a - 1`
-* `a *= 2` → `a = a * 2`
-* `a /= 2` → `a = a / 2`
-
 ---
 
 ## 4.4 Example Program
@@ -545,8 +493,8 @@ score = 0   # global variable
 
 function add_points(points) do
     local_bonus = 2      # local variable
-    score += points + local_bonus
-    print("Added", points, "points. Current score:", score)
+    score = score + points + local_bonus
+    print("Added: %s, Current score: %s" % string(points) % string(score))
 end
 
 add_points(5)   # Added 5 points. Current score: 7
@@ -641,42 +589,6 @@ c = 3.14     # float
 d = -0.5     # float
 ```
 
-### Arithmetic Operators
-
-| Operator | Description         | Example  | Result |
-| -------- | ------------------- | -------- | ------ |
-| `+`      | Addition            | `5 + 3`  | `8`    |
-| `-`      | Subtraction         | `5 - 3`  | `2`    |
-| `*`      | Multiplication      | `5 * 3`  | `15`   |
-| `/`      | Division (float)    | `5 / 2`  | `2.5`  |
-| `//`     | Floor division      | `5 // 2` | `2`    |
-| `%`      | Modulus (remainder) | `5 % 2`  | `1`    |
-| `**`     | Power (exponent)    | `2 ** 3` | `8`    |
-
-### Examples
-
-```suny
-x = 10
-y = 3
-
-print(x + y)   # 13
-print(x - y)   # 7
-print(x * y)   # 30
-print(x / y)   # 3.3333...
-print(x // y)  # 3
-print(x % y)   # 1
-print(x ** y)  # 1000
-```
-
-### Precedence and Parentheses
-
-Parentheses can be used to control the order of evaluation:
-
-```suny
-print(2 + 3 * 4)     # 14
-print((2 + 3) * 4)   # 20
-```
-
 ---
 
 ## 5.3 Strings
@@ -731,6 +643,27 @@ end
 | `\\`   | Backslash    | `"C:\\Path\\File"`  | C:\Path\File   |
 | `\"`   | Double quote | `"He said: \"Hi\""` | He said: "Hi"  |
 | `\'`   | Single quote | `'It\'s sunny'`     | It's sunny     |
+
+### String Formatting (Formatting with `%`)
+
+Strings can be formatted using the `%` operator.
+
+```
+name = "Hai"
+print("Hello my name is %s" % name)
+```
+
+**Output:**
+
+```
+Hello my name is Hai
+```
+
+**Notes:**
+
+* %s is a placeholder for a string value
+
+* string(value) converts numbers to strings
 
 ---
 
@@ -919,10 +852,125 @@ So the function “remembers” its state:
 ## 5.5 Summary
 
 * Booleans → true/false
-* Numbers → integers & floats with `+ - * / // % **`
+* Numbers → integers & floats with `+ - * / // %`
 * Strings → text with escape sequences
 * Lists → ordered collections with indexing and iteration
 * Functions → first-class values, support closures, anonymous functions, and lambdas
+
+---
+
+# 6. Class and OOP
+
+Classes allow you to define **custom data types** with **properties** and **methods**.
+They are the foundation of **Object-Oriented Programming (OOP)**.
+
+---
+
+## 6.1 Defining a Class
+
+A class is defined using the `class` keyword.
+
+```suny
+class Vector do
+    x = null
+    y = null
+
+    function __init__(self, X, Y) do
+        self.x = X
+        self.y = Y
+        return self
+    end
+end
+```
+
+---
+
+## 6.2 Operator Overloading
+
+Suny allows operator overloading using special methods:
+
+| Method       | Operator          |
+| ------------ | ----------------- |
+| `__add__`    | `+`               |
+| `__sub__`    | `-`               |
+| `__mul__`    | `*`               |
+| `__div__`    | `/`               |
+| `__tostring__` | string conversion |
+
+---
+
+## 6.3 Full Vector Example
+
+```suny
+class Vector do
+    x = null
+    y = null
+
+    function __init__(self, X, Y) do
+        self.x = X
+        self.y = Y
+        return self
+    end
+
+    function __add__(a, b) do
+        return Vector(a.x + b.x, a.y + b.y)
+    end
+
+    function __sub__(a, b) do
+        return Vector(a.x - b.x, a.y - b.y)
+    end
+
+    function __mul__(a, b) do
+        return Vector(a.x * b.x, a.y * b.y)
+    end
+
+    function __div__(a, b) do
+        return Vector(a.x / b.x, a.y / b.y)
+    end
+
+    function __tostring__(self) do
+        return "Vector(%s, %s)" % string(self.x) % string(self.y)
+    end
+end
+```
+
+---
+
+## 6.4 Using the Class
+
+```suny
+a = Vector(10, 20)
+b = Vector(2, 4)
+
+print(a + b)  # Vector(12, 24)
+print(a - b)  # Vector(8, 16)
+print(a * b)  # Vector(20, 80)
+print(a / b)  # Vector(5, 5)
+```
+
+---
+
+## 6.5 Example Loop
+
+```suny
+a = Vector(0, 0)
+
+while true do
+    a = a + Vector(1, 1)
+    print(a)
+end
+```
+
+---
+
+## 6.6 Notes
+
+* `self` refers to the current object.
+* Operator methods always receive **two operands**.
+* `__tostring__` controls how an object is printed.
+* Class names usually start with a capital letter.
+
+---
 
 # 7. Control Structures
 
@@ -951,8 +999,8 @@ if score >= 50 do
 end
 ```
 
-➡ If the condition is `true`, the code inside the block runs.
-➡ If it is `false`, the block is skipped.
+-> If the condition is `true`, the code inside the block runs.
+-> If it is `false`, the block is skipped.
 
 ---
 
@@ -969,7 +1017,7 @@ end
 ```
 
 If the first condition fails, the `else` block executes.
-elif
+
 ---
 
 ### 7.1.3 `if ... else`
@@ -985,6 +1033,7 @@ end
 ```
 
 ✅ Conditions are checked from top to bottom.
+
 ✅ Only the **first matching block** is executed.
 
 ---
@@ -1079,7 +1128,7 @@ while true do
 end
 ```
 
-➡ You usually combine this with `break` to stop.
+-> You usually combine this with `break` to stop.
 
 ---
 
@@ -1136,12 +1185,80 @@ cherry
 
 ---
 
-### 7.2.5 Nested Loops
+### 7.2.5 Loop Structures: `loop`, `times`, and `do`
+
+In this section, we explore how to execute blocks of code repeatedly using basic looping constructs. These tools are essential for handling tasks that require iteration, such as incrementing counters or processing data sets.
+
+---
+
+#### 1. The Basic `loop`
+
+The `loop` keyword creates an **infinite loop**. It will continue to execute the code inside the `do...end` block until it is manually interrupted (e.g., by a `break` statement or a system exit).
+
+**Syntax Example:**
+
+```suny
+i = 0
+
+loop do
+    print(i)
+    i = i + 1
+
+    if i >= 5 then
+        break
+    end
+end
+
+```
+
+---
+
+#### 2. The `times` Iterator
+
+When you know exactly how many times a block of code should run, use the `times` method. This is a cleaner, more readable way to handle fixed iterations compared to manual counters.
+
+**Syntax Example:**
+
+```suny
+i = 0
+
+loop 5 times do
+    print(i)
+    i = i + 1
+end
+
+```
+
+* **How it works:** The code inside the `do...end` block will execute exactly 5 times.
+* **Alternative Syntax:** You can also use curly braces for single-line loops: `5.times { |n| print(n) }`.
+
+---
+
+#### 3. Comparison Table
+
+| Feature | `loop` | `times` |
+| --- | --- | --- |
+| **Duration** | Infinite (until broken) | Fixed number of iterations |
+| **Use Case** | Waiting for an external signal or user input | Repeating a task a specific number of times |
+| **Control** | Requires an internal `break` | Ends automatically |
+
+---
+
+#### Key Takeaways
+
+* **The `do...end` Block:** Both constructs use `do` and `end` to encapsulate the logic that should be repeated.
+* **Counter Management:** In a `loop`, you are responsible for incrementing your variables and defining the exit condition. In `times`, the iteration limit is handled for you.
+
+> **Warning:** Always ensure that an infinite `loop` has a way to terminate, otherwise your program will hang or crash due to memory exhaustion.
+
+---
+
+### 7.2.6 Nested Loops
 
 ```suny
 for i in range(3) do
     for j in range(2) do
-        print("i =", i, ", j =", j)
+        print("i = %, j = %" % string(i) % string(j))
     end
 end
 ```
@@ -1163,7 +1280,14 @@ for i in range(10) do
 end
 ```
 
-**Output:** `0 1 2 3 4`
+**Output:**
+```
+0
+1
+2
+3
+4
+```
 
 ---
 
@@ -1180,12 +1304,14 @@ for i in range(5) do
 end
 ```
 
-**Output:** `0 1 3 4`
-
----
-
-## 7.4 `loop`
-
+**Output:** 
+```
+0
+1
+2
+3
+4
+```
 ---
 
 ## 7.4 Combining Control Structures
@@ -1195,9 +1321,9 @@ Complex programs often use **if statements inside loops**:
 ```suny
 for i in range(1, 11) do
     if i % 2 == 0 do
-        print(i, "is even")
+        print("%s is even" % string(i))
     else
-        print(i, "is odd")
+        print("%s is odd" % string(i))
     end
 end
 ```
@@ -1217,7 +1343,7 @@ They allow you to model real-world decisions, repeat tasks, and build dynamic pr
 
 ---
 
-## 8. Include
+# 8. Include
 
 The **`include`** statement in Suny allows you to organize your program across multiple files or folders.
 Instead of writing everything in a single file, you can split your code into smaller parts (modules, configs, helpers) and bring them together when needed.
