@@ -115,4 +115,6 @@ Sarray_push_to_start(void** arr, void* value, int size);
 void
 Sarray_push(void** arr, void* value, int size);
 
+void SmodChars(char* out, const char* fmt, const char* value);
+
 #endif

@@ -365,3 +365,20 @@ void
 Sarray_push(void** arr, void* value, int size) {
     arr[size] = value;
 }
+
+
+void SmodChars(char* out, const char* fmt, const char* value) {
+    const char* p = strstr(fmt, "%s");
+    if (!p) {
+        strcpy(out, fmt);
+        return;
+    }
+
+    size_t prefix_len = p - fmt;
+    strncpy(out, fmt, prefix_len);
+    out[prefix_len] = '\0';
+
+    strcat(out, value);
+
+    strcat(out, p + 2);
+}

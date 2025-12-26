@@ -66,4 +66,5 @@
 #define LOAD_FALSE                      0x81
 #define JUMP_TO                         0x82
 #define ADD_LABEL                       0x83
+#define BINARY_MOD                      0x84
 #endif // OPCODE_H

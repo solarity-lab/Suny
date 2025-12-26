@@ -48,7 +48,7 @@ extern int TOK_INDEX;
 
 
 enum Stok_t {
-    DIV, MUL, ADD, SUB,
+    DIV, MUL, ADD, SUB, MOD,
 
     NUMBER, STRING, IDENTIFIER,
 

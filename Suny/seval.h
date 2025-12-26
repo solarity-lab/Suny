@@ -18,6 +18,10 @@ Seval_add
 (struct Sobj *obj1, struct Sobj *obj2);
 
 SUNY_API struct Sobj *
+Seval_mod
+(struct Sobj *obj1, struct Sobj *obj2);
+
+SUNY_API struct Sobj *
 Seval_sub
 (struct Sobj *obj1, struct Sobj *obj2);
 
@@ -54,6 +58,10 @@ Seval_smaller_and_equal
 (struct Sobj *obj1, struct Sobj *obj2);
 
 int Slist_cmp(struct Slist *list1, struct Slist *list2);
+
+SUNY_API int 
+Seval_evaluate_mod
+(struct Sframe *frame);
 
 SUNY_API int
 Seval_evaluate_add

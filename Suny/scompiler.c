@@ -148,6 +148,9 @@ Scompiler_compile_ast_binary_expression
         case DIV:
             PUSH(code, BINARY_DIV);
             break;
+        case MOD:
+            PUSH(code, BINARY_MOD);
+            break;
         default:
             struct Serror *error = Serror_set("COMPILER_ERROR", "Unknown operator", ast->lexer);
             Serror_syntax_error(error);

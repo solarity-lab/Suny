@@ -110,3 +110,15 @@ int Sstr_cmp(struct Sstr *str1, struct Sstr *str2)
 
     return size_a - size_b;
 }
+
+struct Sstr *Sstr_mod(struct Sstr *str1, struct Sstr *str2) {
+    struct Sstr *str = Sstr_new();
+
+    str->string = Smem_Malloc(sizeof(char) * (str1->size + str2->size + 1));
+
+    SmodChars(str->string, str1->string, str2->string);
+
+    str->size = strlen(str->string);           
+
+    return str;
+}

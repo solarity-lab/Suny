@@ -17,7 +17,7 @@ typedef unsigned char byte_t;
 
 #define INSERT(code, c) Scode_push(code, c)
 
-#define IS_BINARY_OPER(c) (c == BINARY_ADD || c == BINARY_SUB || c == BINARY_MUL || c == BINARY_DIV || c == BINARY_BIGGER_EQUAL || c == BINARY_BIGGER || c == BINARY_SMALLER_EQUAL || c == BINARY_SMALLER || c == BINARY_EQUAL || c == BINARY_NOT_EQUAL)
+#define IS_BINARY_OPER(c) (c == BINARY_ADD || c == BINARY_SUB || c == BINARY_MUL || c == BINARY_DIV || c == BINARY_BIGGER_EQUAL || c == BINARY_BIGGER || c == BINARY_SMALLER_EQUAL || c == BINARY_SMALLER || c == BINARY_EQUAL || c == BINARY_NOT_EQUAL || c == BINARY_MOD)
 
 struct Sop {
     unsigned char op;

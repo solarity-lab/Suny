@@ -285,7 +285,7 @@ Sparser_parse_multiplicative_expression
     struct Sast *left = Sparser_parse_second_primary_expression(parser);
 
     parser->token = Slexer_get_next_token(parser->lexer);
-    while (parser->token->type == MUL || parser->token->type == DIV) {
+    while (parser->token->type == MUL || parser->token->type == DIV || parser->token->type == MOD) {
         enum Stok_t op = parser->token->type;
 
         parser->token = Slexer_get_next_token(parser->lexer);

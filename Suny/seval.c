@@ -15,6 +15,7 @@
 #define __and 10
 #define __or 11
 #define __not 12
+#define __mod 13
 
 int eval_class(struct Sframe *frame, struct Sobj *class_obj, struct Sobj *obj, void* meta_f) {
     if (meta_f) {
@@ -65,6 +66,15 @@ struct Sobj *eval_string(struct Sobj *obj1, struct Sobj *obj2, int op) {
         struct Sstr *sstr = Sstr_mul(str, size);
         
         struct Sobj *sobj = Sobj_make_str_obj(sstr);
+        
+        return sobj;
+    } else if (op == __mod) {
+        struct Sstr *str1 = obj1->f_type->f_str;
+        struct Sstr *str2 = obj2->f_type->f_str;
+        
+        struct Sstr *str = Sstr_mod(str1, str2);
+        
+        struct Sobj *sobj = Sobj_make_str_obj(str);
         
         return sobj;
     } else if (op == __eq) {
@@ -328,15 +338,16 @@ struct Sobj *eval_userdata(struct Sobj *obj1, struct Sobj *obj2, int op) {
     return NULL;
 }
 
-
+struct Sobj* Seval_mod(struct Sobj *obj1, struct Sobj *obj2) {
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
+    if (obj1->type == STRING_OBJ || obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __mod);
+    return Svalue((int) obj1->value->value % (int) obj2->value->value);
+}
 
 SUNY_API struct Sobj*
 Seval_add
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == STRING_OBJ || obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __add);
     else if (obj1->type == LIST_OBJ || obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __add);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __add);
@@ -347,62 +358,43 @@ Seval_add
 SUNY_API struct Sobj*
 Seval_sub
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-    
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __sub);
-
     return Svalue(obj1->value->value - obj2->value->value);
 }
 
 SUNY_API struct Sobj*
 Seval_mul
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == STRING_OBJ || obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __mul);
     else if (obj1->type == LIST_OBJ || obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __mul);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __mul);
-
     return Svalue(obj1->value->value * obj2->value->value);
 }
 
 SUNY_API struct Sobj*
 Seval_div
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __div);
-
     return Svalue(obj1->value->value / obj2->value->value);
 }
 
 SUNY_API struct Sobj*
 Seval_bigger
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __gt);
     else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __gt);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __gt);
-
     return Sobj_make_bool(obj1->value->value > obj2->value->value);
 }
 
 SUNY_API struct Sobj*
 Seval_smaller
 (struct Sobj *obj1, struct Sobj *obj2) {
-    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) {
-        __ERROR("attempt to perform arithmetic on a null value\n");
-    }
-
+    if (obj1->type == NULL_OBJ || obj2->type == NULL_OBJ) __ERROR("attempt to perform arithmetic on a null value\n");
     if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __lt);
     else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __lt);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __lt);
@@ -423,7 +415,6 @@ Seval_equal
     if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __eq);
     else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __eq);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __eq);
-
     return Sobj_make_bool(obj1->value->value == obj2->value->value);
 }
 
@@ -459,7 +450,6 @@ Seval_bigger_and_equal
     if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __ge);
     else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __ge);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __ge);
-
     return Sobj_make_bool(obj1->value->value >= obj2->value->value);
 }
 
@@ -477,8 +467,21 @@ Seval_smaller_and_equal
     if (obj1->type == STRING_OBJ && obj2->type == STRING_OBJ) return eval_string(obj1, obj2, __le);
     else if (obj1->type == LIST_OBJ && obj2->type == LIST_OBJ) return eval_list(obj1, obj2, __le);
     else if (obj1->type == USER_DATA_OBJ || obj2->type == USER_DATA_OBJ) return eval_userdata(obj1, obj2, __le);
-
     return Sobj_make_bool(obj1->value->value <= obj2->value->value);
+}
+
+SUNY_API int Seval_evaluate_mod(struct Sframe *frame) {
+    struct Sobj *obj2 = Sframe_pop(frame);
+    struct Sobj *obj1 = Sframe_pop(frame);
+
+    struct Sobj *sobj = Seval_mod(obj1, obj2);
+
+    MOVETOGC(obj1, frame->gc_pool);
+    MOVETOGC(obj2, frame->gc_pool);
+
+    Sframe_push(frame, sobj);
+
+    return 0;
 }
 
 SUNY_API int Seval_evaluate_add(struct Sframe *frame) {

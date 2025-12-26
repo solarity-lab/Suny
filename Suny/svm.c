@@ -719,6 +719,9 @@ Svm_evalutate_BINARY_OPER
         } case BINARY_SMALLER_EQUAL: {
             Seval_evaluate_smaller_and_equal(frame);
             break;
+        } case BINARY_MOD: {
+            Seval_evaluate_mod(frame);
+            break;
         } default: {
             Sframe_push_null(frame);
             break;

@@ -187,6 +187,8 @@ get_1_char
     switch (c) {
         case '+':
             return ADD;
+        case '%':
+            return MOD;
         case '(':
             return LPAREN;
         case '-':
