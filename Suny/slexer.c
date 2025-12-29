@@ -44,6 +44,10 @@ char
 Slexer_get_next_c
 (struct Slexer *lexer) {
     lexer->cur = lexer->input[lexer->index++];
+    if (lexer->cur == '\n') {
+        newline(lexer);
+    }
+
     lexer->column++;
 
     return lexer->cur;
