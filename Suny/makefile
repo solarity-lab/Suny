@@ -1,54 +1,64 @@
-CC = gcc
-SRC = $(wildcard *.c)
-OBJ = $(SRC:.c=.o)
-OUT = suny
-DEBUG = dsuny
-EXPORT = -rdynamic
-LIB = libSuny.a
-OPT = osuny
-OPT_FLAGS = -O3 -flto -march=native -fomit-frame-pointer -fno-asynchronous-unwind-tables -DNDEBUG
+CC      	 := gcc
+SRC     	 := $(wildcard *.c)
+OBJ     	 := $(SRC:.c=.o)
+
+OUT     	 := suny
+DEBUG   	 := dsuny
+OPT     	 := osuny
+ASAN    	 := sdsuny
+LIB     	 := libSuny.a
+
+CFLAGS_DEBUG := -g -O0 -Wall -Wextra -DDEBUG
+CFLAGS_REL   := -g
+CFLAGS_OPT   := -O3 -flto -march=native -fomit-frame-pointer -DNDEBUG
+CFLAGS_ASAN  := -g -O0 -fsanitize=address -fno-omit-frame-pointer
 
 ifeq ($(OS),Windows_NT)
-    RM = del /Q
-    EXT = .exe
+    EXT 	:=
+    RM  	:= del /Q
+    EXPORT  :=
+    AR 		:= ar
 else
-    RM = rm -f
-    EXT =
+    EXT 	:=
+    RM  	:= rm -f
+    EXPORT  := -rdynamic
+    AR 		:= ar
 endif
 
-all: $(OUT)$(EXT) $(DEBUG)$(EXT) $(OPT)$(EXT) $(LIB)
+all: release debug optimize lib
 
-superdebug:
-	@echo Building super debug exe...
-	@$(CC) -g -O0 -fsanitize=address -fno-omit-frame-pointer $(SRC) -o sdsuny
+release:  $(OUT)   $(EXT)
 
-bin: $(OUT)$(EXT)
+debug: 	  $(DEBUG) $(EXT)
 
-debug: $(DEBUG)$(EXT)
+optimize: $(OPT)   $(EXT)
 
-lib: $(LIB)
+asan:     $(ASAN)  $(EXT)
 
-optimize: $(OPT)$(EXT)
-
+lib:      $(LIB)
 
 $(OUT)$(EXT): $(SRC)
-	@echo Building release exe...
-	@$(CC) -g $(EXPORT) $(SRC) -o $@
+	@echo Building RELEASE...
+	@$(CC) $(CFLAGS_REL) $(EXPORT) $^ -o $@
 
 $(DEBUG)$(EXT): $(SRC)
-	@echo Building debug exe...
-	@$(CC) -g -O0 $(EXPORT) -Wall -Wextra -DDEBUG $(SRC) -o $@
-
-$(LIB): $(OBJ)
-	@echo Building static library...
-	ar rcs $(LIB) $(OBJ)
+	@echo Building DEBUG...
+	@$(CC) $(CFLAGS_DEBUG) $(EXPORT) $^ -o $@
 
 $(OPT)$(EXT): $(SRC)
-	@echo Building OPTIMIZED exe...
-	@$(CC) $(OPT_FLAGS) $(EXPORT) $(SRC) -o $@
+	@echo Building OPTIMIZED...
+	@$(CC) $(CFLAGS_OPT) $(EXPORT) $^ -o $@
 
-%.o: %.c Suny.h
-	$(CC) -c $< -o $@
+$(ASAN)$(EXT): $(SRC)
+	@echo Building ASAN...
+	@$(CC) $(CFLAGS_ASAN) $(EXPORT) $^ -o $@
+
+$(LIB): $(OBJ)
+	@echo Building STATIC LIB...
+	@$(AR) rcs $@ $^
+
+%.o: %.c
+	@$(CC) -c $< -o $@
 
 clean:
 	$(RM) *.o
