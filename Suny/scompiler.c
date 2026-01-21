@@ -1,6 +1,6 @@
 #include "scompiler.h"
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -31,7 +31,7 @@ Scompiler_compile
         case AST_IF:
             return Scompiler_compile_ast_if(compiler, ast, table);
         case AST_FOR:
-            return Scompiler_compile_ast_for(compiler, ast, table);        
+            return Scompiler_compile_ast_for(compiler, ast, table);
         case AST_WHILE:
             return Scompiler_compile_ast_while(compiler, ast, table);
         case AST_FUNCTION_STATEMENT:
@@ -94,11 +94,11 @@ Scompiler_compile
     return NULL_CODE_PTR;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_program
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     table->global = table;
-    
+
     table->is_global = 1;
     table->global->is_global = 1;
 
@@ -167,7 +167,7 @@ Scompiler_compile_ast_program
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_binary_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -203,7 +203,7 @@ Scompiler_compile_ast_binary_expression
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_literal
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     float value = ast->value;
@@ -223,7 +223,7 @@ Scompiler_compile_ast_literal
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_identifier
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -253,7 +253,7 @@ Scompiler_compile_ast_identifier
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_assignment
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -272,8 +272,8 @@ Scompiler_compile_ast_assignment
         PUSH(code, STORE_LOCAL);
     } else if (symbol->is_global) {
         PUSH(code, STORE_GLOBAL);
-    } 
-    
+    }
+
     else {
         PUSH(code, STORE_GLOBAL);
     }
@@ -283,7 +283,7 @@ Scompiler_compile_ast_assignment
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_print
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -296,7 +296,7 @@ Scompiler_compile_ast_print
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_function_call
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -320,7 +320,7 @@ Scompiler_compile_ast_function_call
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_return
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -337,7 +337,7 @@ Scompiler_compile_ast_return
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_comparison
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -379,7 +379,7 @@ Scompiler_compile_ast_comparison
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_if
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *conditon = Scompiler_compile(compiler, ast->condition, table);
@@ -412,7 +412,7 @@ Scompiler_compile_ast_if
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_while
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     compiler->is_in_loop = 1;
@@ -450,14 +450,14 @@ Scompiler_compile_ast_while
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
 
     byte_t faddress = symbol->address;
     byte_t fargs_count = ast->args_count;
-    
+
     table->function_name = ast->lexeme;
 
     struct Scode *code = NULL_CODE_PTR;
@@ -490,8 +490,8 @@ Scompiler_compile_ast_function
             PUSH(code, STORE_LOCAL);
         } else if (symbol->is_global) {
             PUSH(code, STORE_GLOBAL);
-        } 
-        
+        }
+
         else {
             PUSH(code, STORE_GLOBAL);
         }
@@ -527,8 +527,8 @@ Scompiler_compile_ast_function
         PUSH(code, STORE_LOCAL);
     } else if (symbol->is_global) {
         PUSH(code, STORE_GLOBAL);
-    } 
-    
+    }
+
     else {
         PUSH(code, STORE_GLOBAL);
     }
@@ -538,7 +538,7 @@ Scompiler_compile_ast_function
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_string
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -567,7 +567,7 @@ Scompiler_compile_ast_string
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_break
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     if (!compiler->is_in_loop) {
@@ -583,7 +583,7 @@ Scompiler_compile_ast_break
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_continue
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     if (!compiler->is_in_loop) {
@@ -599,7 +599,7 @@ Scompiler_compile_ast_continue
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_list
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -616,7 +616,7 @@ Scompiler_compile_ast_list
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_for
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     int iden = compiler->address_counter++;
@@ -716,7 +716,7 @@ Scompiler_compile_ast_for
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_class
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     if (compiler->is_in_function) {
@@ -742,7 +742,7 @@ Scompiler_compile_ast_class
                     return NULL_CODE_PTR;
                 }
             }
-            
+
             defined[i] = class_name;
 
             struct Ssymbol* symbol = Ssymbol_load(table, class_name);
@@ -757,7 +757,7 @@ Scompiler_compile_ast_class
             PUSH(extends, symbol->address);
         }
     }
-    
+
     struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
 
     struct Ssymbol* init_symbol = Ssymbol_store(table->class_table, "__init__", __INIT__ADDRESS);
@@ -787,8 +787,8 @@ Scompiler_compile_ast_class
         PUSH(code, STORE_LOCAL);
     } else if (symbol->is_global) {
         PUSH(code, STORE_GLOBAL);
-    } 
-    
+    }
+
     else {
         PUSH(code, STORE_GLOBAL);
     }
@@ -798,7 +798,7 @@ Scompiler_compile_ast_class
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_or
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *left = Scompiler_compile(compiler, ast->left, table);
@@ -813,11 +813,11 @@ Scompiler_compile_ast_or
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_and
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *left = Scompiler_compile(compiler, ast->left, table);
-    struct Scode *right = Scompiler_compile(compiler, ast->right, table);   
+    struct Scode *right = Scompiler_compile(compiler, ast->right, table);
 
     struct Scode *code = NULL_CODE_PTR;
 
@@ -829,7 +829,7 @@ Scompiler_compile_ast_and
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_not
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *expr = Scompiler_compile(compiler, ast->expr, table);
@@ -843,11 +843,11 @@ Scompiler_compile_ast_not
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_anonymous_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *block = Scompiler_compile_ast_function_body(compiler, ast->body, table, ast->args_count, ast->param_names);
-    
+
     struct Scode *code = NULL_CODE_PTR;
 
     int args_count = ast->args_count;
@@ -857,7 +857,7 @@ Scompiler_compile_ast_anonymous_function
     } else {
         PUSH(code, MAKE_FUNCTION);
     }
-    
+
     PUSH(code, args_count);
 
     INSERT(code, block);
@@ -870,7 +870,7 @@ Scompiler_compile_ast_anonymous_function
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_function_call_primary
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *params = Scompiler_compile_block(compiler, ast->params, table, ast->param_count);
@@ -885,7 +885,7 @@ Scompiler_compile_ast_function_call_primary
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_include
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     if (compiler->is_in_function) {
@@ -917,7 +917,7 @@ Scompiler_compile_ast_include
     return NULL_CODE_PTR;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_import
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
 #ifdef _WIN32
@@ -935,14 +935,14 @@ Scompiler_compile_ast_import
         Serror_compiler_error(message, ast);
     }
 
-    SUNY_FUNCTION func = SUNY_GET_FUNCTION_FROM(module, "main");
+    SUNY_FUNCTION func = SUNY_GET_FUNCTION_FROM(module, "Smain");
 
     if (!func) {
         char* message = Sstring("Cannot find function '%s'", file);
         Serror_compiler_error(message, ast);
     }
 
-    main_func main = (main_func)func;
+    main_func main = (main_func) func;
 
     if (!compiler->frame) {
         Serror_compiler_error("Cannot find frame in compiler", ast);
@@ -968,12 +968,12 @@ Scompiler_compile_ast_import
 
     if (!module) {
         fprintf(stderr, "dlopen('%s') error: %s\n", file, dlerror());
-        
+
         char* message = Sstring("Cannot open file '%s'", file);
         Serror_compiler_error(message, ast);
     }
 
-    SUNY_FUNCTION func = SUNY_GET_FUNCTION_FROM(module, "main");
+    SUNY_FUNCTION func = SUNY_GET_FUNCTION_FROM(module, "Smain");
 
     if (!func) {
         char* message = Sstring("Cannot find function '%s'", file);
@@ -988,7 +988,7 @@ Scompiler_compile_ast_import
 #endif
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_attribute
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -1013,7 +1013,7 @@ Scompiler_compile_ast_attribute
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_store_attribute
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Sast* assign = ast->expr;
@@ -1045,7 +1045,7 @@ Scompiler_compile_ast_store_attribute
     return NULL_CODE_PTR;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_null_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -1053,7 +1053,7 @@ Scompiler_compile_ast_null_expression
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_block
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size) {
     struct Scode *code = NULL_CODE_PTR;
@@ -1066,7 +1066,7 @@ Scompiler_compile_block
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_body
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size) {
     struct Scode *code = NULL_CODE_PTR;
@@ -1083,20 +1083,20 @@ Scompiler_compile_body
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_function_body
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size, char **args, int args_size) {
     struct Scode *code = NULL_CODE_PTR;
- 
+
     struct Stable *local_table = Stable_new();
-    
+
     local_table->is_function_table = 1;
     local_table->global = table->global;
     local_table->prev = table;
     local_table->class_table = table->class_table; // neu khong co dong 106 thi doan nay khong hop le
 
     compiler->is_in_function = 1;
-    
+
     for (int i = 0; i < args_size; i++) {
         struct Ssymbol* symbol = Ssymbol_store(local_table, args[i], ++compiler->address_counter);
         PUSH(code, MAKE_ARGS);
@@ -1120,17 +1120,17 @@ Scompiler_compile_function_body
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_function_body_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table, int args_count, char **param_names) {
     compiler->is_in_function = 1;
     struct Scode *code = NULL_CODE_PTR;
 
     struct Stable *local_table = Stable_new();
-    
+
     local_table->is_function_table = 1;
     local_table->global = table->global;
-    
+
     local_table->prev = table;
 
     local_table->class_table = table->class_table;
@@ -1155,13 +1155,13 @@ Scompiler_compile_function_body_expression
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_closure_identifier
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     return NULL_CODE_PTR;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_extract_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *extract_value_code = Scompiler_compile(compiler, ast->extract_value, table);
@@ -1175,7 +1175,7 @@ Scompiler_compile_ast_extract_expression
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_store_index
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *extract_value_code = Scompiler_compile(compiler, ast->extract_obj->extract_value, table);
@@ -1192,7 +1192,7 @@ Scompiler_compile_ast_store_index
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_loop
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
@@ -1245,35 +1245,35 @@ Scompiler_compile_ast_loop
     PUSH(code, loop_end);
 
 
-    return code;    
+    return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_block
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     return Scompiler_compile_body(compiler, ast->block, table, ast->block_size);;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_local_block
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Stable *local_table = Stable_new();
-    
+
     local_table->prev = table;
     local_table->is_local_table = 1;
     local_table->global = table->global;
     local_table->class_table = table->class_table;
-    
+
     struct Scode *code = NULL_CODE_PTR;
-    
+
     struct Scode *block = Scompiler_compile_body(compiler, ast->block, local_table, ast->block_size);
-    
+
     INSERT(code, block);
-    
+
     return code;
 }
 
-SUNY_API struct Scode* 
+SUNY_API struct Scode*
 Scompiler_compile_ast_function_body
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table, int args_count, char **args) {
     return Scompiler_compile_function_body(compiler, ast->block, table, ast->block_size, args, args_count);;

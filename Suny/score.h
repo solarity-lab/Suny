@@ -49,12 +49,12 @@ typedef struct Sframe* (*main_func)(struct Sframe*, struct Stable*);
 #include <stdarg.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>   
+#include <unistd.h>
 #include <stdint.h>
 
-int                 SDEBUG          (const char* format, ...);
+int                 SDEBUG              (const char* format, ...);
 SUNY_MODULE         SUNY_OPEN_LIB        (char* lib_name);
-SUNY_FUNCTION           SUNY_GET_FUNCTION_FROM         (SUNY_MODULE handle, char* func_name);
+SUNY_FUNCTION       SUNY_GET_FUNCTION_FROM         (SUNY_MODULE handle, char* func_name);
 void                SUNY_CLOSE_LIB       (SUNY_MODULE handle);
 
 #endif // SCORE_H

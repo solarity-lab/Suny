@@ -111,8 +111,12 @@ Sobj_free
             } else {
                 __ERROR("Error: LIKE, DAMN MAN? CODING IN C WITH NO FREE FUNCTION?");
             }
+
+            Smem_Free(obj->meta);
         }
+        
         Suserdata_free(obj->f_type->f_userdata);
+        
         Stype_free(obj->f_type);
     }
 
@@ -126,7 +130,7 @@ Sobj_free
 }
 
 struct Sobj*
-Sobj_set_value
+Sobj_make_number
 (float value) {
     struct Sobj *obj = Sobj_new();
     obj->type = NUMBER_OBJ;

@@ -69,7 +69,11 @@ SUNY_API struct Sobj* Sprint(struct Sframe* frame) {
     return null_obj;
 }
 
-SUNY_API struct Sobj* Sread(struct Sframe*) {
+SUNY_API struct Sobj* Sread(struct Sframe* frame) {
+    struct Sobj *write = Sframe_pop(frame);
+
+    Sio_write(write);
+
     char buffer[1024];
 
     if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
@@ -84,6 +88,8 @@ SUNY_API struct Sobj* Sread(struct Sframe*) {
     }
 
     struct Sobj *result = Sobj_make_string(buffer, len);
+
+    MOVETOGC(result, frame->gc_pool);
 
     return result;
 }

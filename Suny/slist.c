@@ -97,13 +97,13 @@ struct Slist* Slist_range(int start, int end) {
 
     if (start > end) {
         for (int i = end; i < start; i++) {
-            struct Sobj* value = Sobj_set_value(i);
+            struct Sobj* value = Sobj_make_number(i);
             SUNYINCREF(value);
             Slist_add(list, value);
         }
     } else {
         for (int i = start; i < end; i++) {
-            struct Sobj* value = Sobj_set_value(i);
+            struct Sobj* value = Sobj_make_number(i);
             SUNYINCREF(value);
             Slist_add(list, value);
         }

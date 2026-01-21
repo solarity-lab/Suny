@@ -3,6 +3,7 @@
 
 #include "svm.h"
 #include "score.h"
+#include "sdebug.h"
 #include "smem.h"
 
 struct Suny {

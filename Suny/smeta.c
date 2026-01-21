@@ -1,5 +1,6 @@
 #include "smeta.h"
 #include "smem.h"
+#include "sdebug.h"
 
 struct Smeta* Smeta_new(void) {
     struct Smeta* meta = Smem_Malloc(sizeof(struct Smeta));
@@ -39,7 +40,7 @@ struct Smeta* Smeta_new(void) {
 
 void Smeta_set(struct Sobj* obj, const char* name, void* fn) {
     if (!obj->meta) {
-        obj->meta = Smeta_new();
+        __ERROR("Error smeta.c: obj->meta is null\n");
     }
 
     if (strcmp(name, "__add__") == 0) obj->meta->mm_add = fn;
@@ -57,11 +58,16 @@ void Smeta_set(struct Sobj* obj, const char* name, void* fn) {
     else if (strcmp(name, "__call__") == 0) obj->meta->mm_call = fn;
     else if (strcmp(name, "__index__") == 0) obj->meta->mm_index = fn;
     else if (strcmp(name, "__free__") == 0) obj->meta->mm_free = fn;
+    else if (strcmp(name, "__store__") == 0) obj->meta->mm_store_item = fn;
 }
 
 struct Smeta* Sobj_set_meta(struct Sobj* obj, struct Smeta* meta) { obj->meta = meta; return meta; }
 
 void* Sobj_get_metamethod(struct Sobj* obj, const char* name) {
+    if (!obj->meta) {
+        __ERROR("Error smeta.c: obj->meta is null\n");
+    }
+
     if (obj->meta && obj->meta->mm_add && strcmp(name, "__add__") == 0) return obj->meta->mm_add;
     if (obj->meta && obj->meta->mm_sub && strcmp(name, "__sub__") == 0) return obj->meta->mm_sub;
     if (obj->meta && obj->meta->mm_mul && strcmp(name, "__mul__") == 0) return obj->meta->mm_mul;
@@ -77,5 +83,6 @@ void* Sobj_get_metamethod(struct Sobj* obj, const char* name) {
     if (obj->meta && obj->meta->mm_call && strcmp(name, "__call__") == 0) return obj->meta->mm_call;
     if (obj->meta && obj->meta->mm_index && strcmp(name, "__index__") == 0) return obj->meta->mm_index;
     if (obj->meta && obj->meta->mm_free && strcmp(name, "__free__") == 0) return obj->meta->mm_free;
+    
     return NULL;
 }

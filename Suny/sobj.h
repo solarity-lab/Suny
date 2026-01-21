@@ -27,7 +27,7 @@ typedef int address_t;
 #define null_obj Sobj_new()
 #define true_obj Sobj_make_true()
 #define false_obj Sobj_make_false()
-#define Svalue(x) Sobj_set_value(x)
+#define Svalue(x) Sobj_make_number(x)
 
 #define ValueOf(obj) ((obj)->value->value)
 #define Addressof(obj) ((obj)->address)
@@ -87,13 +87,13 @@ struct Sobj {
     struct Smeta* meta; // metatable
 };
 
-struct Svalue* 
+struct Svalue*
 Svalue_new(void);
 
-struct Sobj* 
+struct Sobj*
 Sobj_new(void);
 
-int 
+int
 Sobj_free
 (struct Sobj* obj);
 
@@ -109,7 +109,7 @@ struct Sobj*
 Sobj_make_null(void);
 
 struct Sobj*
-Sobj_set_value
+Sobj_make_number
 (float value);
 
 struct Sobj*
