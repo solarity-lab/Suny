@@ -2,72 +2,114 @@
     <img src="assets/logo.png" alt="logo" width="300"/>
 </div>
 
-**Suny** is a small programming language built from scratch in C,
-designed to help you understand **how interpreters, VMs, and compilers really work** — without magic. 🌇 
+# 🌇 Suny Programming Language
 
-> If you enjoy reading compiler code more than tutorials, Suny is for you.
+**Suny** is a small programming language built from scratch in **pure C**,
+designed to help you understand **how interpreters, VMs, and language runtimes actually work** — without magic.
 
----
-
-## What is Suny? 👀💡
-
-* A **minimal programming language** 
-* Written in **pure C** 🗿
-* Focused on:
-
-  * parsing
-  * AST
-  * bytecode / execution
-  * memory & runtime design
-
-This project is mainly for:
-
-* people learning **language implementation**
-* low-level / systems programmers
-* anyone curious about how languages like Lua or Python work internally
+> If you enjoy reading compiler or VM source code more than tutorials,
+> **Suny is for you.**
 
 ---
 
-## Example
+## What is Suny? 👀
+
+Suny is a **minimal, educational programming language** with a strong focus on **language internals**, not end-user features.
+
+It is designed to be:
+
+* readable
+* hackable
+* breakable
+* understandable
+
+There are no hidden layers, no external runtime, and no black boxes.
+
+---
+
+## Goals 🎯
+
+Suny focuses on the core ideas behind real languages:
+
+* Lexing & parsing
+* AST construction
+* Execution / VM-like runtime
+* Object system & memory management
+* Manual implementation of language features
+
+Everything is implemented **by hand**, in C.
+
+This is **not** a production language.
+This **is** a language you read to learn.
+
+---
+
+## Example ✨
 
 ```suny
-a = [1, 2, 3]
-b = [4, 5]
+import "HashMap"
 
-print(a + b)
+a = map([
+    "Alex", 15,
+    "Max", 10
+])
+
+a["Bob"] = 4
+print(a)
 ```
 
 Output:
 
 ```
-[1, 2, 3, 4, 5]
+{Alex: 15, Max: 10, Bob: 4}
 ```
 
-Simple syntax. Explicit behavior. No hidden magic.
+Simple syntax.
+Explicit behavior.
+No hidden magic.
 
 ---
 
-## Why Suny? 💥🚀
+## Why Suny? 🚀
 
-* No external runtime
-* Easy-to-read C code
-* Every feature is implemented **by hand**
-* Meant to be **read, modified, and broken**
+* Written in **pure C**
+* No external runtime or VM dependencies
+* Easy-to-read source code
+* Designed for experimentation
+* Encourages breaking and modifying internals
 
-This is **not** a production language.
-This **is** a learning tool.
+Suny exists to answer questions like:
+
+> *“How does a language actually work under the hood?”*
 
 ---
 
-## Build & Run 📦🧩
+## Who is this for? 👨‍💻👩‍💻
+
+### ✅ You should use Suny if:
+
+* You want to learn how programming languages are implemented
+* You are curious about interpreters, VMs, or compilers
+* You enjoy low-level or systems programming
+* You like reading real runtime code
+
+### ❌ You should NOT use Suny if:
+
+* You want a fast, production-ready language
+* You want high-level abstractions without touching memory
+* Pointers and manual memory management scare you
+
+---
+
+## Build & Run 🛠️
 
 ### Requirements
 
-* **OS**: Windows 10+ 🪟 or Linux 🐧 **(new)**
-* **Compiler**: MinGW (GCC) or MSVC
+* **OS**: Windows 10+ or Linux
+* **Compiler**: GCC (MinGW on Windows) or MSVC
 * **Tools**: `make`
 
-### Steps
+### Build
 
 ```bash
 git clone https://github.com/solarity-lab/Suny.git
@@ -78,37 +120,19 @@ make
 After building, you’ll get:
 
 ```
-suny.exe
+suny
 ```
 
-(Interpreter entry point)
+(or `suny.exe` on Windows)
+
+This is the Suny interpreter entry point.
 
 ---
 
-## Documentation & Videos
+## Documentation 📚
 
-* 📄 **Language spec & internals**:
-  👉 [SRM1 Document (PDF)](./SRM/SRM1/document.pdf)
+* 📄 **Language specification & internals**
+  [SRM1 Document (PDF)](./SRM/SRM1/document.pdf)
 
-* 🎥 **Implementation walkthroughs & dev logs**:
-  👉 [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
-
----
-
-## Who should NOT use Suny?
-
-* If you want a fast production-ready language ❌
-* If pointers and manual memory scare you ❌
-
-## Who SHOULD use it?
-
-* If you want to **learn how languages are built** ✅
-* If you read kernel / VM code for fun ✅
-
-
-
-
-
-
-
-
+* 🎥 **Implementation walkthroughs & dev logs**
+  [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
