@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="logo" width="150"/>
+  <img src="assets/logo.png" alt="logo" width="200"/>
 </p>
 
 
@@ -137,4 +137,5 @@ This is the Suny interpreter entry point.
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
+
 
