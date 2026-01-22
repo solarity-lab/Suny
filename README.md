@@ -3,7 +3,7 @@
 </p>
 
 
-# ☀️🌇 Suny Programming Language
+# ☀️ Suny Programming Language ☀️
 
 **Suny** is a small programming language built from scratch in **pure C**,
 designed to help you understand **how interpreters, VMs, and language runtimes actually work** — without magic.
@@ -137,6 +137,7 @@ This is the Suny interpreter entry point.
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
+
 
 
 
