@@ -3,19 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/solarity-lab/Suny/stargazers">
-    <img src="https://img.shields.io/github/stars/solarity-lab/Suny?style=flat-square" />
-  </a>
-  <a href="https://github.com/solarity-lab/Suny/network/members">
-    <img src="https://img.shields.io/github/forks/solarity-lab/Suny?style=flat-square" />
-  </a>
-  <a href="https://github.com/solarity-lab/Suny/issues">
-    <img src="https://img.shields.io/github/issues/solarity-lab/Suny?style=flat-square" />
-  </a>
-  <a href="https://github.com/solarity-lab/Suny/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/solarity-lab/Suny?style=flat-square" />
-  </a>
+  <img src="https://img.shields.io/badge/language-C-red?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/runtime-from%20scratch-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/purpose-educational-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/no%20magic-true-black?style=for-the-badge" />
 </p>
+
 
 # 🌇 Suny Programming Language
 
@@ -151,4 +144,5 @@ This is the Suny interpreter entry point.
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
+
 
