@@ -2,6 +2,21 @@
   <img src="assets/logo-removebg-preview.png" alt="logo" width="200"/>
 </p>
 
+<p align="center">
+  <a href="https://github.com/solarity-lab/Suny/stargazers">
+    <img src="https://img.shields.io/github/stars/solarity-lab/Suny?style=flat-square" />
+  </a>
+  <a href="https://github.com/solarity-lab/Suny/network/members">
+    <img src="https://img.shields.io/github/forks/solarity-lab/Suny?style=flat-square" />
+  </a>
+  <a href="https://github.com/solarity-lab/Suny/issues">
+    <img src="https://img.shields.io/github/issues/solarity-lab/Suny?style=flat-square" />
+  </a>
+  <a href="https://github.com/solarity-lab/Suny/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/solarity-lab/Suny?style=flat-square" />
+  </a>
+</p>
+
 # 🌇 Suny Programming Language
 
 **Suny** is a small programming language built from scratch in **pure C**,
@@ -136,3 +151,4 @@ This is the Suny interpreter entry point.
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@haidinhson)
+
