@@ -725,12 +725,56 @@ Sparser_parse_if
     node->condition = expr;
 
     if (parser->token->type != THEN && parser->token->type != DO) {
-        Serror_parser("Expected 'then'", parser->lexer);
+        Serror_parser("Expected 'then' or 'do after expression", parser->lexer);
         return NULL;
     }
 
     node->if_body = Sparser_parse_if_block(parser);
-    node->else_body = Sparser_parse_else_block(parser);
+
+    struct Sast* cur = node;
+
+    while (parser->token->type == ELIF) {
+        parser->token = Slexer_get_next_token(parser->lexer);
+
+        struct Sast *expr = Sparser_parse(parser);
+
+        Sast_set_line(parser->lexer, expr);
+        Serror_expected_expression(expr);
+
+        if (parser->token->type != THEN && parser->token->type != DO) {
+            Serror_parser("Expected 'then' or 'do' after expression", parser->lexer);
+            return NULL;
+        }
+
+        struct Sast *elif_block = Sparser_parse_if_block(parser);
+
+        struct Sast *elif = AST(AST_IF, 0, NULL);
+
+        elif->condition = expr;
+        elif->if_body = elif_block;
+
+        Sast_add_block(cur->else_body, elif);
+
+        cur->else_body->block_size++;
+
+        cur = elif;
+    }
+
+    if (parser->token->type == ELSE) {
+        parser->token = Slexer_get_next_token(parser->lexer);
+        while (parser->token->type != END) {
+            struct Sast *stmt = Sparser_parse(parser);
+            Sast_set_line(parser->lexer, cur);
+            Sast_add_block(cur->else_body, stmt);
+
+            cur->else_body->block_size++;
+
+            if (!stmt) {
+                Serror_parser("Expected statement", parser->lexer);
+                return NULL;
+            }
+        }
+    }
 
     Sast_set_line(parser->lexer, node);
 
@@ -766,42 +810,7 @@ Sparser_parse_if_block
 
     parser->token = Slexer_get_next_token(parser->lexer);
 
-    while (parser->token->type != END) {
-        struct Sast *stmt = Sparser_parse(parser);
-        Sast_set_line(parser->lexer, node);
-        Sast_add_block(node, stmt);
-
-        node->block_size++;
-
-        if (!stmt) {
-            Serror_parser("Expected statement", parser->lexer);
-            return NULL;
-        }
-
-        if (parser->token->type == ELSE) {
-            break;
-        }
-
-        if (parser->token->type == ELIF) {
-            break;
-        }
-    }
-
-    return node;
-}
-
-struct Sast *
-Sparser_parse_else_block
-(struct Sparser *parser) {
-    struct Sast *node = AST(AST_BLOCK, 0, NULL);
-
-    if (parser->token->type != ELSE) {
-        return node;
-    }
-
-    parser->token = Slexer_get_next_token(parser->lexer);
-
-    while (parser->token->type != END) {
+    while (parser->token->type != END && parser->token->type != ELSE && parser->token->type != ELIF) {
         struct Sast *stmt = Sparser_parse(parser);
         Sast_set_line(parser->lexer, node);
         Sast_add_block(node, stmt);

@@ -131,7 +131,7 @@ Sobj_free
 
 struct Sobj*
 Sobj_make_number
-(float value) {
+(double value) {
     struct Sobj *obj = Sobj_new();
     obj->type = NUMBER_OBJ;
     obj->value->value = value;

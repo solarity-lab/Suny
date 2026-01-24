@@ -117,6 +117,9 @@ struct Sast {
     struct Sast *condition;
     struct Sast *if_body;
     struct Sast *else_body;
+    struct Sast **elif_body;
+    int elif_count;
+    int elif_capacity;
 
     // function statement
     struct Sast **params;
@@ -179,6 +182,10 @@ struct Sast {
 int 
 Sast_set_line
 (struct Slexer *lexer, struct Sast *sast);
+
+int
+Sast_make_block_with_stmt
+(struct Sast *block, struct Sast *stmt);
 
 struct Sast* 
 Sast_new(void);

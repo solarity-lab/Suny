@@ -55,7 +55,7 @@ enum Sobj_t {
 };
 
 struct Svalue {
-    float value;
+    double value;
 };
 
 struct Sobj {
@@ -110,7 +110,7 @@ Sobj_make_null(void);
 
 struct Sobj*
 Sobj_make_number
-(float value);
+(double value);
 
 struct Sobj*
 Sobj_make_type(enum Sobj_t type);

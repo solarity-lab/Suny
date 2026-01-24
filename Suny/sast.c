@@ -110,6 +110,9 @@ struct Sast* Sast_new(void) {
     sast->condition = NULL;
     sast->if_body = Smem_Malloc(sizeof(struct Sast));
     sast->else_body = Smem_Malloc(sizeof(struct Sast));
+    sast->elif_body = Smem_Calloc(MAX_STATEMENT_SIZE, sizeof(struct Sast *));
+    sast->elif_count = 0;
+    sast->elif_capacity = 0;
 
     sast->params = Smem_Calloc(MAX_STATEMENT_SIZE, sizeof(struct Sast *));
     sast->body = Smem_Calloc(MAX_STATEMENT_SIZE, sizeof(struct Sast *));
@@ -332,4 +335,11 @@ Sast_add_element(struct Sast *list, struct Sast *element) {
 
     list->list[list->list_count++] = element;
     return list;
+}
+
+int
+Sast_make_block_with_stmt
+(struct Sast *block, struct Sast *stmt) {
+    Sast_add_block(block, stmt);
+    return 0;
 }

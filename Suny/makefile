@@ -25,9 +25,9 @@ else
     AR 		:= ar
 endif
 
-all: release debug optimize lib
+all: bin debug optimize lib
 
-release:  $(OUT)   $(EXT)
+bin:  	  $(OUT)   $(EXT)
 
 debug: 	  $(DEBUG) $(EXT)
 

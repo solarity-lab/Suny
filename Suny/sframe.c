@@ -359,7 +359,7 @@ Sframe_find_c_api_func
 }
 
 struct Sframe*
-Sframe_push_number(struct Sframe* frame, float number) {
+Sframe_push_number(struct Sframe* frame, double number) {
     SDEBUG("[sframe.c] Sframe_push_number(struct Sframe* frame, float number)\n");
     struct Sobj* obj = Svalue(number);
     Sframe_push(frame, obj);

@@ -114,9 +114,9 @@ struct Sobj *eval_string(struct Sobj *obj1, struct Sobj *obj2, int op) {
         struct Sstr *str1 = obj1->f_type->f_str;
         struct Sstr *str2 = obj2->f_type->f_str;
         
-        int result = Scharcmp_bigger(str1->string, str2->string, str1->size, str2->size);
+        int result = Scharcmp_smaller(str1->string, str2->string, str1->size, str2->size);
         
-        if (!result) {
+        if (result) {
             return true_obj;
         } else {
             return false_obj;
@@ -137,10 +137,10 @@ struct Sobj *eval_string(struct Sobj *obj1, struct Sobj *obj2, int op) {
         struct Sstr *str1 = obj1->f_type->f_str;
         struct Sstr *str2 = obj2->f_type->f_str;
         
-        int result = Scharcmp_bigger(str1->string, str2->string, str1->size, str2->size);
+        int result = Scharcmp_smaller(str1->string, str2->string, str1->size, str2->size);
         int result2 = Scharcmp_equal(str1->string, str2->string, str1->size, str2->size);
         
-        if (!result || result2) {
+        if (result || result2) {
             return true_obj;
         } else {
             return false_obj;

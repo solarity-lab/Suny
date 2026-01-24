@@ -82,10 +82,6 @@ Sframe_new
 (void);
 
 int
-Sframe_initialize_environment
-(struct Sframe *frame);
-
-int
 Sframe_already_defined
 (struct Sframe *frame, int address);
 
@@ -158,7 +154,7 @@ Sframe_find_c_api_func
 (struct Sframe *frame, int address);
 
 struct Sframe*
-Sframe_push_number(struct Sframe* frame, float number);
+Sframe_push_number(struct Sframe* frame, double number);
 
 struct Sframe*
 Sframe_push_string(struct Sframe* frame, char* string, int size);
