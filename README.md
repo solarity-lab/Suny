@@ -54,21 +54,38 @@ This **is** a language you read to learn.
 ## Example ✨
 
 ```suny
-import "HashMap"
+function bubble_sort(a) do
+    n = size(a)
+    i = 0
+    while i < n do
+        swapped = false
+        j = 0
+        while j < n - i - 1 do
+            if a[j] > a[j + 1] then
+                tmp = a[j]
+                a[j] = a[j + 1]
+                a[j + 1] = tmp
+                swapped = true
+            end
+            j = j + 1
+        end
 
-a = map([
-    "Alex", 15,
-    "Max", 10
-])
+        if not swapped then
+            break
+        end
 
-a["Bob"] = 4
-print(a)
+        i = i + 1
+    end
+    return a
+end
+
+print(bubble_sort([2, 3, 1, 5, 3]))
 ```
 
 Output:
 
 ```
-{Alex: 15, Max: 10, Bob: 4}
+[1, 2, 3, 3, 5]
 ```
 
 Simple syntax.
@@ -145,6 +162,7 @@ This is the Suny interpreter entry point.
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
 
 [![Star History Chart](https://api.star-history.com/svg?repos=solarity-lab/Suny&type=Date)](https://star-history.com/#solarity-lab/Suny&Date)
+
 
 
 
