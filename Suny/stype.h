@@ -93,6 +93,34 @@ struct Stype {
     struct Suserdata        *f_userdata;
 };
 
+#define tget_str(o) ((o)->f_type->f_str)
+
+#define tget_func(o) ((o)->f_type->f_func)
+
+#define tget_frame(o) ((o)->f_type->f_frame)
+
+#define tget_code(o) ((o)->f_type->f_code)
+
+#define tget_class(o) ((o)->f_type->f_class)
+
+#define tget_obj(o) ((o)->f_type->f_obj)
+
+#define tget_list(o) ((o)->f_type->f_list)
+
+#define tget_bool(o) ((o)->f_type->f_bool)
+
+#define tget_call_context(o) ((o)->f_type->f_call_context)
+
+#define tget_userdata(o) ((o)->f_type->f_userdata)
+
+#define tget_value(o) ((o)->f_type->f_value)
+
+#define tget_value(o) ((o)->f_type->f_value)
+
+#define tget_meta(o) ((o)->f_type->f_class->meta)
+
+#define tget_type(o) ((o)->f_type)
+
 struct Stype *
 Stype_new(void);
 

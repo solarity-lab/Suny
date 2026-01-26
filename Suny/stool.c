@@ -363,3 +363,17 @@ void SmodChars(char* out, const char* fmt, const char* value) {
 
     strcat(out, p + 2);
 }
+
+char* read_fast_content(char* filename) {
+    FILE* f = fopen(filename, "rb");
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    rewind(f);
+
+    char* buf = malloc(size + 1);
+    fread(buf, 1, size, f);
+    buf[size] = 0;
+
+    fclose(f);
+    return buf;
+}

@@ -4,20 +4,32 @@
 #include "score.h"  
 #include "serror.h"
 
-void* Smem_RawMalloc(size_t size);
+#define Smem_Malloc(size) Smem_RawMalloc(size, __FILE__, __LINE__)
+#define Smem_Free(ptr) Smem_RawFree(ptr, __FILE__, __LINE__)
+#define Smem_Realloc(ptr, size) Smem_RawRealloc(ptr, size, __FILE__, __LINE__)
+#define Smem_Calloc(nmemb, size) Smem_RawCalloc(nmemb, size, __FILE__, __LINE__)
 
-void* Smem_RawRealloc(void* ptr, size_t size);
+struct AllocInfo {
+    void* ptr;
+    size_t size;
 
-void* Smem_RawCalloc(size_t nmemb, size_t size);
+    const char* file;
+    int line;
+    int freed;
 
-int Smem_RawFree(void* ptr);
+    struct AllocInfo* next;
+};
 
-void* Smem_Malloc(size_t size);
+static struct AllocInfo* alloc_list = NULL;
 
-void* Smem_Realloc(void* ptr, size_t size);
+struct AllocInfo* AllocInfoNew(void);
 
-void* Smem_Calloc(size_t nmemb, size_t size);
+void* Smem_RawMalloc(size_t size, const char* file, int line);
 
-int Smem_Free(void* ptr);
+void* Smem_RawRealloc(void* ptr, size_t size, const char* file, int line);
+
+void* Smem_RawCalloc(size_t nmemb, size_t size, const char* file, int line);
+
+int Smem_RawFree(void* ptr, const char* file, int line);
 
 #endif // SMEM_H

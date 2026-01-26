@@ -511,13 +511,13 @@ Svm_evaluate_LOAD_ITEM
     struct Sobj *list = Sframe_pop(frame);
 
     if (index->value->value < 0) {
-        Sframe_push(frame, null_obj);
+        __ERROR("Error frame.c: index under of range: %f\n", index->value->value);
         return frame;
     }
 
     if (list->type == LIST_OBJ) {
         if (index->value->value >= list->f_type->f_list->count) {
-            Sframe_push(frame, null_obj);
+            __ERROR("Error frame.c: index out of range: %d\n", index->value->value);
             return frame;
         };
 

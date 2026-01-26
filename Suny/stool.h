@@ -113,4 +113,6 @@ Sarray_push(void** arr, void* value, int size);
 
 void SmodChars(char* out, const char* fmt, const char* value);
 
+char* read_fast_content(char* filename);
+
 #endif

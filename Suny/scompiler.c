@@ -415,7 +415,12 @@ Scompiler_compile_ast_if
 SUNY_API struct Scode*
 Scompiler_compile_ast_while
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-    compiler->is_in_loop = 1;
+    
+    int isalready_in_loop = compiler->is_in_loop;
+
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 1;
+    }
 
     int while_start = ++compiler->label_counter;
     int while_end = ++compiler->label_counter;
@@ -427,7 +432,9 @@ Scompiler_compile_ast_while
 
     ScompilerUnit_pop_loop(compiler);
 
-    compiler->is_in_loop = 0;
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 0;
+    }
 
     struct Scode *code = NULL_CODE_PTR;
 
@@ -623,7 +630,11 @@ Scompiler_compile_ast_for
     int loop_start = compiler->label_counter++;
     int loop_end = compiler->label_counter++;
 
-    compiler->is_in_loop = 1;
+    int isalready_in_loop = compiler->is_in_loop;
+
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 1;
+    }
 
     ScompilerUnit_add_loop(compiler, loop_start, loop_end);
 
@@ -632,7 +643,9 @@ Scompiler_compile_ast_for
     struct Scode *for_body = Scompiler_compile_ast_block(compiler, ast->body, table);
     struct Scode *iter = Scompiler_compile(compiler, ast->expr, table);
 
-    compiler->is_in_loop = 0;
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 0;
+    }
 
     ScompilerUnit_pop_loop(compiler);
 
@@ -902,6 +915,24 @@ Scompiler_compile_ast_include
 
     if (if_folder_exists(ast->lexeme)) {
         char* file = Sstring("%s/main.suny", ast->lexeme);
+
+        if (if_file_exists(file)) {
+            return Scode_get_code_from_file(file, compiler, table);
+        } else {
+            char* message = Sstring("Cannot find file '%s' make sure main.suny exists in the folder", file);
+            Serror_compiler_error(message, ast);
+            return NULL_CODE_PTR;
+        }
+    }
+
+    char* libpath = read_fast_content("pathlib.txt");
+
+    if (if_file_exists(Sstring("%s/%s", libpath, ast->lexeme))) {
+        return Scode_get_code_from_file(Sstring("%s/%s", libpath, ast->lexeme), compiler, table);
+    }
+
+    if (if_folder_exists(Sstring("%s/%s", libpath, ast->lexeme))) {
+        char* file = Sstring("%s/%s/main.suny", libpath, ast->lexeme);
 
         if (if_file_exists(file)) {
             return Scode_get_code_from_file(file, compiler, table);
@@ -1196,13 +1227,27 @@ SUNY_API struct Scode*
 Scompiler_compile_ast_loop
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
+    
     int loop_start = compiler->label_counter++;
+    
     int loop_end = compiler->label_counter++;
-    compiler->is_in_loop = 1;
+    
+    int isalready_in_loop = compiler->is_in_loop;
+
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 1;
+    }
+    
     ScompilerUnit_add_loop(compiler, loop_start, loop_end);
+    
     struct Scode *loop_block = Scompiler_compile_ast_block(compiler, ast->body, table);
+    
     ScompilerUnit_pop_loop(compiler);
-    compiler->is_in_loop = 0;
+
+    if (!isalready_in_loop) {
+        compiler->is_in_loop = 0;
+    }
+    
     if (ast->is_times) {
         int LOOP_COUNTER = 14;
 
