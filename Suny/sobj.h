@@ -11,7 +11,11 @@
 #include "suserdata.h"
 
 /*
-    This file define the main value of 
+    This file defines the core object system used by the Suny runtime.
+    Sobj represents all runtime values, including numbers, strings,
+    functions, classes, instances, and user-defined data. Every value
+    in the language is wrapped inside an Sobj and managed through
+    reference counting and metadata.
 */
 
 struct Sgarbarge_obj;
@@ -105,4 +109,5 @@ struct Sobj*
 Sobj_make_type(enum Sobj_t type);
 
 #endif // SOBJ_H
+
 
