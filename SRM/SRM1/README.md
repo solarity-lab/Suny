@@ -1624,4 +1624,29 @@ Error: no main.suny in folder 'mylib'
 * Keep each folder/module self-contained with its own `main.suny`.
 * Avoid circular includes (`A` includes `B`, and `B` includes `A`).
 
+
 * Use unique variable/function names to prevent conflicts.
+
+---
+
+# 9 End
+
+Suny is a small embedded interpreter language built with simplicity and clarity in mind.
+This document has described its core structure, execution model, C API, and extension mechanism.
+
+The goal of Suny is to provide a lightweight scripting engine that can be embedded into other applications. It is designed to be easy to understand, easy to integrate, and easy to extend.
+
+Suny keeps its core minimal while allowing developers to add native functions and extend the language through its API. This makes it suitable for small tools, experiments, and learning purposes.
+
+Future improvements may include:
+
+* Garbage collection enhancements
+* Standard library expansion
+* Module system improvements
+* Debugging and tooling support
+
+Suny is not intended to be a large production language. Instead, it serves as a compact and educational interpreter project that demonstrates how an embedded scripting language can be implemented.
+
+This concludes the documentation of the Suny embedded interpreter language.
+
+- Document made by dinhsonhai132 (Đinh Sơn Hải)
