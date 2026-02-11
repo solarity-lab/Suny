@@ -6,7 +6,7 @@
 ![C](https://img.shields.io/badge/Made%20with-C-red.svg)
 
 <p align="center">
-  <img src="assets/logo-removebg-preview.png" alt="logo" width="200"/>
+  <img src="assets/LOGO.png" alt="logo" width="200"/>
 </p>
 
 # 🌇 Suny Programming Language
@@ -162,4 +162,5 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
+
 
