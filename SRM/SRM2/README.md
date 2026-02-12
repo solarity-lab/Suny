@@ -487,6 +487,8 @@ The runtime supports both implicit and explicit type conversion:
 
 Conversion behavior is well-defined for all type pairs, ensuring predictable program behavior across different execution contexts.
 
+---
+
 # 5 The Language
           
 ## 1. Introduction
@@ -966,8 +968,8 @@ You can change a variable by reassigning it:
 
 ```suny
 a = 0  
-#a = a + 1   # now a is 1  
-#a = a * 2   # now a is 2
+a = a + 1   # now a is 1  
+a = a * 2   # now a is 2
 ```
 
 ---
@@ -977,16 +979,16 @@ a = 0
 Here’s a full program that mixes globals, locals, and assignments:
 
 ```suny
-#score = 0   # global variable
+score = 0   # global variable
 
 function add_points(points) do
-    #local_bonus = 2      # local variable
+    local_bonus = 2      # local variable
     score = score + points + local_bonus
     print("Added: %s, Current score: %s" % string(points) % string(score))
 end
 
-#add_points(5)   # Added 5 points. Current score: 7
-#add_points(3)   # Added 3 points. Current score: 12
+add_points(5)   # Added 5 points. Current score: 7
+add_points(3)   # Added 3 points. Current score: 12
 
 print(score)    # 12
 print(local_bonus)  # error: local_bonus is not defined
@@ -1071,10 +1073,10 @@ Numbers are used for mathematics and calculations.
 Suny supports **integers** (whole numbers) and **floats** (decimal numbers).
 
 ```suny
-#a = 10       # integer
-#b = -5       # integer
-#c = 3.14     # float
-#d = -0.5     # float
+a = 10       # integer
+b = -5       # integer
+c = 3.14     # float
+d = -0.5     # float
 ```
 
 ---
@@ -1176,8 +1178,8 @@ print(numbers[0])  # 10
 #### Adding and Removing Items
 
 ```suny
-#push(numbers, 6)   # append
-#pop(numbers)       # remove last item
+push(numbers, 6)   # append
+pop(numbers)       # remove last item
 ```
 
 #### Length of a List
@@ -1191,12 +1193,12 @@ print(size(numbers))  # 5
 ```suny
 fruits = ["apple", "banana", "cherry"]
 
-## Using index
+# Using index
 for i in range(size(fruits)) do
     print(fruits[i])
 end
 
-## Using element directly
+# Using element directly
 for fruit in fruits do
     print(fruit)
 end
@@ -1249,7 +1251,7 @@ function foo() do
     return bar()
 end
 
-#foo()  # Output: This is bar
+foo()  # Output: This is bar
 ```
 
 ---
@@ -1271,7 +1273,7 @@ You can also call them immediately:
 ```suny
 print(function() do
     return 42
-#end())   # 42
+end())   # 42
 ```
 
 ---
@@ -1681,7 +1683,7 @@ end
 
 #### 7.1.7 `elif` vs Nested `if`
 
-##### Nested `if` (less readable):
+###### Nested `if` (less readable):
 
 ```suny
 if score >= 90 then
@@ -1695,7 +1697,7 @@ else
 end
 ```
 
-##### Using `elif` (recommended):
+###### Using `elif` (recommended):
 
 ```suny
 if score >= 90 then
@@ -1813,7 +1815,7 @@ You can also use `range(start, end)`:
 for i in range(3, 7) do
     print(i)
 end
-## 3, 4, 5, 6
+# 3, 4, 5, 6
 ```
 
 ---
@@ -1846,7 +1848,7 @@ In this section, we explore how to execute blocks of code repeatedly using basic
 
 ---
 
-##### 1. The Basic `loop`
+###### 1. The Basic `loop`
 
 The `loop` keyword creates an **infinite loop**. It will continue to execute the code inside the `do...end` block until it is manually interrupted (e.g., by a `break` statement or a system exit).
 
@@ -1868,7 +1870,7 @@ end
 
 ---
 
-##### 2. The `times` Iterator
+###### 2. The `times` Iterator
 
 When you know exactly how many times a block of code should run, use the `times` method. This is a cleaner, more readable way to handle fixed iterations compared to manual counters.
 
@@ -1889,7 +1891,7 @@ end
 
 ---
 
-##### 3. Comparison Table
+###### 3. Comparison Table
 
 | Feature | `loop` | `times` |
 | --- | --- | --- |
@@ -1899,7 +1901,7 @@ end
 
 ---
 
-##### Key Takeaways
+###### Key Takeaways
 
 * **The `do...end` Block:** Both constructs use `do` and `end` to encapsulate the logic that should be repeated.
 * **Counter Management:** In a `loop`, you are responsible for incrementing your variables and defining the exit condition. In `times`, the iteration limit is handled for you.
@@ -2013,12 +2015,12 @@ This makes it behave almost the same as if you had copy-pasted the contents manu
 If the target is a **file**, Suny copies all its contents.
 
 ```suny
-## config.suny
+# config.suny
 pi = 3.14
 ```
 
 ```suny
-## main.suny
+# main.suny
 include "config.suny"
 
 print(pi)   # 3.14
@@ -2039,12 +2041,12 @@ math/
 ```
 
 ```suny
-## math/main.suny
+# math/main.suny
 square(x) = x * x
 ```
 
 ```suny
-## main.suny
+# main.suny
 include "math"
 
 print(square(5))   # 25
@@ -2089,10 +2091,10 @@ Error: no main.suny in folder 'mylib'
 * **Name conflicts**
 
   ```suny
-  ## a.suny
+  # a.suny
   x = 10
 
-  ## b.suny
+  # b.suny
   x = 20
   ```
 
@@ -2112,7 +2114,6 @@ Error: no main.suny in folder 'mylib'
 * Use `include` for **constants, small configs, or utility functions**.
 * Keep each folder/module self-contained with its own `main.suny`.
 * Avoid circular includes (`A` includes `B`, and `B` includes `A`).
-
 * Use unique variable/function names to prevent conflicts.
 
 ---
