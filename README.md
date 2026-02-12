@@ -58,10 +58,15 @@ Suny follows a traditional language pipeline:
 
 Source Code  
 → Lexer  
+
 → Parser  
+
 → AST
+
 → Compiler
+
 → Runtime Execution  
+
 → Garbage Collection  
 
 All implemented manually in C.
@@ -179,6 +184,7 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 * 🎥 **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
+
 
 
 
