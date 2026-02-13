@@ -8,7 +8,7 @@
 
 **Suny** is a lightweight scripting language designed to be **small but powerful**, combining the minimalism and efficiency of **Lua** with the clarity and readability of **Python**.
 
-Suny was created as an experiment: *Can one person mind design and build a language from scratch that is both minimal and useful?*   
+Suny was created as an experiment: **Can one person mind design and build a language from scratch that is both minimal and useful?**
 
 Many modern languages are large, with complex standard libraries, heavy runtime systems, and thousands of pages of documentation. While this makes them powerful, it also makes them intimidating to beginners and difficult to fully understand.
 
@@ -90,4 +90,5 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 * **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
+
 
