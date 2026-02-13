@@ -1,79 +1,20 @@
-![GitHub Stars](https://img.shields.io/github/stars/solarity-lab/Suny?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/solarity-lab/Suny?style=social)
-![Repo Size](https://img.shields.io/github/repo-size/solarity-lab/Suny)
-![Issues](https://img.shields.io/github/issues/solarity-lab/Suny)
-![License](https://img.shields.io/github/license/solarity-lab/Suny)
-![C](https://img.shields.io/badge/Made%20with-C-red.svg)
+# The Suny Programming Language
 
 <p align="center">
   <img src="assets/LOGO.png" alt="logo" width="200"/>
 </p>
 
-# 🌇 Suny Programming Language
+## Introduction
 
-**Suny** is a programming language built from scratch in **pure C**,
-designed to help you understand **how interpreters, VMs, and language runtimes actually work** — without magic.
+**Suny** is a lightweight scripting language designed to be **small but powerful**, combining the minimalism and efficiency of **Lua** with the clarity and readability of **Python**.
 
-> If you enjoy reading compiler or VM source code more than tutorials,
-> **Suny is for you.**
+Suny was created as an experiment: *Can one person mind design and build a language from scratch that is both minimal and useful?*   
 
-Suny is not a wrapper around existing tools. It does not rely on parser generators. It does not use external VMs. Everything — from lexer to memory manager — is implemented manually.
+Many modern languages are large, with complex standard libraries, heavy runtime systems, and thousands of pages of documentation. While this makes them powerful, it also makes them intimidating to beginners and difficult to fully understand.
 
----
+Lua inspired Suny by showing that a small, elegant core can be extremely flexible. Python inspired Suny with its philosophy of readability and simplicity. Suny combines both ideas: a minimal implementation with a syntax that feels natural and beginner-friendly.
 
-## What is Suny? 👀
-
-Suny is a small but complete language implementation focused on transparency and language internals.
-
-It is designed to be:
-
-* readable
-* hackable
-* breakable
-* understandable
-
-There are no hidden layers, no external runtime, and no black boxes.
-
----
-
-## Goals 🎯
-
-Suny focuses on the core ideas behind real languages:
-
-* Lexing & parsing
-* AST construction
-* Execution / VM-like runtime
-* Object system & memory management
-* Manual implementation of language features
-
-Everything is implemented **by hand**, in C.
-
-* Suny prioritizes clarity over performance and simplicity over features.
-
----
-
-## Architecture Overview 🧠
-
-Suny follows a traditional language pipeline:
-
-Source Code  
-→ Lexer  
-
-→ Parser  
-
-→ AST
-
-→ Compiler
-
-→ Runtime Execution  
-
-→ Garbage Collection  
-
-All implemented manually in C.
-
----
-
-## Example ✨
+## Example
 
 ```suny
 function bubble_sort(a) do
@@ -116,38 +57,7 @@ No hidden magic.
 
 ---
 
-## Why Suny? 🚀
-
-* Written in **pure C**
-* No external runtime or VM dependencies
-* Easy-to-read source code
-* Designed for experimentation
-* Encourages breaking and modifying internals
-
-Suny exists to answer questions like:
-
-> *“How does a language actually work under the hood?”*
-
----
-
-## Who is this for? 👨‍💻👩‍💻
-
-### ✅ You should use Suny if:
-
-* You want to learn how programming languages are implemented
-* You are curious about interpreters, VMs, or compilers
-* You enjoy low-level or systems programming
-* You like reading real runtime code
-
-### ❌ You should NOT use Suny if:
-
-* You want a fast, production-ready language
-* You want high-level abstractions without touching memory
-* Pointers and manual memory management scare you
-
----
-
-## Build & Run 🛠️
+## Build & Run
 
 ### Requirements
 
@@ -177,14 +87,10 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 ---
 
-## Documentation 📚
+## Documentation
 
-* 📄 **Language specification & internals**
+* **Language specification & internals**
   [SRM1 Document (PDF)](./SRM/SRM1/document.pdf)
 
-* 🎥 **Implementation walkthroughs & dev logs**
+* **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
-
-
-
-
