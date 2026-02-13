@@ -51,10 +51,6 @@ Output:
 [1, 2, 3, 3, 5]
 ```
 
-Simple syntax.
-Explicit behavior.
-No hidden magic.
-
 ---
 
 ## Build & Run
@@ -94,3 +90,4 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 * **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
+
