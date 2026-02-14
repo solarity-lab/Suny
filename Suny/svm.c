@@ -530,7 +530,6 @@ Svm_evaluate_LOAD_ITEM
         };
 
         struct Sobj *item = Slist_get(list->f_type->f_list, index->value->value);
-
         if (!item) {
             Sframe_push(frame, null_obj);
         }
@@ -629,11 +628,32 @@ Svm_evaluate_STORE_ITEM
 
     } else if (list->type == MAP_OBJ) {
         struct Smap* map = tget_map(list);
-        Smap_add_pair(map, index, value);
- 
-        MOVETOGC(value, frame->gc_pool);
-        MOVETOGC(index, frame->gc_pool);
-        MOVETOGC(list, frame->gc_pool);
+        struct Sobj* key = index;
+
+        int found = 0;
+
+        for (int i = 0; i < map->size; i++) {
+            struct Sobj* mkey = map->keys->array[i];
+            if (Scompare_representative(key, mkey, CMP_EQ)) {
+                struct Sobj* mvalue = map->values->array[i];
+
+                if (!mvalue) return -1;
+                
+                _SUNYDECREF(mvalue);
+                _SUNYINCREF(value);
+
+                MOVETOGC(mvalue, frame->gc_pool);
+
+                map->values->array[i] = value;
+                
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found) {
+            Smap_add_pair(map, key, value);
+        }
     }
 
     SDEBUG("[svm.c] Svm_evaluate_STORE_ITEM(struct Sframe *frame) (done)\n");
@@ -1297,4 +1317,3 @@ Svm_evaluate_MAKE_MAP
 
     return frame;
 }
-
