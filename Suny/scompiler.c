@@ -1,4 +1,7 @@
 #include "scompiler.h"
+#include "opcode.h"
+#include "sast.h"
+#include "scode.h"
 
 SUNY_API struct Scode*
 Scompiler_compile
@@ -72,6 +75,8 @@ Scompiler_compile
             return Scompiler_compile_ast_include(compiler, ast, table);
         case AST_LOOP:
             return Scompiler_compile_ast_loop(compiler, ast, table);
+        case AST_MAP_EXPRESSION:
+            return Scompiler_compile_ast_map_expression(compiler, ast, table);
         case AST_NULL_EXPRESSION: {
             PUSH(code, LOAD_NULL);
             return code;
@@ -354,13 +359,14 @@ Scompiler_compile_ast_comparison
         INSERT(code, right_oper);
 
         switch (operand_type) {
-            case EQUALS: PUSH(code, BINARY_EQUAL);                  break;
-            case NOT_EQUALS: PUSH(code, BINARY_NOT_EQUAL);          break;
-            case BIGGER: PUSH(code, BINARY_BIGGER);                 break;
-            case BIGGER_EQUALS: PUSH(code, BINARY_BIGGER_EQUAL);    break;
-            case SMALLER: PUSH(code, BINARY_SMALLER);               break;
-            case SMALLER_EQUALS: PUSH(code, BINARY_SMALLER_EQUAL);  break;
-            case IS: PUSH(code, IS_LOG); break;
+            case EQUALS:            PUSH(code, BINARY_EQUAL);           break;
+            case NOT_EQUALS:        PUSH(code, BINARY_NOT_EQUAL);       break;
+            case BIGGER:            PUSH(code, BINARY_BIGGER);          break;
+            case BIGGER_EQUALS:     PUSH(code, BINARY_BIGGER_EQUAL);    break;
+            case SMALLER:           PUSH(code, BINARY_SMALLER);         break;
+            case SMALLER_EQUALS:    PUSH(code, BINARY_SMALLER_EQUAL);   break;
+            case IS:                PUSH(code, IS_LOG);                 break;
+            
             default: break;
         }
 
@@ -1056,6 +1062,7 @@ Scompiler_compile_ast_null_expression
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
     PUSH(code, LOAD_NULL);
+    
     return code;
 }
 
@@ -1194,6 +1201,38 @@ Scompiler_compile_ast_store_index
     INSERT(code, store_value_code);
 
     PUSH(code, STORE_ITEM);
+
+    return code;
+}
+
+SUNY_API struct Scode* 
+Scompiler_compile_ast_map_expression
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+    struct Scode* code = NULL_CODE_PTR;
+
+    struct Sast* keys = ast->keys;
+    struct Sast* values = ast->values;
+    int size = ast->map_size;
+
+    for (int i = 0; i < size; i++) {
+        struct Sast* key = keys->block[i];
+        struct Scode* keyc = Scompiler_compile(compiler, key, table);
+        INSERT(code, keyc);
+    }
+
+    PUSH(code, BUILD_LIST);
+    PUSH(code, size);
+
+    for (int i = 0; i < size; i++) {
+        struct Sast* value = values->block[i];
+        struct Scode* valuec = Scompiler_compile(compiler, value, table);
+        INSERT(code, valuec);
+    }
+
+    PUSH(code, BUILD_LIST);
+    PUSH(code, size);
+
+    PUSH(code, MAKE_MAP);
 
     return code;
 }

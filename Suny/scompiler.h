@@ -153,6 +153,10 @@ Scompiler_compile_ast_store_index
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
 
 SUNY_API struct Scode* 
+Scompiler_compile_ast_map_expression
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);
+
+SUNY_API struct Scode* 
 Scompiler_compile_block
 (struct ScompilerUnit *compiler, struct Sast **block, struct Stable *table, int block_size);
 

@@ -1,4 +1,5 @@
 #include "scode.h"
+#include "opcode.h"
 #include "smem.h"
 
 const char* print_op(unsigned char c) {
@@ -25,7 +26,7 @@ const char* print_op(unsigned char c) {
         case BINARY_BIGGER_EQUAL: return "BINARY_BIGGER_EQUAL";
         case BINARY_SMALLER_EQUAL: return "BINARY_SMALLER_EQUAL";
         case BINARY_NOT_EQUAL: return "BINARY_NOT_EQUAL";
-
+        case MAKE_MAP: return "MAKE_MAP";
         case MAKE_FUNCTION: return "MAKE_FUNCTION";
         case END_FUNCTION: return "END_FUNCTION";
 
@@ -106,7 +107,8 @@ Scode_new(void) {
 
     code->size = 0;
     code->capacity = MAX_CODE_SIZE;
-
+    code->code = Smem_Malloc(sizeof(unsigned char) * MAX_CODE_SIZE);
+    
     return code;
 }
 
@@ -130,6 +132,8 @@ Scode_encryption_address(int address) {
 int
 Scode_free
 (struct Scode *code) {
+    if (!code) return -1;
+    Smem_Free(code->code);
     Smem_Free(code);
     return 0;
 }
@@ -137,6 +141,11 @@ Scode_free
 int 
 Scode_add
 (struct Scode *code, unsigned char c) {
+    if (code->size >= code->capacity) {
+        code->capacity *= 2;
+        code->code = Smem_Realloc(code->code, sizeof(unsigned char) * code->capacity);
+    }
+
     code->code[code->size++] = c;
     return 0;
 }
@@ -301,7 +310,8 @@ int Scode_print(struct Scode *code) {
                 printf("MAKE_ARGS %d\n", code->code[i + 1]);
                 i++;
                 break;
-
+            
+            case MAKE_MAP:           printf("MAKE_MAP\n"); break;
             case CLASS_BEGIN:        printf("CLASS_BEGIN\n"); break;
             case CLASS_END:          printf("CLASS_END\n"); break;
             case FUNCTION_CALL:      printf("FUNCTION_CALL\n"); break;

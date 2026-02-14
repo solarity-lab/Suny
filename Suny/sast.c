@@ -143,7 +143,7 @@ struct Sast* Sast_new(void) {
     
     sast->target = NULL;
     sast->attr_name = NULL;
-
+    
     sast->list_capacity = 1024;
     sast->list_count = 0;
     sast->list = Smem_Calloc(sast->list_capacity, sizeof(struct Sast *));
@@ -151,9 +151,33 @@ struct Sast* Sast_new(void) {
     sast->ast_line = 1;
     sast->ast_column = 1;
 
+    sast->keys = NULL;
+    sast->values = NULL;
+    sast->map_size = 0;
+
     sast->lexer = Slexer_new();
 
     return sast;
+}
+
+int
+Sast_add_key(struct Sast* ast, struct Sast* key) {
+    if (!ast->keys) {
+        ast->keys = Sast_init(AST_BLOCK, 0, NULL);
+    }
+
+    Sast_add_block(ast->keys, key);
+    return 0;
+}
+
+int
+Sast_add_value(struct Sast* ast, struct Sast* value)  {
+    if (!ast->values) {
+        ast->values = Sast_init(AST_BLOCK, 0, NULL);
+    }
+
+    Sast_add_block(ast->values, value);
+    return 0;
 }
 
 struct Sast* 

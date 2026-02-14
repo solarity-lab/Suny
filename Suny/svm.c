@@ -1,9 +1,17 @@
 #include "svm.h"
+#include "opcode.h"
+#include "sframe.h"
+#include "sgc.h"
+#include "smap.h"
 #include "smem.h"
 #include "sdebug.h"
+#include "sobj.h"
+#include "stype.h"
 
 struct Sframe* Svm_evaluate(struct Sframe *frame, byte_t op) {
     switch (op) {
+        case MAKE_MAP:
+            Svm_evaluate_MAKE_MAP(frame);
 
         case COPY_TOP:
             Svm_evaluate_COPY_TOP(frame);
@@ -551,6 +559,13 @@ Svm_evaluate_LOAD_ITEM
         } else {
             Sframe_push(frame, null_obj);
         }
+    } else if (list->type == MAP_OBJ) {
+        struct Sobj* value = Smap_get_value(tget_map(list), index);
+
+        if (!value)
+            Sframe_push_null(frame);
+        else
+            Sframe_push(frame, value);
     } else {
         Sframe_push(frame, null_obj);
     }
@@ -581,10 +596,7 @@ Svm_evaluate_STORE_ITEM
         MOVETOGC(list, frame->gc_pool);
         MOVETOGC(value, frame->gc_pool);
 
-        return frame;
-    }
-
-    if (list->type == LIST_OBJ) {
+    } else if (list->type == LIST_OBJ) {
         struct Slist *slist = list->f_type->f_list;
         int index_value = index->value->value;
 
@@ -608,16 +620,23 @@ Svm_evaluate_STORE_ITEM
         
         _SUNYDECREF(pre_item);
         MOVETOGC(pre_item, frame->gc_pool);
+        _SUNYINCREF(value);
+
+
+        MOVETOGC(value, frame->gc_pool);
+        MOVETOGC(index, frame->gc_pool);
+        MOVETOGC(list, frame->gc_pool);
+
+    } else if (list->type == MAP_OBJ) {
+        struct Smap* map = tget_map(list);
+        Smap_add_pair(map, index, value);
+ 
+        MOVETOGC(value, frame->gc_pool);
+        MOVETOGC(index, frame->gc_pool);
+        MOVETOGC(list, frame->gc_pool);
     }
 
-    _SUNYINCREF(value);
-
-    MOVETOGC(value, frame->gc_pool);
-    MOVETOGC(index, frame->gc_pool);
-    MOVETOGC(list, frame->gc_pool);
-
     SDEBUG("[svm.c] Svm_evaluate_STORE_ITEM(struct Sframe *frame) (done)\n");
-
     return frame;
 }
 
@@ -1247,3 +1266,35 @@ Svm_evaluate_COPY_TOP
     SDEBUG("[svm.c] Svm_evaluate_COPY_TOP(struct Sframe *frame) (done)\n");
     return frame;
 }
+
+SUNY_API struct Sframe*
+Svm_evaluate_MAKE_MAP
+(struct Sframe *frame) {
+    struct Sobj* values = Sframe_pop(frame);
+    struct Sobj* keys = Sframe_pop(frame);
+
+    _SUNYINCREF(values);
+    _SUNYINCREF(keys);
+
+    if (keys->type != LIST_OBJ && values->type != LIST_OBJ)
+        __ERROR("Error not a list type");
+
+    struct Slist* lkeys = tget_list(keys);
+    struct Slist* lvalues = tget_list(values);
+
+    if (!lkeys || !lvalues)
+        __ERROR("null list");
+
+    struct Smap* map = Smap_new();
+
+    map->values = lvalues;
+    map->keys = lkeys;
+    map->size = lvalues->count;
+
+    struct Sobj* obj = Sobj_make_map(map);
+
+    Sframe_push(frame, obj);
+
+    return frame;
+}
+

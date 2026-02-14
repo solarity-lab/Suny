@@ -163,7 +163,22 @@ Slexer_tokenize_string
 
                 get_next_c(lexer);
                 current(lexer);
-            } else {
+            } else if (lexer->cur == 'x') {
+                get_next_c(lexer);
+                current(lexer);
+
+                char hex1 = lexer->cur;
+                get_next_c(lexer);
+                current(lexer);
+
+                char hex2 = lexer->cur;
+                get_next_c(lexer);
+                current(lexer);
+
+                char hex = STo_hex(hex1, hex2);
+                lexeme[len++] = hex;
+            } 
+            else {
                 lexeme[len++] = lexer->cur;
 
                 get_next_c(lexer);
@@ -246,6 +261,7 @@ Slexer_tokenize_keyword
     enum Stok_t tok = get_1_char(c1);
 
     char c2 = lexer->cur;
+
     if (is_2_char(c1, c2)) {
         current(lexer);
         tok = get_2_char(c1, c2);
@@ -259,7 +275,7 @@ Slexer_tokenize_keyword
             return NULL_TOKEN;
         }
 
-        return TOKEN(tok, 0, NULL);
+        return TOKEN(tok, 0, Sstring("%c%c", c1, c2));
     }
 
     if (tok == NULL_TOK) {
@@ -268,7 +284,7 @@ Slexer_tokenize_keyword
         return NULL_TOKEN;
     }
 
-    return TOKEN(tok, 0, "<keyword>");
+    return TOKEN(tok, 0, &c1);
 }
 
 struct Stok *

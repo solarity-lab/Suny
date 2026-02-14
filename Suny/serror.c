@@ -78,7 +78,6 @@ Serror_parser
     return 0;
 }
 
-
 int 
 Serror_at
 (struct Serror *error) {

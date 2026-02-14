@@ -6,6 +6,12 @@
 #include "sframe.h"
 #include "scode.h"
 
+struct Smap {
+    struct Slist* keys;
+    struct Slist* values;
+    int size;
+};
+
 struct Suserdata {
     void* data;
 };
@@ -67,8 +73,10 @@ struct Stype {
     struct Slist            *f_list;            /* list */
     struct Sbool            *f_bool;            /* boolen */
     struct Suserdata        *f_userdata;        /* userdata */
+    struct Smap             *f_map;             /* map */
 };
 
+#define tget_map(o)                 ((o)->f_type->f_map)
 #define tget_str(o)                 ((o)->f_type->f_str)
 #define tget_func(o)                ((o)->f_type->f_func)
 #define tget_frame(o)               ((o)->f_type->f_frame)

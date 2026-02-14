@@ -8,36 +8,6 @@
 #include "scompiler.h"
 #include "senvi.h"
 
-// #define NULL_INDEX 0
-// #define NUM_1_INDEX 1
-// #define NUM_2_INDEX 2
-// #define NUM_3_INDEX 3
-// #define NUM_4_INDEX 4
-// #define NUM_5_INDEX 5
-// #define NUM_6_INDEX 6
-// #define NUM_7_INDEX 7
-// #define NUM_8_INDEX 8
-// #define NUM_9_INDEX 9
-// #define NUM_10_INDEX 10
-// #define NUM_11_INDEX 11
-// #define NUM_12_INDEX 12
-// #define NUM_13_INDEX 13
-// #define NUM_14_INDEX 14
-// #define NUM_15_INDEX 15
-// #define NUM_16_INDEX 16
-// #define NUM_17_INDEX 17
-// #define NUM_18_INDEX 18
-// #define NUM_19_INDEX 19
-// #define NUM_20_INDEX 20
-// #define NUM_21_INDEX 21
-// #define NUM_22_INDEX 22
-// #define NUM_23_INDEX 23
-// #define NUM_24_INDEX 24
-// #define NUM_25_INDEX 25
-
-// #define TRUE_INDEX 26
-// #define FALSE_INDEX 27
-
 #define Sframe_load_global_value(frame, address) Sframe_load_global((frame), (address))->f_value
 
 #define POP_OBJ() Sframe_pop(frame)

@@ -5,6 +5,11 @@
 #include "scode.h"
 #include "sframe.h"
 
+/* 
+    a call context represents the execution frame of a function
+    invocation and is managed by the virtual machine during calls
+*/
+
 struct Scall_context; 
 struct Sfunc;
 
@@ -19,10 +24,17 @@ int
 Scall_context_free_frame
 (struct Scall_context *context);
 
+
+/*
+    Set the stack frame for the call context
+*/
 struct Scall_context*
 Scall_context_set_frame
 (struct Scall_context *context, struct Sframe *frame, struct Sobj* f_obj);
 
+/*
+    Set the stack frame for the call context but its for class function
+*/  
 struct Scall_context*
 Scall_context_set_class_function
 (struct Scall_context *context, struct Sframe *frame, struct Sobj* f_obj);

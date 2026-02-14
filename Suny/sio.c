@@ -1,7 +1,12 @@
 #include "sio.h"
 #include "smem.h"
+#include "sobj.h"
+#include "stype.h"
 
 int Sio_write(struct Sobj *obj) {
+    if (!obj)
+        printf("NULL OBJECT");
+
     if (obj->type == STRING_OBJ) {
         printf("%s", obj->f_type->f_str->string);
     } else if (obj->type == LIST_OBJ) {
@@ -36,7 +41,25 @@ int Sio_write(struct Sobj *obj) {
         printf("<class object %p defined in Suny VM at address %i>", obj->f_type->f_class, obj->address);
     } else if (obj->type == NULL_OBJ) {
         printf("null");
-    } else {
+    } else if (obj->type == MAP_OBJ) {
+        struct Smap* map = tget_map(obj);
+        printf("{");
+        for (int i = 0; i < map->size; i++) {
+            struct Sobj* key = map->keys->array[i];
+            struct Sobj* value = map->values->array[i];
+            
+            Sio_write(key);
+            printf(": ");
+            Sio_write(value);
+
+            if (i < map->size - 1) {
+                printf(", ");
+            }
+        }
+
+        printf("}");
+    }
+    else {
         printf("%g", obj->value->value);
     }
 

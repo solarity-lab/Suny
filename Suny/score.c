@@ -1,6 +1,6 @@
 #include "score.h"
 
-int SDEBUG(const char* format, ...) {
+int __SDEBUG(const char* format, ...) {
 #ifdef DEBUG
     va_list args;
     va_start(args, format);

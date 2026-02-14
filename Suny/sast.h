@@ -20,6 +20,7 @@ enum Stok_t;
 || (ast)->type == AST_CLOSURE_FUNCTION                                      \
 || (ast)->type == AST_TRUE                                                  \
 || (ast)->type == AST_FALSE                                                 \
+|| (ast)->type == AST_MAP_EXPRESSION                                        \
 || (ast)->type == AST_AND_EXPRESSION                                        \
 || (ast)->type == AST_NULL_EXPRESSION                                       \
 || (ast)->type == AST_OR_EXPRESSION                                         \
@@ -78,9 +79,9 @@ enum Sast_t {
     AST_EXTRACT                                     = -40,
     AST_NULL_EXPRESSION                             = -41,
     AST_NEGATIVE_EXPRESSION                         = -42,
-    AST_NULL                                        = -43,
+    AST_MAP_EXPRESSION                         = -43,
+    AST_NULL                                        = -44,
 };
-
 
 struct Sast {
     // type and value
@@ -181,13 +182,24 @@ struct Sast {
     int is_until;
     struct Sast *until;
     struct Sast *times;
+    
+    // map
+    struct Sast* keys;
+    struct Sast* values;
+    int map_size;
 
     struct Slexer *lexer;
 
     char* file;
 };
 
-int 
+int
+Sast_add_key(struct Sast* ast, struct Sast* key);
+
+int
+Sast_add_value(struct Sast* ast, struct Sast* value);
+
+int
 Sast_set_line
 (struct Slexer *lexer, struct Sast *sast);
 

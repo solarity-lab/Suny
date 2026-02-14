@@ -13,10 +13,8 @@ void* Smem_RawMalloc(size_t size) {
     }
 
     memset(p, 0, size);
-
     return p;
 }
-
 
 void* Smem_RawCalloc(size_t nmemb, size_t size) {
     if (nmemb == 0 || size == 0) return NULL;

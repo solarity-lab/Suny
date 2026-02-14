@@ -75,6 +75,9 @@ struct Sobj *
 Sframe_push(struct Sframe *frame, struct Sobj *obj) {
     SDEBUG("[sframe.c] Sframe_push(struct Sframe *frame, struct Sobj *obj)\n");
 
+    if (!obj)
+        __ERROR("null object\n");
+
     if (frame->f_stack_index >= frame->f_stack_size) {
         frame->f_stack_size *= 2;
         frame->f_stack = Smem_Realloc(frame->f_stack, frame->f_stack_size * sizeof(struct Sobj *));
@@ -130,6 +133,10 @@ Sframe_back
 struct Sobj*
 Sframe_store_global
 (struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) {
+    if (!frame || !obj) {
+        return NULL;
+    }
+
     SDEBUG("[sframe.c] Sframe_store_global(...)\n");
 
     for (int i = 0; i < frame->f_globals_size; i++) {
@@ -205,7 +212,6 @@ Sframe_store_local
 
             frame->f_locals[i]->f_value = obj;
             frame->f_locals[i]->type = type;
-            frame->f_locals[i]->address = address;
 
             SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
             return frame->f_locals[i];
@@ -223,7 +229,6 @@ Sframe_store_local
 
             frame->f_globals[i]->f_value = obj;
             frame->f_globals[i]->type = type;
-            frame->f_globals[i]->address = address;
 
             SDEBUG("[sframe.c] Sframe_store_local(struct Sframe *frame, int address, struct Sobj *obj, enum Sobj_t type) (done)\n");
             return frame->f_globals[i];

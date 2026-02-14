@@ -7,20 +7,27 @@
 #include "sio.h"
 #include "scopy.h"
 
+/*
+    this file define c_api_func object 
+    c_api_func object is an object that has a pointer point to a Suny C API function
+*/
+
 struct Sframe;
 struct ScompilerUnit;
 struct Stable;
 struct Scall_context;
 
-struct Sframe *Svm_run_call_context(struct Scall_context *context);
+/*
+    call dicrectly the function 
+*/
 
 #define call_func(func, frame) ((struct Sobj* (*)(struct Sframe*)) (func))((frame));
 
 #define get_c_api_func(f_obj) (f_obj)->c_api_func->func
 
 struct Sc_api_func {
-    void* func;
-    char* name;
+    void* func;         /* pointer that point to a Suny C API function*/
+    char* name;         /* raw C name of the function */
     int address;
     int args_size;
 };

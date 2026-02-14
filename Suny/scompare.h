@@ -22,5 +22,6 @@ int Scompare(struct Sobj* a, struct Sobj* b, int op);
 int Scompare_bigger(struct Sobj* obj1, struct Sobj* obj2);
 int Scompare_smaller(struct Sobj* obj1, struct Sobj* obj2);
 int Scompare_equal(struct Sobj* obj1, struct Sobj* obj2);
+int Scompare_representative(struct Sobj* a, struct Sobj* b, int op);
 
 #endif // SCOMPARE_H

@@ -10,34 +10,28 @@ struct ScompilerUnit;
 typedef unsigned char byte_t;
 
 #define INSERT_ADDRESS(code, address) INSERT(code, Scode_encryption_address(address));
-
 #define MAX_CODE_SIZE 1024
-
 #define NULL_CODE_PTR Scode_new()
-
 #define PUSH(code, c) Scode_add(code, c)
-
 #define INSERT(code, c) Scode_push(code, c)
 
-#define IS_BINARY_OPER(c) (c == BINARY_ADD || c == BINARY_SUB || c == BINARY_MUL || c == BINARY_DIV || c == BINARY_BIGGER_EQUAL || c == BINARY_BIGGER || c == BINARY_SMALLER_EQUAL || c == BINARY_SMALLER || c == BINARY_EQUAL || c == BINARY_NOT_EQUAL || c == BINARY_MOD)
-
-struct Sop {
-    unsigned char op;
-    int line;
-    int column;
-    int source_line;
-    int source_column;
-};
+#define IS_BINARY_OPER(c) (c == BINARY_ADD \
+    || c == BINARY_SUB \
+    || c == BINARY_MUL \
+    || c == BINARY_DIV \
+    || c == BINARY_BIGGER_EQUAL \
+    || c == BINARY_BIGGER \
+    || c == BINARY_SMALLER_EQUAL \
+    || c == BINARY_SMALLER \
+    || c == BINARY_EQUAL \
+    || c == BINARY_NOT_EQUAL \
+    || c == BINARY_MOD)
 
 struct Scode {
     int size;
     int capacity;
-    int op_size;
-    int op_capacity;
-    char *source;
-    char *file;
-    unsigned char code[MAX_CODE_SIZE];
-    struct Sop op[MAX_CODE_SIZE];
+
+    unsigned char *code;
 };
 
 struct Scode*

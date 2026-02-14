@@ -15,6 +15,7 @@
 #include "sclass.h"
 #include "sbool.h"
 #include "scall.h"
+#include "smap.h"
 
 #include <math.h>
 
@@ -167,6 +168,10 @@ Svm_evaluate_LOAD_CLOSURE
 
 SUNY_API struct Sframe*
 Svm_evaluate_MAKE_CLOSURE
+(struct Sframe *frame);
+
+SUNY_API struct Sframe*
+Svm_evaluate_MAKE_MAP
 (struct Sframe *frame);
 
 SUNY_API struct Sframe*

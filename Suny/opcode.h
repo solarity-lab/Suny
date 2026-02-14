@@ -79,6 +79,8 @@
 #define SET_SHARED_CLASS                0x65
 
 #define IS_LOG                          0x66
-#define COPY_TOP                         0x67 // 67!!!! SIX SEVENNNNNNNN!!!
+#define COPY_TOP                        0x67 // 67!!!! SIX SEVENNNNNNNN!!!
+
+#define MAKE_MAP                        0x68
 
 #endif // OPCODE_H

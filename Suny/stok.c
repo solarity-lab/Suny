@@ -150,8 +150,6 @@ Stok_get_identifier(char *lexeme) {
         return RETURN;
     } else if (strcmp(lexeme, IMPORT_S) == 0) {
         return IMPORT;
-    } else if (strcmp(lexeme, FROM_S) == 0) {
-        return FROM;
     } else if (strcmp(lexeme, INCLUDE_S) == 0) {
         return INCLUDE;
     } else if (strcmp(lexeme, TRUE_S) == 0 || strcmp(lexeme, "True") == 0) {
@@ -170,8 +168,6 @@ Stok_get_identifier(char *lexeme) {
         return TIMES;
     } else if (strcmp(lexeme, CLASS_S) == 0) {
         return CLASS;
-    } else if (strcmp(lexeme, OUT_S) == 0) {
-        return PRINT_T;
     } else if (strcmp(lexeme, NULL_S) == 0) {
         return NULL_T;
     } else if (strcmp(lexeme, EXTENDS_S) == 0) {
@@ -221,6 +217,10 @@ get_1_char
             return COLON;
         case ';':
             return SEMICOLON;
+        case '{':
+            return LBRACE;
+        case '}':
+            return RBRACE;
         default:
             return NULL_TOK;
     }

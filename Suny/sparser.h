@@ -4,6 +4,10 @@
 #include "slexer.h"
 #include "sast.h"
 
+#define pttype(p) ((p)->token->type)
+#define ptoken(p) ((p)->token)
+#define pnext(p) ((p)->token = Slexer_get_next_token((p)->lexer))
+
 int
 Sast_add_ops
 (struct Sast *sast, enum Stok_t op);
@@ -113,10 +117,6 @@ Sparser_parse_if
 (struct Sparser *parser);
 
 struct Sast *
-Sparser_parse_else_block
-(struct Sparser *parser);
-
-struct Sast *
 Sparser_parse_return
 (struct Sparser *parser);
 
@@ -146,6 +146,10 @@ Sparser_parse_anonymous_function
 
 struct Sast *
 Sparser_parse_loop
+(struct Sparser *parser);
+
+struct Sast *
+Sparser_parse_map
 (struct Sparser *parser);
 
 struct Sast *

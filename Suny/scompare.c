@@ -1,5 +1,6 @@
 #include "scompare.h"
 #include "sdebug.h"
+#include "sobj.h"
 
 static int call_meta(struct Sobj* a, struct Sobj* b, struct Sobj* (*fn)(struct Sobj*, struct Sobj*)) {
     if (!fn) return CMP_FALSE;
@@ -53,13 +54,9 @@ static int compare_user_data(struct Sobj* a, struct Sobj* b, int op) {
     }
 
     else if (op == CMP_LT && m1 && m1->mm_lt) return call_meta(a, b, m1->mm_lt);
-
     else if (op == CMP_GT && m1 && m1->mm_gt) return call_meta(a, b, m1->mm_gt);
-
     else if (op == CMP_NEQ && m1 && m1->mm_ne) return call_meta(a, b, m1->mm_ne);
-
     else if (op == CMP_GE && m1 && m1->mm_ge) return call_meta(a, b, m1->mm_ge);
-
     else if (op == CMP_LE && m1 && m1->mm_le) return call_meta(a, b, m1->mm_le);
 
     return CMP_FALSE;
@@ -70,9 +67,7 @@ int Scompare(struct Sobj* a, struct Sobj* b, int op) {
         __ERROR("attempt to compare null value");
 
     if (a->type == STRING_OBJ && b->type == STRING_OBJ) return compare_string(a, b, op);
-
     if (a->type == LIST_OBJ && b->type == LIST_OBJ) return compare_list(a, b, op);
-
     if (a->type == USER_DATA_OBJ || b->type == USER_DATA_OBJ) return compare_user_data(a, b, op);
 
     return compare_raw(a, b, op);
@@ -88,4 +83,44 @@ int Scompare_smaller(struct Sobj* a, struct Sobj* b) {
 
 int Scompare_equal(struct Sobj* a, struct Sobj* b) {
     return Scompare(a, b, CMP_EQ);
+}
+
+int Scompare_representative(struct Sobj* a, struct Sobj* b, int op) {
+    if (a->type == TRUE_OBJ || a->type == FALSE_OBJ) {
+        switch (op) {
+            case CMP_EQ:
+                {
+                    if (a->type != b->type)
+                        return 0;
+                    else
+                        return 1;
+                }
+            case CMP_NEQ: 
+                {
+                    if (a->type != b->type)
+                        return 1;
+                    else
+                        return 0;
+                }
+        }
+    } else if (b->type == TRUE_OBJ || b->type == FALSE_OBJ) {
+        switch (op) {
+            case CMP_EQ:
+                {
+                    if (a->type != b->type)
+                        return 0;
+                    else
+                        return 1;
+                }
+            case CMP_NEQ:
+                {
+                    if (a->type != b->type)
+                        return 1;
+                    else
+                        return 0;
+                }
+        }
+    }
+
+    return Scompare(a, b, op);
 }

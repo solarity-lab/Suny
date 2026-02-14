@@ -165,6 +165,7 @@ SUNY_API struct Sobj* Spush(struct Sframe* frame) {
     Slist_add(list->f_type->f_list, value);
 
     _SUNYINCREF(value);
+    
     MOVETOGC(list, frame->gc_pool);
 
     return list;
@@ -295,4 +296,11 @@ SUNY_API struct Sobj* Ssystem(struct Sframe* frame) {
     system(str);
     MOVETOGC(obj, frame->gc_pool);
     return null_obj;
+}
+
+SUNY_API struct Sobj* Schar_cast(struct Sframe* frame) {
+    struct Sobj *obj = Sframe_pop(frame);
+    MOVETOGC(obj, frame->gc_pool);
+    char c = obj->value->value;
+    return Sobj_make_string(&c, 1);
 }

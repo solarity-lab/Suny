@@ -1,15 +1,16 @@
 #include "Suny.h"
 #include "sdebug.h"
 
-int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit*, struct Stable* table) {
+int SunyInstallLibrary(struct Sframe *frame, struct ScompilerUnit *, struct Stable *table)
+{
     Sinitialize_variables(frame, table, "inf", 29, Svalue(INFINITY));
-    Sinitialize_variables(frame, table, "nan", 30, Svalue(0.0/0.0));
+    Sinitialize_variables(frame, table, "nan", 30, Svalue(0.0 / 0.0));
 
     Sinitialize_c_api_func(frame, table, 31, 2, "print", Sprint);
     Sinitialize_c_api_func(frame, table, 32, 1, "exit", Sexit);
     Sinitialize_c_api_func(frame, table, 33, 1, "puts", Sputs);
     Sinitialize_c_api_func(frame, table, 34, 1, "read", Sread);
-    Sinitialize_c_api_func(frame, table, 35, 1, "size", Ssize); 
+    Sinitialize_c_api_func(frame, table, 35, 1, "size", Ssize);
     Sinitialize_c_api_func(frame, table, 36, 2, "push", Spush);
     Sinitialize_c_api_func(frame, table, 37, 1, "pop", Spop);
     Sinitialize_c_api_func(frame, table, 38, 1, "load", Sload);
@@ -22,12 +23,14 @@ int SunyInstallLibrary(struct Sframe* frame, struct ScompilerUnit*, struct Stabl
     Sinitialize_c_api_func(frame, table, 45, 1, "type", Stype);
     Sinitialize_c_api_func(frame, table, 46, 1, "copy", Scopy);
     Sinitialize_c_api_func(frame, table, 47, 1, "system", Ssystem);
-    
+    Sinitialize_c_api_func(frame, table, 48, 1, "char", Schar_cast);
+
     return 0;
 }
 
-struct Suny* SunyNew(void) {
-    struct Suny* suny = Smem_Malloc(sizeof(struct Suny));
+struct Suny *SunyNew(void)
+{
+    struct Suny *suny = Smem_Malloc(sizeof(struct Suny));
     suny->frame = Sframe_new();
     suny->compiler = ScompilerUnit_new();
     suny->table = Stable_new();
@@ -39,7 +42,8 @@ struct Suny* SunyNew(void) {
     return suny;
 }
 
-struct Sframe* SunyRunString(char* str, struct Suny* suny) {
+struct Sframe *SunyRunString(char *str, struct Suny *suny)
+{
     struct Slexer *lexer = Slexer_init(str);
     struct Sparser *parser = Sparser_init(lexer);
     struct Sast *ast = Sparser_parse_program(parser);
@@ -51,10 +55,12 @@ struct Sframe* SunyRunString(char* str, struct Suny* suny) {
     return suny->frame;
 }
 
-SUNY_API struct Sframe* SunyRunByteCode(unsigned char* code, int size, struct Suny* suny) {
+SUNY_API struct Sframe *SunyRunByteCode(unsigned char *code, int size, struct Suny *suny)
+{
     struct Scode *c = Scode_new();
 
-    if (size > MAX_CODE_SIZE) {
+    if (size > MAX_CODE_SIZE)
+    {
         __ERROR("Bytecode too large\n");
         return NULL;
     }
@@ -68,7 +74,8 @@ SUNY_API struct Sframe* SunyRunByteCode(unsigned char* code, int size, struct Su
     return suny->frame;
 }
 
-int prompt() {
+int prompt()
+{
     printf("Suny 1.0 Copyright (C) 2025-present, by dinhsonhai132\n");
 
     struct Sframe *frame = Sframe_new();
@@ -82,26 +89,30 @@ int prompt() {
     frame->gc_pool = Sgc_new_pool();
 
     char buff[1024];
-    for (;;) {
+    for (;;)
+    {
         printf(">> ");
-        if (!fgets(buff, sizeof(buff), stdin)) break;
-        
-        if (strlen(buff) == 0) continue;
+        if (!fgets(buff, sizeof(buff), stdin))
+            break;
+
+        if (strlen(buff) == 0)
+            continue;
 
         struct Slexer *lexer = Slexer_init(buff);
         struct Sparser *parser = Sparser_init(lexer);
         struct Sast *ast = Sparser_parse_program(parser);
 
         struct Scode *code = Scompiler_compile_ast_program(compiler, ast, table);
-        
+
         frame = Sframe_init(frame, code);
         frame = Svm_run_program(frame);
     }
     return 0;
 }
 
-struct Sframe* SunyRunAloneString(char* str) {
-    struct SZIO* zio = Sbuff_read_file(str);
+struct Sframe *SunyRunAloneString(char *str)
+{
+    struct SZIO *zio = Sbuff_read_file(str);
 
     struct Slexer *lexer = Slexer_init(zio->buffer);
     lexer->file = zio;
@@ -125,8 +136,9 @@ struct Sframe* SunyRunAloneString(char* str) {
     return frame;
 }
 
-struct Sframe* SunyRunFile(char* file) {
-    struct SZIO* zio = Sbuff_read_file(file);
+struct Sframe *SunyRunFile(char *file)
+{
+    struct SZIO *zio = Sbuff_read_file(file);
 
     struct Slexer *lexer = Slexer_init(zio->buffer);
     lexer->file = zio;
@@ -137,7 +149,7 @@ struct Sframe* SunyRunFile(char* file) {
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
     struct Sframe *frame = Sframe_new();
-    
+
     compiler->frame = frame;
     frame->compiler = compiler;
 
@@ -153,8 +165,9 @@ struct Sframe* SunyRunFile(char* file) {
     return frame;
 }
 
-struct Scode* SunyCompileFile(char* file) {
-    struct SZIO* zio = Sbuff_read_file(file);
+struct Scode *SunyCompileFile(char *file)
+{
+    struct SZIO *zio = Sbuff_read_file(file);
 
     struct Slexer *lexer = Slexer_init(zio->buffer);
     lexer->file = zio;
@@ -176,7 +189,8 @@ struct Scode* SunyCompileFile(char* file) {
     return code;
 }
 
-struct Sframe* SunyRunAloneBytecode(unsigned char* code, int size) {
+struct Sframe *SunyRunAloneBytecode(unsigned char *code, int size)
+{
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
     struct Sframe *frame = Sframe_new();
@@ -188,14 +202,15 @@ struct Sframe* SunyRunAloneBytecode(unsigned char* code, int size) {
 
     struct Scode *c = Scode_new();
 
-    if (size > MAX_CODE_SIZE) {
+    if (size > MAX_CODE_SIZE)
+    {
         __ERROR("Bytecode too large\n");
         return NULL;
     }
 
     memcpy(c->code, code, size);
     c->size = size;
-    
+
     frame = Sframe_init(frame, c);
     frame = Svm_run_program(frame);
 

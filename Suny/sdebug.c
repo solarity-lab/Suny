@@ -7,4 +7,3 @@ void SunyDebug_print(const char* format, ...) {
     va_end(args);
     SUNY_BREAK_POINT;
 }
-

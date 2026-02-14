@@ -3,6 +3,8 @@
 
 #include "score.h"
 #include "sobj.h"
+#include "stype.h"
+#include "smap.h"
 
 struct Sobj;
 
