@@ -1339,7 +1339,130 @@ So the function “remembers” its state:
 
 ---
 
-### 5.5 Summary
+### 5.6 HashMap
+
+HashMaps (also called dictionaries or objects) are **key-value collections** that allow you to store and retrieve data using keys instead of numeric indices.
+
+```suny
+person = {
+    "name": "Alice",
+    "age": 25,
+    "city": "Hanoi"
+}
+
+print(person["name"])  # Alice
+print(person["age"])   # 25
+```
+
+#### Creating HashMaps
+
+HashMaps are created using curly braces `{}` with key-value pairs:
+
+```suny
+# Empty HashMap
+empty = {}
+
+# HashMap with initial values
+user = {
+    "username": "hai123",
+    "email": "hai@example.com",
+    "active": true
+}
+```
+
+#### Accessing Values
+
+Use square brackets `[]` with the key to access values:
+
+```suny
+config = {
+    "theme": "dark",
+    "language": "vi"
+}
+
+print(config["theme"])     # dark
+print(config["language"])  # vi
+```
+
+#### Modifying and Adding Values
+
+You can change existing values or add new key-value pairs:
+
+```suny
+settings = {
+    "volume": 50,
+    "muted": false
+}
+
+# Modify existing value
+settings["volume"] = 75
+
+# Add new key-value pair
+settings["brightness"] = 80
+
+print(settings)
+# { "volume": 75, "muted": false, "brightness": 80 }
+```
+
+#### Nested HashMaps
+
+HashMaps can contain other HashMaps, creating nested structures:
+
+```suny
+game = {
+    "player": {
+        "hp": 100,
+        "items": ["sword", "shield"]
+    },
+    "fps": 60
+}
+
+# Access nested values
+print(game["player"]["hp"])        # 100
+print(game["player"]["items"][0])  # sword
+
+# Modify nested values
+game["player"]["hp"] = 200
+game["fps"] = 60
+game["name"] = "RPG"
+
+print(game)
+# {
+#     "player": { "hp": 200, "items": ["sword", "shield"] },
+#     "fps": 60,
+#     "name": "RPG"
+# }
+```
+
+#### Common HashMap Operations
+
+```suny
+data = {
+    "x": 10,
+    "y": 20
+}
+
+# Get number of key-value pairs
+print(size(data))  # 2
+
+# Check if key exists (using conditional)
+if data["z"] == null then
+    print("Key 'z' does not exist")
+end
+```
+
+#### Use Cases
+
+HashMaps are perfect for:
+- Configuration settings
+- Game state management
+- User profiles and data
+- Structured data representation
+- Mapping relationships between values
+
+---
+
+### 5.7 Summary
 
 * Booleans → true/false
 * Numbers → integers & floats with `+ - * / // %`
@@ -1695,7 +1818,7 @@ else
         print("Failed")
     end
 end
-```
+``` 
 
 ###### Using `elif` (recommended):
 
