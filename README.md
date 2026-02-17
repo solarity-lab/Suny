@@ -14,6 +14,19 @@ Many modern languages are large, with complex standard libraries, heavy runtime 
 
 Lua inspired Suny by showing that a small, elegant core can be extremely flexible. Python inspired Suny with its philosophy of readability and simplicity. Suny combines both ideas: a minimal implementation with a syntax that feels natural and beginner-friendly.
 
+## Design Philosophy
+
+Suny is written entirely from scratch in C.
+
+It includes:
+- A handwritten lexer and recursive-descent parser
+- A custom AST and bytecode compiler
+- A stack-based virtual machine
+- A dynamic object system
+- A custom hash map implementation
+
+No external parsing libraries, VM frameworks, or runtime engines are used.
+
 ## Example
 
 ```suny
@@ -90,5 +103,6 @@ Or you can install binary version of Suny using [this link](https://github.com/d
 
 * **Implementation walkthroughs & dev logs**
   [https://www.youtube.com/@haidinhson](https://www.youtube.com/@SolarityLabOfficial)
+
 
 
