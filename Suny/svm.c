@@ -370,13 +370,13 @@ Svm_evalutate_BINARY_OPER
             Seval_evaluate_smaller(frame);
             break;
         } case BINARY_EQUAL: {
-            Seval_evaluate_bigger_and_equal(frame);
+            Seval_evaluate_equal(frame);
             break;
         } case BINARY_NOT_EQUAL: {
             Seval_evaluate_not_equal(frame);
             break;
         } case BINARY_BIGGER_EQUAL: {
-            Seval_evaluate_equal(frame);
+            Seval_evaluate_bigger_and_equal(frame);
             break;
         } case BINARY_SMALLER_EQUAL: {
             Seval_evaluate_smaller_and_equal(frame);
@@ -384,6 +384,8 @@ Svm_evalutate_BINARY_OPER
         } case BINARY_MOD: {
             Seval_evaluate_mod(frame);
             break;
+        } default: {
+            Sframe_push_null(frame);
         }
     }
 
