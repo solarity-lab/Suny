@@ -192,8 +192,6 @@ Svm_run_program(struct Sframe *frame) {
         printf("Error: no garbage collector\n");
     }
 
-    Sgc_activate(frame);
-
     byte_t op = get_next_code(frame);
     
     if (op == PROGRAM_START) {
@@ -215,8 +213,6 @@ Svm_run_program(struct Sframe *frame) {
     } else {
         __ERROR("Invalid program head start %s\n", print_op(op));
     }
-
-    Sgc_deactivate(frame);   
 
     SDEBUG("[svm.c] Svm_run_program(struct Sframe *frame) (done)\n");
 

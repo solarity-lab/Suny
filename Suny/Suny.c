@@ -38,11 +38,11 @@ struct Suny *SunyNew(void)
     suny->compiler->frame = suny->frame;
     suny->frame->compiler = suny->compiler;
     suny->frame->gc_pool = suny->gc_pool;
-    SunyInstallLibrary(suny->frame, suny->compiler, suny->table);
+
     return suny;
 }
 
-struct Sframe *SunyRunString(char *str, struct Suny *suny)
+struct Sframe *SframeRunString(char *str, struct Suny *suny)
 {
     struct Slexer *lexer = Slexer_init(str);
     struct Sparser *parser = Sparser_init(lexer);
@@ -55,7 +55,7 @@ struct Sframe *SunyRunString(char *str, struct Suny *suny)
     return suny->frame;
 }
 
-SUNY_API struct Sframe *SunyRunByteCode(unsigned char *code, int size, struct Suny *suny)
+SUNY_API struct Sframe *SframeRunByteCode(unsigned char *code, int size, struct Suny *suny)
 {
     struct Scode *c = Scode_new();
 
@@ -110,7 +110,7 @@ int prompt()
     return 0;
 }
 
-struct Sframe *SunyRunAloneString(char *str)
+struct Sframe *SframeRunAloneString(char *str)
 {
     struct SZIO *zio = Sbuff_read_file(str);
 
@@ -136,7 +136,7 @@ struct Sframe *SunyRunAloneString(char *str)
     return frame;
 }
 
-struct Sframe *SunyRunFile(char *file)
+struct Sframe *SframeRunFile(char *file)
 {
     struct SZIO *zio = Sbuff_read_file(file);
 
@@ -165,7 +165,7 @@ struct Sframe *SunyRunFile(char *file)
     return frame;
 }
 
-struct Scode *SunyCompileFile(char *file)
+struct Scode *ScodeCompileFile(char *file)
 {
     struct SZIO *zio = Sbuff_read_file(file);
 
@@ -189,7 +189,7 @@ struct Scode *SunyCompileFile(char *file)
     return code;
 }
 
-struct Sframe *SunyRunAloneBytecode(unsigned char *code, int size)
+struct Sframe *SframeRunAloneBytecode(unsigned char *code, int size)
 {
     struct ScompilerUnit *compiler = ScompilerUnit_new();
     struct Stable *table = Stable_new();
@@ -215,4 +215,20 @@ struct Sframe *SunyRunAloneBytecode(unsigned char *code, int size)
     frame = Svm_run_program(frame);
 
     return frame;
+}
+
+int SunyRunFile(struct Suny* suny) {
+    struct SZIO *zio = Sbuff_read_file(suny->file);
+
+    struct Slexer *lexer = Slexer_init(zio->buffer);
+    lexer->file = zio;
+
+    struct Sparser *parser = Sparser_init(lexer);
+    struct Sast *ast = Sparser_parse_program(parser);
+    
+    suny->code = Scompiler_compile_ast_program(suny->compiler, ast, suny->table);
+    suny->frame = Sframe_init(suny->frame, suny->code);
+    Svm_run_program(suny->frame);
+
+    return 0;
 }

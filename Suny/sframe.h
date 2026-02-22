@@ -7,14 +7,13 @@
 #include "sgc.h"
 #include "scompiler.h"
 #include "senvi.h"
+#include "sobj_t.h"
 
 #define Sframe_load_global_value(frame, address) Sframe_load_global((frame), (address))->f_value
 
 #define POP_OBJ() Sframe_pop(frame)
 
 #define PUSH_OBJ(obj) Sframe_push(frame, obj)
-
-enum Sobj_t;
 
 struct Sframe {
     int f_code_index;
@@ -33,10 +32,6 @@ struct Sframe {
     struct Sobj **f_globals;
     int f_globals_index;
     int f_globals_size;
-    
-    struct Sobj **f_consts;
-    int f_const_index;
-    int f_const_size;
     
     struct Garbage_pool *gc_pool;
     

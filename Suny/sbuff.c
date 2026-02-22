@@ -196,7 +196,7 @@ Sbuff_read_bytecode_file
     zio->buffer = Smem_Malloc(size);
     zio->size = size;
     zio->bytecode_size = size;
-    zio->bytecode = zio->buffer;
+    zio->bytecode = (unsigned char*) zio->buffer;
 
     if (!zio->buffer) {
         Sbuff_free(zio);

@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
             return 1;
         }
 
-        struct Scode *code = SunyCompileFile(argv[2]);
+        struct Scode *code = ScodeCompileFile(argv[2]);
         const char *out = "a.o";
 
         if (argc >= 5 && same_string(argv[3], "-o")) {
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    SunyRunFile(file_name);
+    SframeRunFile(file_name);
 
     return 0;
 }

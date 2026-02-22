@@ -1,64 +1,41 @@
-CC      	 := gcc
-SRC     	 := $(wildcard *.c)
-OBJ     	 := $(SRC:.c=.o)
+CC := gcc
+AR := ar
 
-OUT     	 := suny
-DEBUG   	 := dsuny
-OPT     	 := osuny
-ASAN    	 := sdsuny
-LIB     	 := libSuny.a
+SRC_ALL := $(wildcard *.c)
+SRC_LIB := $(filter-out main.c, $(SRC_ALL))
+SRC_EXE := $(SRC_ALL)
 
-CFLAGS_DEBUG := -g -O0 -Wall -Wextra -DDEBUG
-CFLAGS_REL   := -g
-CFLAGS_OPT   := -O3 -flto -march=native -fomit-frame-pointer -DNDEBUG
-CFLAGS_ASAN  := -g -O0 -fsanitize=address -fno-omit-frame-pointer
+OBJ_LIB := $(SRC_LIB:.c=.o)
+OBJ_EXE := $(SRC_EXE:.c=.o)
+
+OUT   := suny
+LIB   := libSuny.a
+
+CFLAGS := -g -Wall -Wextra
+CFLAGS_OPT := -O3 -flto -march=native -fomit-frame-pointer -DNDEBUG
+CFLAGS_DEBUG := -g -O0 -DDEBUG
+CFLAGS_ASAN := -g -O0 -fsanitize=address -fno-omit-frame-pointer
 
 ifeq ($(OS),Windows_NT)
-    EXT 	:=
-    RM  	:= del /Q
-    EXPORT  :=
-    AR 		:= ar
+    RM := del /Q
 else
-    EXT 	:=
-    RM  	:= rm -f
-    EXPORT  := -rdynamic
-    AR 		:= ar
+    RM := rm -f
 endif
 
-all: bin debug optimize lib
+bin: $(OUT)
 
-bin:  	  $(OUT)   $(EXT)
+lib: $(LIB)
 
-debug: 	  $(DEBUG) $(EXT)
+$(OUT): $(OBJ_EXE)
+	@echo Building bin...
+	$(CC) $(CFLAGS) $^ -o $@
 
-optimize: $(OPT)   $(EXT)
-
-asan:     $(ASAN)  $(EXT)
-
-lib:      $(LIB)
-
-$(OUT)$(EXT): $(SRC)
-	@echo Building RELEASE...
-	@$(CC) $(CFLAGS_REL) $(EXPORT) $^ -o $@
-
-$(DEBUG)$(EXT): $(SRC)
-	@echo Building DEBUG...
-	@$(CC) $(CFLAGS_DEBUG) $(EXPORT) $^ -o $@
-
-$(OPT)$(EXT): $(SRC)
-	@echo Building OPTIMIZED...
-	@$(CC) $(CFLAGS_OPT) $(EXPORT) $^ -o $@
-
-$(ASAN)$(EXT): $(SRC)
-	@echo Building ASAN...
-	@$(CC) $(CFLAGS_ASAN) $(EXPORT) $^ -o $@
-
-$(LIB): $(OBJ)
-	@echo Building STATIC LIB...
-	@$(AR) rcs $@ $^
+$(LIB): $(OBJ_LIB)
+	@echo Building static library...
+	$(AR) rcs $@ $^
 
 %.o: %.c
-	@$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.o
+	$(RM) *.o $(OUT)

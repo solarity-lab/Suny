@@ -120,8 +120,6 @@ Scall_context_free_frame
 
     Sobj_free_objs(frame->f_stack, frame->f_stack_index);
 
-    Sobj_free_objs(frame->f_consts, frame->f_const_index);
-
     Slabel_map_free(frame->f_label_map);
 
     Smem_Free(frame->f_locals); 

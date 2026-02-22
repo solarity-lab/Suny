@@ -10,6 +10,7 @@
 #include "score.h"
 #include "smeta.h"
 #include "suserdata.h"
+#include "sobj_t.h"
 
 /*
     This file define the main value of 
@@ -31,26 +32,6 @@ struct Smeta;
 #define StringOf(obj) ((obj)->f_type->f_str->string)
 #define TypeOf(obj) ((obj)->type)
 #define MetaOf(obj) ((obj)->meta)
-
-enum Sobj_t {
-    NUMBER_OBJ,
-    GLOBAL_OBJ,
-    BUILTIN_OBJ,
-    LOCAL_OBJ,
-    STRING_OBJ,
-    MAP_OBJ,
-    CHAR_OBJ,
-    LIST_OBJ,
-    USER_DATA_OBJ,
-    CLASS_OBJ,
-    INSTANCE_OBJ,
-    CLOSURE_OBJ,
-    TRUE_OBJ,
-    FALSE_OBJ,
-    FUNC_OBJ,
-    NULL_OBJ,
-    NONE,
-};
 
 struct Svalue {
     Number_t value;

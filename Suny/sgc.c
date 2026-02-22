@@ -8,7 +8,6 @@ struct Garbage_pool* Sgc_new_pool(void) {
     struct Garbage_pool* pool = Smem_Malloc(sizeof(struct Garbage_pool));
     pool->pool_size = 50000;
     pool->pool_index = 0;
-    pool->is_activate = 0;
 
     pool->garbage_pool = Smem_Malloc(sizeof(struct Sobj*) * pool->pool_size);
     
@@ -27,12 +26,6 @@ struct Garbage_pool* Sgc_push_garbage_obj(struct Garbage_pool* pool, struct Sobj
 }
 
 void Sgc_collect(struct Garbage_pool* pool) {
-    if (pool->is_activate == 0) {
-        printf("Garbage collector is not active\n");
-        SUNY_BREAK_POINT;
-        return;
-    }
-
     for (int i = 0; i < pool->pool_index; i++) {
         struct Sobj* obj = pool->garbage_pool[i];
 
@@ -61,37 +54,6 @@ int MOVETOGC(struct Sobj* obj, struct Garbage_pool* pool) {
     if (obj->ref < 1) {
         Sgc_push_garbage_obj(pool, obj);
     }
-    return 0;
-}
-
-int Sgc_activate(struct Sframe *frame) {
-    SDEBUG("[sgc.c] int Sgc_activate(struct Sframe *frame) (building...)\n");
-
-    if (!frame->gc_pool) {
-        printf("Garbage collector is not initialized\n");
-        SUNY_BREAK_POINT;        
-    }
-
-    if (frame->gc_pool->is_activate) {
-        printf("Garbage collector is already active\n");
-        SUNY_BREAK_POINT;
-        return 1;
-    }
-
-    frame->gc_pool->is_activate = 1;
-    
-    SDEBUG("[sgc.c] int Sgc_activate(struct Sframe *frame) (done)\n");
-    return 0;
-}
-
-int Sgc_deactivate(struct Sframe *frame) {
-    if (!frame->gc_pool->is_activate) {
-        printf("Garbage collector is not active\n");
-        SUNY_BREAK_POINT;
-        return 1;
-    }
-
-    frame->gc_pool->is_activate = 0;
     return 0;
 }
 

@@ -13,8 +13,6 @@ struct Garbage_pool {
     
     int pool_size;
     int pool_index;
-
-    int is_activate;
 };
 
 #define _SUNYINCREF(obj) ((obj)->ref++)
@@ -29,8 +27,5 @@ struct Garbage_pool* Sgc_push_garbage_obj(struct Garbage_pool* pool, struct Sobj
 void Sgc_collect(struct Garbage_pool* pool);
 
 int MOVETOGC(struct Sobj* obj, struct Garbage_pool* pool);
-
-int Sgc_activate(struct Sframe *frame);
-int Sgc_deactivate(struct Sframe *frame);
 
 #endif // SGC_H
