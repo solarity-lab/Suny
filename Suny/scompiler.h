@@ -8,6 +8,9 @@
 #include "sobj.h"
 #include "score.h"
 
+#define make_address(compiler) (++(compiler)->address_counter)
+#define make_label(compiler) (++(compiler)->label_counter)
+
 SUNY_API struct Scode* 
 Scompiler_compile
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table);

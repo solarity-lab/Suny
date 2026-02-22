@@ -229,7 +229,7 @@ Scompiler_compile_ast_assignment
 
     struct Scode *value_code = Scompiler_compile(compiler, ast->var_value, table);
 
-    struct Ssymbol* symbol = Ssymbol_store(table, ast->var_name, ++compiler->address_counter);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->var_name, make_address(compiler));
 
     INSERT(code, value_code);
 
@@ -351,8 +351,8 @@ Scompiler_compile_ast_if
 
     struct Scode *code = NULL_CODE_PTR;
 
-    int end_address = ++compiler->label_counter;
-    int else_address = ++compiler->label_counter;
+    int end_address = make_label(compiler);
+    int else_address = make_label(compiler);
 
     INSERT(code, conditon);
 
@@ -385,8 +385,8 @@ Scompiler_compile_ast_while
         compiler->is_in_loop = 1;
     }
 
-    int while_start = ++compiler->label_counter;
-    int while_end = ++compiler->label_counter;
+    int while_start = make_label(compiler);
+    int while_end = make_label(compiler);
 
     ScompilerUnit_add_loop(compiler, while_start, while_end);
 
@@ -423,7 +423,7 @@ Scompiler_compile_ast_while
 SUNY_API struct Scode*
 Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, make_address(compiler));
 
     byte_t faddress = symbol->address;
     byte_t fargs_count = ast->args_count;
@@ -589,9 +589,9 @@ Scompiler_compile_ast_list
 SUNY_API struct Scode*
 Scompiler_compile_ast_for
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
-    int iden = compiler->address_counter++;
-    int loop_start = compiler->label_counter++;
-    int loop_end = compiler->label_counter++;
+    int iden = make_address(compiler);
+    int loop_start = make_label(compiler);
+    int loop_end = make_label(compiler);
 
     int isalready_in_loop = compiler->is_in_loop;
 
@@ -614,12 +614,17 @@ Scompiler_compile_ast_for
 
     struct Scode *code = NULL_CODE_PTR;
 
-    int __iter__a = compiler->address_counter++;
-    int __i__a = compiler->address_counter++;
+    int __iter__a = make_address(compiler);
+    int __i__a = make_address(compiler);
+
+    int is_local = compiler->is_in_function;
+
+    byte_t STORE_VAR = compiler->is_in_function ? STORE_LOCAL : STORE_GLOBAL;
+    byte_t LOAD_VAR  = compiler->is_in_function ? LOAD_LOCAL  : LOAD_GLOBAL;
 
     INSERT(code, iter);
 
-    PUSH(code, STORE_GLOBAL);
+    PUSH(code, STORE_VAR);
     PUSH(code, __iter__a);
 
     PUSH(code, PUSH_FLOAT);
@@ -628,7 +633,7 @@ Scompiler_compile_ast_for
     PUSH(code, '\x00');
     PUSH(code, '\x00');
 
-    PUSH(code, STORE_GLOBAL);
+    PUSH(code, STORE_VAR);
     PUSH(code, __i__a);
 
     PUSH(code, PUSH_FLOAT);
@@ -637,16 +642,16 @@ Scompiler_compile_ast_for
     PUSH(code, '\x00');
     PUSH(code, '\x00');
 
-    PUSH(code, STORE_GLOBAL);
+    PUSH(code, STORE_VAR);
     PUSH(code, iden);
 
     PUSH(code, ADD_LABEL);
     PUSH(code, loop_start);
 
-    PUSH(code, LOAD_GLOBAL);
+    PUSH(code, LOAD_VAR);
     PUSH(code, __i__a);
 
-    PUSH(code, LOAD_GLOBAL);
+    PUSH(code, LOAD_VAR);
     PUSH(code, __iter__a);
 
     PUSH(code, LEN_OF);
@@ -656,20 +661,20 @@ Scompiler_compile_ast_for
     PUSH(code, POP_JUMP_IF_FALSE);
     PUSH(code, loop_end);
 
-    PUSH(code, LOAD_GLOBAL);
+    PUSH(code, LOAD_VAR);
     PUSH(code, __iter__a);
 
-    PUSH(code, LOAD_GLOBAL);
+    PUSH(code, LOAD_VAR);
     PUSH(code, __i__a);
 
     PUSH(code, LOAD_ITEM);
 
-    PUSH(code, STORE_GLOBAL);
+    PUSH(code, STORE_VAR);
     PUSH(code, iden);
 
     INSERT(code, for_body);
 
-    PUSH(code, LOAD_GLOBAL);
+    PUSH(code, LOAD_VAR);
     PUSH(code, __i__a);
 
     PUSH(code, PUSH_FLOAT);
@@ -680,7 +685,7 @@ Scompiler_compile_ast_for
 
     PUSH(code, BINARY_ADD);
 
-    PUSH(code, STORE_GLOBAL);
+    PUSH(code, STORE_VAR);
     PUSH(code, __i__a);
 
     PUSH(code, JUMP_TO);
@@ -734,7 +739,7 @@ Scompiler_compile_ast_class
         }
     }
 
-    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, ++compiler->address_counter);
+    struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, make_address(compiler));
 
     struct Ssymbol* init_symbol = Ssymbol_store(table->class_table, "__init__", __INIT__ADDRESS);
     struct Ssymbol* add_symbol = Ssymbol_store(table->class_table, "__add__", __ADD__ADDRESS);
@@ -1075,7 +1080,7 @@ Scompiler_compile_function_body
     compiler->is_in_function = 1;
 
     for (int i = 0; i < args_size; i++) {
-        struct Ssymbol* symbol = Ssymbol_store(local_table, args[i], ++compiler->address_counter);
+        struct Ssymbol* symbol = Ssymbol_store(local_table, args[i], make_address(compiler));
         PUSH(code, MAKE_ARGS);
         PUSH(code, symbol->address);
     }
@@ -1115,7 +1120,7 @@ Scompiler_compile_function_body_expression
     compiler->is_in_function = 1;
 
     for (int i = 0; i < args_count; i++) {
-        struct Ssymbol* symbol = Ssymbol_store(local_table, param_names[i], ++compiler->address_counter);
+        struct Ssymbol* symbol = Ssymbol_store(local_table, param_names[i], make_address(compiler));
         PUSH(code, MAKE_ARGS);
         PUSH(code, symbol->address);
     }
@@ -1210,9 +1215,8 @@ Scompiler_compile_ast_loop
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
     
-    int loop_start = compiler->label_counter++;
-    
-    int loop_end = compiler->label_counter++;
+    int loop_start = make_label(compiler);
+    int loop_end = make_label(compiler);
     
     int isalready_in_loop = compiler->is_in_loop;
 
@@ -1229,14 +1233,16 @@ Scompiler_compile_ast_loop
     if (!isalready_in_loop) {
         compiler->is_in_loop = 0;
     }
+
+    byte_t STORE_VAR = compiler->is_in_function ? STORE_LOCAL : STORE_GLOBAL;
     
     if (ast->is_times) {
-        int LOOP_COUNTER = 14;
+        int LOOP_COUNTER = make_address(compiler);
 
         struct Scode *times_expr = Scompiler_compile(compiler, ast->times, table);
 
         INSERT(code, times_expr);
-        PUSH(code, STORE_GLOBAL);
+        PUSH(code, STORE_VAR);
         PUSH(code, LOOP_COUNTER);
 
         PUSH(code, ADD_LABEL);
@@ -1255,8 +1261,6 @@ Scompiler_compile_ast_loop
         PUSH(code, ADD_LABEL);
         PUSH(code, loop_end);
 
-        ScompilerUnit_pop_loop(compiler);
-
         return code;
     }
 
@@ -1270,7 +1274,6 @@ Scompiler_compile_ast_loop
 
     PUSH(code, ADD_LABEL);
     PUSH(code, loop_end);
-
 
     return code;
 }

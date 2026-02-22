@@ -67,10 +67,10 @@ SUNY_FUNCTION       SUNY_GET_FUNCTION_FROM          (SUNY_MODULE handle, char* f
 void                SUNY_CLOSE_LIB                  (SUNY_MODULE handle);
 
 
-#ifndef DEBUG
-    #define SDEBUG __SDEBUG
+#ifdef DEBUG
+    #define SDEBUG(...) __SDEBUG(__VA_ARGS__)
 #else
-    #define SDEBUG printf
+    #define SDEBUG(...) ((void)0)
 #endif
 
 #endif // SCORE_H
