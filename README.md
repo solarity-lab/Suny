@@ -92,8 +92,6 @@ suny
 
 This is the Suny interpreter entry point.
 
-Or you can install binary version of Suny using [this link](https://github.com/dinhsonhai132/Suny/raw/refs/heads/main/SunySetup.exe)
-
 ---
 
 ## Documentation
