@@ -10,6 +10,7 @@
 #include "score.h"
 #include "smeta.h"
 #include "suserdata.h"
+#include "srange.h"
 #include "sobj_t.h"
 
 /*

@@ -269,6 +269,7 @@ Sparser_parse_primary_expression
     }
 
     Serror_parser(Sstring("Expected primary expression before '%s'", ptoken(parser)->lexeme), parser->lexer);
+    return NULL;
 }
 
 struct Sast *
@@ -401,7 +402,7 @@ Sparser_parse_let
     } else {
         Serror_parser("Expected assignment", parser->lexer);
     }
-
+    return NULL;
 }
 
 struct Sast *
@@ -458,6 +459,8 @@ Sparser_parse_parent_expression
     } else {
         Serror_parser("Expected opening parenthesis", parser->lexer);
     }
+
+    return NULL;
 }
 
 struct Sast *
@@ -527,6 +530,8 @@ Sparser_parse_assignment
     }
 
     Serror_parser("Expected assignment", parser->lexer);
+    return NULL;
+
 }
 
 struct Sast *
@@ -577,7 +582,7 @@ Sparser_parse_function
     } else {
         Serror_parser("Expected function name", parser->lexer);
     }
-
+    return NULL;
 }
 
 struct Sast *
@@ -619,6 +624,7 @@ Sparser_parse_function_call_identifier
     }
 
     Serror_parser("Expected identifier", parser->lexer);
+    return NULL;
 }
 
 /*
@@ -1147,6 +1153,7 @@ Sparser_parse_function_call
     }
 
     Serror_parser("Expected identifier", parser->lexer);
+    return NULL;
 }
 
 struct Sast *
@@ -1200,7 +1207,7 @@ Sparser_parse_import
 
 struct Sast *
 Sparser_parse_attribute
-(struct Sparser *parser, struct Sast* object, struct Sast* attribute) {
+(struct Sparser*, struct Sast* object, struct Sast* attribute) {
     struct Sast *node = AST(AST_ATTRIBUTE_EXPRESSION, 0, NULL);
     node->expr = object;
     node->attribute = attribute;

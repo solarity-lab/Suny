@@ -94,6 +94,7 @@ struct Stype {
     struct Sbool            *f_bool;            /* boolen */
     struct Suserdata        *f_userdata;        /* userdata */
     struct Shashmap         *f_hashmap;         /* hashmap */
+    struct Srange           *f_range;
 };
 
 #define tget_hashmap(o)             ((o)->f_type->f_hashmap)
@@ -109,6 +110,7 @@ struct Stype {
 #define tget_userdata(o)            ((o)->f_type->f_userdata)
 #define tget_value(o)               ((o)->f_type->f_value)
 #define tget_meta(o)                ((o)->f_type->f_class->meta)
+#define tget_range(o)               ((o)->f_type->f_range)
 #define tget_type(o)                ((o)->f_type)
 
 struct Stype *

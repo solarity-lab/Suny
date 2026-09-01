@@ -17,6 +17,7 @@ enum Sobj_t {
     TRUE_OBJ,
     FALSE_OBJ,
     FUNC_OBJ,
+    RANGE_OBJ,
     NULL_OBJ,
     NONE,
 };

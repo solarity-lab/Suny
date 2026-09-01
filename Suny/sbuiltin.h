@@ -87,8 +87,8 @@ SUNY_API struct Sobj* Sisdigit_builtin(struct Sframe *frame);
     range function. 2 arguments
     First argument is the start of the range
     Second argument is the end of the range
-    Creat a list object from start to end, just like python
-    For example, range(i, j) will return [i, i + 1, i + 2, ..., j - 1, j]
+    Creat a range object from start to end, just like python
+    For example, range(i, j) will return range(i, j)
 */
 SUNY_API struct Sobj* Srange(struct Sframe *frame);
 
@@ -145,5 +145,10 @@ SUNY_API struct Sobj* Stype(struct Sframe* frame);
     Run the system command
 */
 SUNY_API struct Sobj* Ssystem(struct Sframe* frame);
+
+/*
+    system function, 1 argument
+    this function creat a range object
+*/
 
 #endif // SBUILTIN_H

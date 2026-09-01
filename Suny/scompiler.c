@@ -174,7 +174,7 @@ Scompiler_compile_ast_binary_expression
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_literal
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit*, struct Sast *ast, struct Stable *) {
     float value = ast->value;
 
     struct Scode *code = NULL_CODE_PTR;
@@ -194,7 +194,7 @@ Scompiler_compile_ast_literal
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_identifier
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit *, struct Sast *ast, struct Stable *table) {
     struct Scode *code = NULL_CODE_PTR;
 
     struct Ssymbol* symbol = Ssymbol_load(table, ast->lexeme);
@@ -425,7 +425,6 @@ Scompiler_compile_ast_function
 (struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
     struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, make_address(compiler));
 
-    byte_t faddress = symbol->address;
     byte_t fargs_count = ast->args_count;
 
     table->function_name = ast->lexeme;
@@ -510,7 +509,7 @@ Scompiler_compile_ast_function
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_string
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit *, struct Sast *ast, struct Stable *) {
     struct Scode *code = NULL_CODE_PTR;
 
     char* string = ast->lexeme;
@@ -539,7 +538,7 @@ Scompiler_compile_ast_string
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_break
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *) {
     if (!compiler->is_in_loop) {
         Serror_compiler_error("Break statement outside of loop", ast);
         return NULL_CODE_PTR;
@@ -555,7 +554,7 @@ Scompiler_compile_ast_break
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_continue
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *) {
     if (!compiler->is_in_loop) {
         Serror_compiler_error("Continue statement outside of loop", ast);
         return NULL_CODE_PTR;
@@ -616,8 +615,6 @@ Scompiler_compile_ast_for
 
     int __iter__a = make_address(compiler);
     int __i__a = make_address(compiler);
-
-    int is_local = compiler->is_in_function;
 
     byte_t STORE_VAR = compiler->is_in_function ? STORE_LOCAL : STORE_GLOBAL;
     byte_t LOAD_VAR  = compiler->is_in_function ? LOAD_LOCAL  : LOAD_GLOBAL;
@@ -741,12 +738,12 @@ Scompiler_compile_ast_class
 
     struct Ssymbol* symbol = Ssymbol_store(table, ast->lexeme, make_address(compiler));
 
-    struct Ssymbol* init_symbol = Ssymbol_store(table->class_table, "__init__", __INIT__ADDRESS);
-    struct Ssymbol* add_symbol = Ssymbol_store(table->class_table, "__add__", __ADD__ADDRESS);
-    struct Ssymbol* sub_symbol = Ssymbol_store(table->class_table, "__sub__", __SUB__ADDRESS);
-    struct Ssymbol* mul_symbol = Ssymbol_store(table->class_table, "__mul__", __MUL__ADDRESS);
-    struct Ssymbol* div_symbol = Ssymbol_store(table->class_table, "__div__", __DIV__ADDRESS);
-    struct Ssymbol* str_symbol = Ssymbol_store(table->class_table, "__tostring__", __TO_STR__ADDRESS);
+    Ssymbol_store(table->class_table, "__init__", __INIT__ADDRESS);
+    Ssymbol_store(table->class_table, "__add__", __ADD__ADDRESS);
+    Ssymbol_store(table->class_table, "__sub__", __SUB__ADDRESS);
+    Ssymbol_store(table->class_table, "__mul__", __MUL__ADDRESS);
+    Ssymbol_store(table->class_table, "__div__", __DIV__ADDRESS);
+    Ssymbol_store(table->class_table, "__tostring__", __TO_STR__ADDRESS);
 
     struct Scode *class_body = Scompiler_compile_ast_block(compiler, ast->body, table->class_table); // cơ chế class_table dòng 730
 
@@ -1028,7 +1025,7 @@ Scompiler_compile_ast_store_attribute
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_null_expression
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit*, struct Sast *, struct Stable*) {
     struct Scode *code = NULL_CODE_PTR;
     PUSH(code, LOAD_NULL);
     
@@ -1139,7 +1136,7 @@ Scompiler_compile_function_body_expression
 
 SUNY_API struct Scode*
 Scompiler_compile_ast_closure_identifier
-(struct ScompilerUnit *compiler, struct Sast *ast, struct Stable *table) {
+(struct ScompilerUnit*, struct Sast*, struct Stable*) {
     return NULL_CODE_PTR;
 }
 

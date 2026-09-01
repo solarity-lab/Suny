@@ -62,6 +62,9 @@ int Sio_write(struct Sobj *obj) {
         }
 
         printf("}");
+    } else if (TypeOf(obj) == RANGE_OBJ) {
+        struct Srange* range = tget_range(obj);
+        printf("range(%i, %i)", range->start, range->end);
     } else if (TypeOf(obj) == NULL_OBJ) {
         printf("null");
     } else {

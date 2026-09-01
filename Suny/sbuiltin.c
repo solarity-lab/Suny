@@ -192,8 +192,7 @@ SUNY_API struct Sobj* Srange(struct Sframe *frame) {
     int start_value = start->value->value;
     int end_value = end->value->value;
 
-    struct Slist *list = Slist_range(start_value, end_value);
-    struct Sobj *obj = Sobj_make_list(list);
+    struct Sobj* obj = Sobj_make_range(start_value, end_value);
 
     MOVETOGC(start, frame->gc_pool);
     MOVETOGC(end, frame->gc_pool);

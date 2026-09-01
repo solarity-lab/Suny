@@ -25,6 +25,17 @@ hash_t Shash(struct Sobj* obj) {
             return Shash_function(obj);
         case NULL_OBJ:
             return NULL_HASH;
+        case BUILTIN_OBJ:
+        case LOCAL_OBJ:
+        case MAP_OBJ:
+        case CHAR_OBJ:
+        case LIST_OBJ:
+        case USER_DATA_OBJ:
+        case INSTANCE_OBJ:
+        case GLOBAL_OBJ:
+        case NONE:
+        case CLOSURE_OBJ:
+            return NULL_HASH;
     }
 
     return ERROR_HASH;

@@ -46,6 +46,10 @@ Sobj_free
         Smem_Free(obj->f_type);
     }
 
+    else if (TypeOf(obj) == RANGE_OBJ) {
+        
+    }
+
     else if (TypeOf(obj) == CLASS_OBJ) {
         Sclass_free(obj->f_type->f_class);
         Smem_Free(obj->meta);

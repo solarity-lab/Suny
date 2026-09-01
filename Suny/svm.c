@@ -568,6 +568,10 @@ Svm_evaluate_LOAD_ITEM
         if (value) Sframe_push(frame, value);
         else Sframe_push_null(frame);
 
+    } else if (TypeOf(list) == RANGE_OBJ) {
+        struct Srange* range = tget_range(list);
+        int number = Srange_get(range, (int) index->value->value);
+        Sframe_push_number(frame, number);
     } else {
         Sframe_push_null(frame);
     }
