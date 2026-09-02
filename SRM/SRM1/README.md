@@ -950,13 +950,214 @@ HashMaps are perfect for:
 
 ---
 
-### 5.7 Summary
+### 5.7 Range
+
+Ranges are **immutable sequences of integers** that represent a sequence of numbers between a starting value and an ending value.
+
+Unlike Lists, a Range does not store every element individually. Instead, it stores the **start** and **end** values and generates each element when accessed.
+
+```suny
+numbers = range(1, 6)
+
+print(numbers[0])  # 1
+print(numbers[1])  # 2
+print(numbers[4])  # 5
+```
+
+In Suny, the end value is **exclusive**. Therefore, `range(1, 6)` represents:
+
+```text
+1, 2, 3, 4, 5
+```
+
+---
+
+#### Creating Ranges
+
+Ranges are created using the `range()` function with two arguments:
+
+```suny
+range(start, end)
+```
+
+* `start` — The first value in the Range.
+* `end` — The upper bound of the Range. This value is **not included**.
+
+Example:
+
+```suny
+numbers = range(0, 10)
+
+print(numbers[0])  # 0
+print(numbers[5])  # 5
+print(numbers[9])  # 9
+```
+
+The Range above represents:
+
+```text
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+```
+
+---
+
+#### Accessing Range Elements
+
+Individual elements can be accessed using square brackets `[]` and an index:
+
+```suny
+numbers = range(10, 20)
+
+print(numbers[0])  # 10
+print(numbers[3])  # 13
+print(numbers[9])  # 19
+```
+
+The index starts at `0`, just like Lists.
+
+```suny
+numbers = range(5, 10)
+
+print(numbers[0])  # 5
+print(numbers[1])  # 6
+print(numbers[2])  # 7
+```
+
+---
+
+#### Range Length
+
+The `size()` function can be used to get the number of elements in a Range:
+
+```suny
+numbers = range(1, 6)
+
+print(size(numbers))  # 5
+```
+
+For a Range `range(start, end)`, its length is:
+
+```text
+end - start
+```
+
+For example:
+
+```suny
+numbers = range(10, 20)
+
+print(size(numbers))  # 10
+```
+
+---
+
+#### Looping Over Ranges
+
+Ranges are commonly used with `for` loops:
+
+```suny
+for i in range(5) do
+    print(i)
+end
+```
+
+Output:
+
+```text
+0
+1
+2
+3
+4
+```
+
+Ranges are especially useful when you need to repeat an operation a specific number of times:
+
+```suny
+for i in range(10) do
+    print("Hello")
+end
+```
+
+---
+
+#### Range Immutability
+
+Ranges are **immutable**. Their elements cannot be modified after the Range is created.
+
+```suny
+numbers = range(1, 6)
+
+numbers[0] = 10  # Error
+```
+
+If a mutable sequence is required, use a List instead.
+
+```suny
+numbers = [1, 2, 3, 4, 5]
+
+numbers[0] = 10  # Valid
+```
+
+---
+
+#### Range vs List
+
+Ranges and Lists can both be indexed and iterated over, but they are designed for different purposes.
+
+| Feature                       | Range        | List            |
+| ----------------------------- | ------------ | --------------- |
+| Ordered                       | Yes          | Yes             |
+| Indexed                       | Yes          | Yes             |
+| Mutable                       | No           | Yes             |
+| Stores individual elements    | No           | Yes             |
+| Can contain different types   | No, integers | Yes             |
+| Efficient for large sequences | Yes          | Depends on size |
+| Supports `for` loops          | Yes          | Yes             |
+
+Example:
+
+```suny
+numbers = range(0, 1000000)
+```
+
+The Range represents one million integers without needing to store one million individual values.
+
+---
+
+#### Use Cases
+
+Ranges are useful for:
+
+* Repeating operations a specific number of times
+* Iterating over integer sequences
+* Generating indexes for Lists
+* Loop counters
+* Representing integer intervals
+* Efficiently representing large sequences of consecutive integers
+
+For example:
+
+```suny
+fruits = ["apple", "banana", "cherry"]
+
+for i in range(size(fruits)) do
+    print(fruits[i])
+end
+```
+
+Here, the Range provides the indexes needed to access each element of the List.
+
+---
+
+### 5.8 Summary
 
 * Booleans → true/false
 * Numbers → integers & floats with `+ - * / // %`
 * Strings → text with escape sequences
 * Lists → ordered collections with indexing and iteration
 * Functions → first-class values, support closures, anonymous functions, and lambdas
+* Range → creat a range of integer from start to end, faster access
 
 ---
 
