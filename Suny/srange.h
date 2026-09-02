@@ -2,13 +2,10 @@
 #define SRANGE_H
 
 #include "sobj.h"
+#include <math.h>
 
 struct Srange {
-    int* range;
-    int size;
-    int capacity;
-
-    int start, end;
+    int start, end, size;
 };
 
 int Srange_free(struct Srange* range);

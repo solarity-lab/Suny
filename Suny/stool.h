@@ -117,4 +117,6 @@ char* read_fast_content(char* filename);
 
 char STo_hex(char hi, char lo);
 
+double SabsDouble(double a, double b);
+
 #endif

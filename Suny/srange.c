@@ -1,43 +1,40 @@
 #include "srange.h"
 #include "smem.h"
+#include "stool.h"
 
 int Srange_free(struct Srange* range) {
-    Smem_Free(range->range);
     Smem_Free(range);
     return 0;
 }
 
 SUNY_API struct Srange* Srange_new(void) {
     struct Srange* range = Smem_Malloc(sizeof(struct Srange));
-    range->range = Smem_Malloc(sizeof(int) * 1024);
-    range->size = 0;
-    range->capacity = 1024;
 
+    range->size = 0;
     range->start = 0;
     range->end = 0;
+    
     return range;
 }
 
 SUNY_API struct Srange* Srange_creat(int a, int b) {
     struct Srange* range = Srange_new();
-    for (int i = a; i <= b; i++) {
-        if (range->size >= range->capacity) {
-            range->capacity *= 2;
-            range->range = Smem_Realloc(range->range, sizeof(int) * range->capacity);
-        }
-        range->range[range->size++] = i;
-    }
 
     range->start = a;
     range->end = b;
+    range->size = (int) fabs(b - a);
+
     return range;
 }
 
 int Srange_get(struct Srange* range, int index) {
-    if (index >= range->size || index < 0) {
-        return 0;
-    }
-    return range->range[index];
+    int size = range->size;
+
+    if (index < 0 || index >= size) return 0;
+
+    if (range->start <= range->end) return range->start + index;
+
+    return range->start - index;
 }
 
 SUNY_API struct Sobj* Sobj_make_range(int a, int b) {
