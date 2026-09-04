@@ -256,12 +256,6 @@ Common operations on Boolean values include:
 - Equality and inequality comparison
 - Type conversion to and from other types
 
-### 4.3.4 Type Conversion
-
-When converted to other types:
-- To Number: `false` becomes `0`, `true` becomes `1`
-- To String: `false` becomes `"false"`, `true` becomes `"true"`
-
 ## 4.4 Number Type
 
 ### 4.4.1 Description
@@ -328,12 +322,6 @@ Common operations on String values include:
 - Comparison: lexicographic ordering and equality testing
 - Search: finding substrings or characters within a string
 
-### 4.5.5 Type Conversion
-
-When converted to other types:
-- To Boolean: Empty string `""` becomes `false`, all other strings become `true`
-- To Number: The runtime attempts to parse the string as a numeric literal; invalid formats may produce `0` or an error
-
 ## 4.6 List Type
 
 ### 4.6.1 Description
@@ -363,12 +351,6 @@ Common operations on List values include:
 ### 4.6.4 Memory Management
 
 List elements may be objects that require reference counting. When elements are added to a list, their reference counts are incremented. When elements are removed or the list is destroyed, reference counts are decremented appropriately.
-
-### 4.6.5 Type Conversion
-
-When converted to other types:
-- To Boolean: Empty list `[]` becomes `false`, all other lists become `true`
-- To String: The runtime may produce a string representation such as `"[1, 2, 3]"`
 
 ## 4.7 Function Type
 
@@ -469,7 +451,77 @@ This ensures that native resources such as file handles, network connections, or
 
 The runtime provides mechanisms for type-checking userdata to ensure that native functions receive userdata of the expected type. Type tags or type metadata enable safe casting and validation before native operations are performed.
 
-## 4.10 Type Checking and Validation
+## 4.10 Range Type
+
+### 4.10.1 Description
+
+The Range type represents an ordered sequence of integer values defined by a start value and a stop value. Ranges are primarily used for iteration and sequence-based operations.
+
+The stop value is exclusive, meaning that the range contains values from the start value up to, but not including, the stop value.
+
+Ranges do not store every value in the sequence. Instead, the runtime stores the boundaries of the range and generates individual values when needed.
+
+### 4.10.2 Representation
+
+Ranges are represented as objects containing:
+
+- Start value indicating the first value in the sequence
+- Stop value indicating the exclusive boundary of the sequence
+- Size information indicating the number of values in the range
+
+The runtime can calculate individual values directly from the range boundaries and their index without storing the complete sequence in memory.
+
+### 4.10.3 Range Creation
+
+Ranges are created by specifying a start value and a stop value.
+
+A range represents an increasing sequence when the start value is smaller than the stop value. When the start value is greater than the stop value, the range represents a decreasing sequence.
+
+An empty range is produced when the specified boundaries do not contain any values.
+
+### 4.10.4 Range Size
+
+The size of a Range represents the number of integer values contained between the start and stop boundaries.
+
+For an increasing range, the size is determined by the difference between the stop and start values.
+
+For a decreasing range, the size is determined by the difference between the start and stop values.
+
+The stop value is not included when calculating the size.
+
+### 4.10.5 Indexed Access
+
+Range values support indexed access to retrieve individual elements by position.
+
+The runtime calculates the requested value from the range's start value and index rather than retrieving it from a stored collection.
+
+An index outside the valid range produces a runtime error.
+
+### 4.10.6 Iteration
+
+Ranges support iteration over their values in sequence order. During iteration, the runtime generates each successive integer value without requiring the range to be converted into a List.
+
+This makes Range suitable for loops and other operations that require a sequence of consecutive integer values.
+
+### 4.10.7 Operations
+
+Common operations on Range values include:
+
+- Indexed access: retrieving a value by position
+- Length query: determining the number of values
+- Iteration: traversing values in sequence order
+- Membership testing: determining whether a value belongs to the range
+- Slicing: extracting a portion of the range
+
+Range operations are generally performed using the range boundaries without materializing the complete sequence.
+
+### 4.10.8 Memory Management
+
+Range objects require a fixed amount of memory regardless of the number of values they represent. The runtime stores only the information necessary to describe the range rather than allocating storage for each individual value.
+
+Range objects participate in the same memory management system as other runtime objects and are released when they are no longer referenced.
+
+## 4.11 Type Checking and Validation
 
 The runtime performs type checking during operation execution to ensure type safety. When an operation is performed on a value, the runtime verifies that the value's type is compatible with the operation.
 
@@ -477,7 +529,7 @@ Type checking occurs at runtime rather than during bytecode translation, reflect
 
 The API provides functions for querying a value's type, performing type checks, and converting between types safely.
 
-## 4.11 Type Conversion
+## 4.12 Type Conversion
 
 The runtime supports both implicit and explicit type conversion:
 
@@ -488,6 +540,7 @@ The runtime supports both implicit and explicit type conversion:
 Conversion behavior is well-defined for all type pairs, ensuring predictable program behavior across different execution contexts.
 
 ---
+
 # 5 The Language
           
 ## 1. Introduction
@@ -1440,13 +1493,214 @@ HashMaps are perfect for:
 
 ---
 
-### 5.7 Summary
+### 5.7 Range
+
+Ranges are **immutable sequences of integers** that represent a sequence of numbers between a starting value and an ending value.
+
+Unlike Lists, a Range does not store every element individually. Instead, it stores the **start** and **end** values and generates each element when accessed.
+
+```suny
+numbers = range(1, 6)
+
+print(numbers[0])  # 1
+print(numbers[1])  # 2
+print(numbers[4])  # 5
+```
+
+In Suny, the end value is **exclusive**. Therefore, `range(1, 6)` represents:
+
+```text
+1, 2, 3, 4, 5
+```
+
+---
+
+#### Creating Ranges
+
+Ranges are created using the `range()` function with two arguments:
+
+```suny
+range(start, end)
+```
+
+* `start` — The first value in the Range.
+* `end` — The upper bound of the Range. This value is **not included**.
+
+Example:
+
+```suny
+numbers = range(0, 10)
+
+print(numbers[0])  # 0
+print(numbers[5])  # 5
+print(numbers[9])  # 9
+```
+
+The Range above represents:
+
+```text
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+```
+
+---
+
+#### Accessing Range Elements
+
+Individual elements can be accessed using square brackets `[]` and an index:
+
+```suny
+numbers = range(10, 20)
+
+print(numbers[0])  # 10
+print(numbers[3])  # 13
+print(numbers[9])  # 19
+```
+
+The index starts at `0`, just like Lists.
+
+```suny
+numbers = range(5, 10)
+
+print(numbers[0])  # 5
+print(numbers[1])  # 6
+print(numbers[2])  # 7
+```
+
+---
+
+#### Range Length
+
+The `size()` function can be used to get the number of elements in a Range:
+
+```suny
+numbers = range(1, 6)
+
+print(size(numbers))  # 5
+```
+
+For a Range `range(start, end)`, its length is:
+
+```text
+end - start
+```
+
+For example:
+
+```suny
+numbers = range(10, 20)
+
+print(size(numbers))  # 10
+```
+
+---
+
+#### Looping Over Ranges
+
+Ranges are commonly used with `for` loops:
+
+```suny
+for i in range(5) do
+    print(i)
+end
+```
+
+Output:
+
+```text
+0
+1
+2
+3
+4
+```
+
+Ranges are especially useful when you need to repeat an operation a specific number of times:
+
+```suny
+for i in range(10) do
+    print("Hello")
+end
+```
+
+---
+
+#### Range Immutability
+
+Ranges are **immutable**. Their elements cannot be modified after the Range is created.
+
+```suny
+numbers = range(1, 6)
+
+numbers[0] = 10  # Error
+```
+
+If a mutable sequence is required, use a List instead.
+
+```suny
+numbers = [1, 2, 3, 4, 5]
+
+numbers[0] = 10  # Valid
+```
+
+---
+
+#### Range vs List
+
+Ranges and Lists can both be indexed and iterated over, but they are designed for different purposes.
+
+| Feature                       | Range        | List            |
+| ----------------------------- | ------------ | --------------- |
+| Ordered                       | Yes          | Yes             |
+| Indexed                       | Yes          | Yes             |
+| Mutable                       | No           | Yes             |
+| Stores individual elements    | No           | Yes             |
+| Can contain different types   | No, integers | Yes             |
+| Efficient for large sequences | Yes          | Depends on size |
+| Supports `for` loops          | Yes          | Yes             |
+
+Example:
+
+```suny
+numbers = range(0, 1000000)
+```
+
+The Range represents one million integers without needing to store one million individual values.
+
+---
+
+#### Use Cases
+
+Ranges are useful for:
+
+* Repeating operations a specific number of times
+* Iterating over integer sequences
+* Generating indexes for Lists
+* Loop counters
+* Representing integer intervals
+* Efficiently representing large sequences of consecutive integers
+
+For example:
+
+```suny
+fruits = ["apple", "banana", "cherry"]
+
+for i in range(size(fruits)) do
+    print(fruits[i])
+end
+```
+
+Here, the Range provides the indexes needed to access each element of the List.
+
+---
+
+### 5.8 Summary
 
 * Booleans → true/false
 * Numbers → integers & floats with `+ - * / // %`
 * Strings → text with escape sequences
 * Lists → ordered collections with indexing and iteration
 * Functions → first-class values, support closures, anonymous functions, and lambdas
+* Range → creat a range of integer from start to end, faster access
 
 ---
 
@@ -3017,6 +3271,7 @@ This function implements the runtime semantics of assigning a value to a global 
 ---
 
 # 7 Extending Suny with C
+
 ## 7.1 Introduction
 
 Suny is designed to be embedded and extensible. While the core language provides essential functionality, real-world applications often require capabilities beyond what the standard library offers—such as file I/O, networking, database access, or integration with existing C/C++ codebases.
@@ -3214,7 +3469,381 @@ print(sqrt(4))
 
 ---
 
-# 8 End
+# 8 Custom Data Types with Userdata and the Suny API
+
+## 8.1 Introduction
+
+Suny allows native extensions to define and work with custom data types
+through the userdata type and the Suny C API.
+
+Userdata provides a way to store native C data inside a Suny value.
+This makes it possible to represent objects that are not part of Suny's
+built-in data types, such as file handles, sockets, database connections,
+graphics objects, or application-specific structures.
+
+Unlike ordinary Suny values, userdata can be associated with native
+resources and manipulated through functions provided by a C extension.
+
+For example, an extension could expose a custom `File`, `Socket`, or
+`Vector` type to Suny without requiring the type to be implemented as a
+native part of the Suny language itself.
+
+This mechanism is especially useful when integrating Suny with existing
+C libraries or when building domain-specific functionality.
+
+This chapter provides an overview of userdata and explains how it can be
+used to create custom data types and expose native resources to Suny.
+The implementation details and C API usage are covered in later sections.
+
+## 8.2 Create a C Struct
+
+Before creating a userdata value, a native extension should define a C
+structure that represents the data associated with the custom type.
+
+For example, a simple `Scomplex` type can be represented by the following
+C structure:
+
+```c
+struct Scomplex {
+    double real;
+    double imag;
+};
+```
+
+The structure contains the native data that will be stored inside a Suny
+userdata value.
+
+The C structure itself is not a Suny value. It is a native C object that
+the extension uses to represent the internal state of the custom type.
+
+A userdata object can then be associated with an `Scomplex` instance and
+exposed to Suny.
+
+## 8.3 Userdata Metadata
+
+A userdata value stores native data, but the data itself does not define how
+the userdata object behaves when used by Suny operators.
+
+To allow userdata objects to support custom operations, Suny associates
+metadata with the userdata type. This metadata describes the behavior of the
+object and allows native extensions to define how operations such as
+addition, subtraction, multiplication, and division are handled.
+
+For example, a custom `Scomplex` userdata type could define behavior for the
+following operators:
+
+```text
+Scomplex + Scomplex
+Scomplex - Scomplex
+Scomplex * Scomplex
+Scomplex / Scomplex
+```
+
+When Suny encounters an operation involving a userdata value, the
+interpreter can use the metadata associated with its type to determine
+which native operation should be performed.
+
+This makes userdata more than a container for native C data. It allows
+native extensions to define custom behavior for their own types while
+keeping the implementation outside the core Suny language.
+
+Metadata can also be used to define other behaviors, such as comparison,
+equality, indexing, string conversion, or function calls, depending on the
+capabilities provided by the Suny API.
+
+The following sections explain how metadata is associated with userdata
+and how it can be used to define custom behavior for user-defined types.
+
+---
+
+## 8.3 Creating Userdata
+
+Userdata can be used to represent native C objects inside Suny.
+
+In this example, we will create a `Scomplex` type representing a complex number:
+
+```c
+struct Scomplex {
+    double real;
+    double imag;
+};
+```
+
+### Creating a Native Object
+
+First, we define a function that creates an `Scomplex` object:
+
+```c
+struct Scomplex *complex(double real, double imag) {
+    struct Scomplex *complex = malloc(sizeof(struct Scomplex));
+
+    complex->real = real;
+    complex->imag = imag;
+
+    return complex;
+}
+```
+
+The returned pointer represents the native C object that will be stored inside a Suny userdata object.
+
+### Creating a Suny Userdata Object
+
+We can now create a function that wraps the native `Scomplex` object in an `Sobj`:
+
+```c
+SUNY_API struct Sobj *Sobj_make_complex(struct Scomplex *complex) {
+    struct Sobj *obj = Sobj_make_userdata(complex);
+
+    obj->meta = Smeta_new();
+
+    return obj;
+}
+```
+
+`Sobj_make_userdata()` stores the native pointer inside the Suny object.
+
+The object's metadata is then initialized with `Smeta_new()`. This metadata can later be used to define the behavior of the userdata object.
+
+---
+
+### Defining Operations
+
+We can define native C functions that implement operations for `Scomplex`.
+
+For example, addition:
+
+```c
+struct Scomplex *complex_add(
+    struct Scomplex *a,
+    struct Scomplex *b
+) {
+    double real = a->real + b->real;
+    double imag = a->imag + b->imag;
+
+    return complex(real, imag);
+}
+```
+
+Subtraction:
+
+```c
+struct Scomplex *complex_sub(
+    struct Scomplex *a,
+    struct Scomplex *b
+) {
+    double real = a->real - b->real;
+    double imag = a->imag - b->imag;
+
+    return complex(real, imag);
+}
+```
+
+Multiplication:
+
+```c
+struct Scomplex *complex_mul(
+    struct Scomplex *a,
+    struct Scomplex *b
+) {
+    double real =
+        a->real * b->real -
+        a->imag * b->imag;
+
+    double imag =
+        a->real * b->imag +
+        a->imag * b->real;
+
+    return complex(real, imag);
+}
+```
+
+Division:
+
+```c
+struct Scomplex *complex_div(
+    struct Scomplex *a,
+    struct Scomplex *b
+) {
+    double denominator =
+        b->real * b->real +
+        b->imag * b->imag;
+
+    double real =
+        (a->real * b->real +
+         a->imag * b->imag) / denominator;
+
+    double imag =
+        (a->imag * b->real -
+         a->real * b->imag) / denominator;
+
+    return complex(real, imag);
+}
+```
+
+These functions operate entirely on native C objects. They do not directly interact with Suny objects.
+
+---
+
+### Exposing Operations to Suny
+
+The native operations can then be wrapped in functions that accept and return `Sobj` objects:
+
+```c
+SUNY_API struct Sobj *Seval_add_complex(
+    struct Sobj *a,
+    struct Sobj *b
+) {
+    struct Scomplex *ca = get_userdata(a);
+    struct Scomplex *cb = get_userdata(b);
+
+    struct Scomplex *result = complex_add(ca, cb);
+
+    return Sobj_make_complex(result);
+}
+```
+
+The same pattern can be used for the other operations:
+
+```c
+SUNY_API struct Sobj *Seval_sub_complex(
+    struct Sobj *a,
+    struct Sobj *b
+) {
+    struct Scomplex *ca = get_userdata(a);
+    struct Scomplex *cb = get_userdata(b);
+
+    struct Scomplex *result = complex_sub(ca, cb);
+
+    return Sobj_make_complex(result);
+}
+```
+
+```c
+SUNY_API struct Sobj *Seval_mul_complex(
+    struct Sobj *a,
+    struct Sobj *b
+) {
+    struct Scomplex *ca = get_userdata(a);
+    struct Scomplex *cb = get_userdata(b);
+
+    struct Scomplex *result = complex_mul(ca, cb);
+
+    return Sobj_make_complex(result);
+}
+```
+
+```c
+SUNY_API struct Sobj *Seval_div_complex(
+    struct Sobj *a,
+    struct Sobj *b
+) {
+    struct Scomplex *ca = get_userdata(a);
+    struct Scomplex *cb = get_userdata(b);
+
+    struct Scomplex *result = complex_div(ca, cb);
+
+    return Sobj_make_complex(result);
+}
+```
+
+Here, `get_userdata()` retrieves the native `Scomplex` pointer stored inside the Suny userdata object.
+
+---
+
+### Defining String Conversion and Destruction
+
+We can also define how the object is represented as a string:
+
+```c
+SUNY_API struct Sobj *Sio_print_complex(struct Sobj *obj) {
+    struct Scomplex *complex = get_userdata(obj);
+
+    printf("%lf + %lf * i",
+           complex->real,
+           complex->imag);
+
+    return obj;
+}
+```
+
+Finally, the native object must be released when the userdata object is destroyed:
+
+```c
+SUNY_API int Sobj_free_complex(struct Sobj *obj) {
+    struct Scomplex *complex = get_userdata(obj);
+
+    free(complex);
+
+    return 0;
+}
+```
+
+---
+
+### Registering Metamethods
+
+We can now return to `Sobj_make_complex()` and register the metamethods for the object.
+
+```c
+SUNY_API struct Sobj *Sobj_make_complex(struct Scomplex *complex) {
+    struct Sobj *obj = Sobj_make_userdata(complex);
+
+    obj->meta = Smeta_new();
+
+    Smeta_set(obj, "__add__",      Seval_add_complex);
+    Smeta_set(obj, "__sub__",      Seval_sub_complex);
+    Smeta_set(obj, "__mul__",      Seval_mul_complex);
+    Smeta_set(obj, "__div__",      Seval_div_complex);
+
+    Smeta_set(obj, "__tostring__", Sio_print_complex);
+    Smeta_set(obj, "__free__",     Sobj_free_complex);
+
+    return obj;
+}
+```
+
+The metadata now defines how the `Scomplex` userdata behaves when used by the Suny runtime.
+
+For example:
+
+| Metamethod     | Operation                   |
+| -------------- | --------------------------- |
+| `__add__`      | `a + b`                     |
+| `__sub__`      | `a - b`                     |
+| `__mul__`      | `a * b`                     |
+| `__div__`      | `a / b`                     |
+| `__tostring__` | Convert or print the object |
+| `__free__`     | Release the native object   |
+
+When the Suny evaluator encounters:
+
+```suny
+a + b
+```
+
+and `a` is a `Scomplex` userdata object, it can use the `__add__` metamethod stored in its metadata to perform the operation.
+
+Conceptually, the operation becomes:
+
+```text
+a + b
+   ↓
+a.__add__(b)
+   ↓
+Seval_add_complex(a, b)
+   ↓
+complex_add(ca, cb)
+   ↓
+new Scomplex
+   ↓
+new Suny userdata
+```
+
+This allows native C types to participate in Suny's normal object and operator system without requiring the type to be built directly into the Suny runtime.
+
+The same mechanism can be extended to other operators and behaviors, allowing native extensions to define custom types with rich runtime semantics.
+
+# 9 End
 
 Suny is a small embedded interpreter language built with simplicity and clarity in mind.
 This document has described its core structure, execution model, C API, and extension mechanism.
